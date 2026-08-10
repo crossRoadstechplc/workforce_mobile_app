@@ -15,6 +15,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _orgSlugController = TextEditingController();
   bool _loading = false;
   bool _obscure = true;
 
@@ -22,6 +23,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void dispose() {
     _loginController.dispose();
     _passwordController.dispose();
+    _orgSlugController.dispose();
     super.dispose();
   }
 
@@ -32,6 +34,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       await ref.read(sessionControllerProvider.notifier).login(
             _loginController.text,
             _passwordController.text,
+            organizationSlug: _orgSlugController.text.trim().isEmpty ? null : _orgSlugController.text.trim(),
           );
     } catch (error) {
       if (mounted) {
@@ -64,13 +67,26 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     const SizedBox(height: 24),
                     Text('Welcome back', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 8),
-                    const Text('Sign in with your employee email or employee code.', style: TextStyle(color: AppColors.textSecondary)),
+                    const Text(
+                      'Sign in with your employee email or employee code. Organization slug is only needed when the same employee code exists in more than one company.',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
                     const SizedBox(height: 28),
                     TextFormField(
                       controller: _loginController,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(labelText: 'Email or employee code', prefixIcon: Icon(Icons.person_outline_rounded)),
                       validator: (value) => (value == null || value.trim().length < 3) ? 'Enter your email or employee code' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _orgSlugController,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        labelText: 'Organization slug (optional)',
+                        prefixIcon: Icon(Icons.apartment_outlined),
+                        hintText: 'e.g. company-1',
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

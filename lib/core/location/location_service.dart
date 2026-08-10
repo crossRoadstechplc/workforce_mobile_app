@@ -1,5 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 
+import '../config/app_config.dart';
+
 class LocationFailure implements Exception {
   const LocationFailure(this.message);
   final String message;
@@ -30,6 +32,15 @@ class AttendanceLocation {
 
 class LocationService {
   Future<AttendanceLocation> capture() async {
+    if (AppConfig.allowMockAttendanceLocation) {
+      return AttendanceLocation(
+        latitude: double.parse(AppConfig.mockAttendanceLatitude),
+        longitude: double.parse(AppConfig.mockAttendanceLongitude),
+        accuracyMeters: 10,
+        capturedAt: DateTime.now().toUtc(),
+      );
+    }
+
     if (!await Geolocator.isLocationServiceEnabled()) {
       throw const LocationFailure('Turn on Location Services and try again.');
     }
@@ -52,11 +63,13 @@ class LocationService {
       ),
     );
 
+    // Always stamp with "now" — browser GPS timestamps are often stale/wrong
+    // and the API rejects locations older than 5 minutes.
     return AttendanceLocation(
       latitude: position.latitude,
       longitude: position.longitude,
       accuracyMeters: position.accuracy,
-      capturedAt: position.timestamp,
+      capturedAt: DateTime.now().toUtc(),
     );
   }
 }

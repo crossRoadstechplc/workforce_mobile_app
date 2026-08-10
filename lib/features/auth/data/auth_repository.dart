@@ -8,11 +8,22 @@ class AuthRepository {
   AuthRepository(this._dio);
   final Dio _dio;
 
-  Future<AuthSession> login({required String login, required String password, String? deviceId}) async {
+  Future<AuthSession> login({
+    required String login,
+    required String password,
+    String? deviceId,
+    String? organizationSlug,
+  }) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
         ApiEndpoints.login,
-        data: {'login': login.trim(), 'password': password, if (deviceId != null) 'deviceId': deviceId},
+        data: {
+          'login': login.trim(),
+          'password': password,
+          if (deviceId != null) 'deviceId': deviceId,
+          if (organizationSlug != null && organizationSlug.trim().isNotEmpty)
+            'organizationSlug': organizationSlug.trim().toLowerCase(),
+        },
       );
       return AuthSession.fromJson(response.data!);
     } on DioException catch (error) {

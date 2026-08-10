@@ -50,7 +50,7 @@ class _LateReasonSheetState extends State<_LateReasonSheet> {
         children: [
           Text('You are ${widget.lateMinutes} minute(s) late', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 6),
-          const Text('Select the reason before completing check-in.'),
+          const Text('You can still check in any time today. Select a reason to continue.'),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,

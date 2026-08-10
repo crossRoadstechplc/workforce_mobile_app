@@ -60,12 +60,17 @@ class SessionController extends Notifier<SessionState> {
     }
   }
 
-  Future<void> login(String login, String password) async {
+  Future<void> login(String login, String password, {String? organizationSlug}) async {
     // Keep status as unauthenticated while logging in so the UI stays on
     // /login (button spinner) instead of bouncing to /splash mid-request.
     try {
       final deviceId = await _storage.readOrCreateDeviceId();
-      final session = await _repository.login(login: login, password: password, deviceId: deviceId);
+      final session = await _repository.login(
+        login: login,
+        password: password,
+        deviceId: deviceId,
+        organizationSlug: organizationSlug,
+      );
       await _persist(session);
     } catch (error) {
       state = SessionState(status: SessionStatus.unauthenticated, error: error.toString());

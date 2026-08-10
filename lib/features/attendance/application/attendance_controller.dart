@@ -32,9 +32,17 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
   }
 
   Future<CheckInAttempt> prepareCheckIn() async {
-    final location = await _locationService.capture();
-    final preview = await _repository.preview(location);
-    return CheckInAttempt(location: location, preview: preview);
+    final currentState = state.value ?? const AttendanceState();
+    state = AsyncData(AttendanceState(timesheet: currentState.timesheet, loading: true));
+    try {
+      final location = await _locationService.capture();
+      final preview = await _repository.preview(location);
+      state = AsyncData(AttendanceState(timesheet: currentState.timesheet));
+      return CheckInAttempt(location: location, preview: preview);
+    } catch (error) {
+      state = AsyncData(AttendanceState(timesheet: currentState.timesheet, error: error.toString()));
+      rethrow;
+    }
   }
 
   Future<Timesheet> confirmCheckIn(
@@ -45,8 +53,10 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     final currentState = state.value ?? const AttendanceState();
     state = AsyncData(AttendanceState(timesheet: currentState.timesheet, loading: true));
     try {
+      // Recapture so location is fresh after the late-reason sheet.
+      final location = await _locationService.capture();
       final result = await _repository.checkIn(
-        location: attempt.location,
+        location: location,
         idempotencyKey: _uuid.v4(),
         lateReasonType: lateReasonType,
         lateReasonDescription: lateReasonDescription,
@@ -69,7 +79,7 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
         idempotencyKey: _uuid.v4(),
         workDescription: workDescription,
       );
-      state = AsyncData(AttendanceState(timesheet: null));
+      state = AsyncData(AttendanceState(timesheet: result));
       return result;
     } catch (error) {
       state = AsyncData(AttendanceState(timesheet: currentState.timesheet, error: error.toString()));

@@ -52,14 +52,20 @@ class _HomePageState extends ConsumerState<HomePage> {
       final attempt = await controller.prepareCheckIn();
       if (!mounted) return;
       if (!attempt.preview.insideRadius) {
-        _message('You are outside the allowed office radius.');
+        _message(
+          'You are outside the allowed office radius '
+          '(${attempt.preview.distanceMeters.round()} m away). Move closer and try again.',
+        );
         return;
       }
 
       LateReasonResult? reason;
       if (attempt.preview.requiresLateReason) {
         reason = await showLateReasonSheet(context, attempt.preview.lateMinutes);
-        if (reason == null) return;
+        if (reason == null) {
+          if (mounted) _message('Check-in cancelled. Add a late reason to continue.');
+          return;
+        }
       }
 
       final result = await controller.confirmCheckIn(
@@ -67,7 +73,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         lateReasonType: reason?.type,
         lateReasonDescription: reason?.description,
       );
-      if (mounted) _message(result.lateMinutes > 0 ? 'Checked in. Late by ${result.lateMinutes} minute(s).' : 'Check-in successful.');
+      if (mounted) _message(_checkInToast(DateTime.now(), result));
     } catch (error) {
       if (mounted) _message(error.toString());
     }
@@ -79,16 +85,30 @@ class _HomePageState extends ConsumerState<HomePage> {
       return;
     }
     final description = await showCheckOutSheet(context);
-    if (description == null || !mounted) return;
+    if (description == null) {
+      if (mounted) _message('Checkout cancelled.');
+      return;
+    }
+    if (!mounted) return;
     try {
       final result = await ref.read(attendanceControllerProvider.notifier).checkOut(description);
-      if (mounted) _message('Checkout successful. Worked ${_duration(result.workedMinutes)}.');
+      if (mounted) _message(_checkOutToast(DateTime.now(), result.workedMinutes));
     } catch (error) {
       if (mounted) _message(error.toString());
     }
   }
 
-  void _message(String value) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value)));
+  void _message(String value) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(value),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -175,6 +195,8 @@ class _AttendanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final open = timesheet?.isOpen == true;
+    final completed = timesheet != null && !timesheet!.isOpen;
+
     return AppCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -184,8 +206,16 @@ class _AttendanceCard extends StatelessWidget {
             children: [
               const Expanded(child: Text("Today's attendance", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
               StatusChip(
-                label: open ? (timesheet!.lateMinutes > 0 ? 'Late' : 'Checked in') : 'Not checked in',
-                kind: open ? (timesheet!.lateMinutes > 0 ? StatusKind.warning : StatusKind.success) : StatusKind.neutral,
+                label: open
+                    ? (timesheet!.lateMinutes > 0 ? 'Late' : 'Checked in')
+                    : completed
+                        ? 'Completed'
+                        : 'Not checked in',
+                kind: open
+                    ? (timesheet!.lateMinutes > 0 ? StatusKind.warning : StatusKind.success)
+                    : completed
+                        ? StatusKind.success
+                        : StatusKind.neutral,
               ),
             ],
           ),
@@ -195,13 +225,45 @@ class _AttendanceCard extends StatelessWidget {
             if (timesheet!.scheduledCheckOut != null) _InfoRow(label: 'Scheduled out', value: DateFormat('HH:mm').format(timesheet!.scheduledCheckOut!)),
             _InfoRow(label: 'Late', value: timesheet!.lateMinutes == 0 ? 'On time' : '${timesheet!.lateMinutes} min'),
             const SizedBox(height: 20),
-            Semantics(button: true, label: 'Check out of work', child: ElevatedButton.icon(onPressed: busy ? null : onCheckOut, icon: const Icon(Icons.logout_rounded), label: const Text('Check out'))),
+            Semantics(
+              button: true,
+              label: 'Check out of work',
+              child: ElevatedButton.icon(
+                onPressed: busy ? null : onCheckOut,
+                icon: const Icon(Icons.logout_rounded),
+                label: Text(busy ? 'Checking location...' : 'Check out'),
+              ),
+            ),
+          ] else if (completed) ...[
+            _InfoRow(label: 'Check-in', value: DateFormat('HH:mm').format(timesheet!.actualCheckIn)),
+            if (timesheet!.actualCheckOut != null)
+              _InfoRow(label: 'Check-out', value: DateFormat('HH:mm').format(timesheet!.actualCheckOut!)),
+            _InfoRow(label: 'Worked', value: _duration(timesheet!.workedMinutes)),
+            _InfoRow(label: 'Late', value: timesheet!.lateMinutes == 0 ? 'On time' : '${timesheet!.lateMinutes} min'),
+            const SizedBox(height: 12),
+            const Text(
+              'You have already completed attendance for today.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            ),
           ] else ...[
             const Text('Ready to start your workday?', style: TextStyle(color: AppColors.textSecondary)),
             const SizedBox(height: 20),
-            Semantics(button: true, label: 'Check in to work', child: ElevatedButton.icon(onPressed: busy ? null : onCheckIn, icon: const Icon(Icons.login_rounded), label: Text(busy ? 'Checking location...' : 'Check in'))),
+            Semantics(
+              button: true,
+              label: 'Check in to work',
+              child: ElevatedButton.icon(
+                onPressed: busy ? null : onCheckIn,
+                icon: const Icon(Icons.login_rounded),
+                label: Text(busy ? 'Checking location...' : 'Check in'),
+              ),
+            ),
             const SizedBox(height: 10),
-            const Text('Your current location is used only to validate this attendance action.', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            const Text(
+              'You can check in any time today. If you are late, you will be asked for a reason.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            ),
           ],
         ],
       ),
@@ -237,4 +299,35 @@ class _MetricCard extends StatelessWidget {
 }
 
 String _duration(int minutes) => '${minutes ~/ 60}h ${minutes % 60}m';
-String _dayPart(DateTime now) => now.hour < 12 ? 'morning' : now.hour < 17 ? 'afternoon' : 'evening';
+
+String _dayPart(DateTime now) {
+  if (now.hour < 12) return 'morning';
+  if (now.hour < 17) return 'afternoon';
+  return 'evening';
+}
+
+String _checkInToast(DateTime now, Timesheet result) {
+  if (result.lateMinutes > 0) {
+    return 'Checked in ${result.lateMinutes} min late. Thanks for sharing your reason — have a good ${_dayPart(now)}.';
+  }
+  switch (_dayPart(now)) {
+    case 'morning':
+      return 'Good morning! Check-in successful. Have a productive day.';
+    case 'afternoon':
+      return 'Good afternoon! Check-in successful. Keep up the good work.';
+    default:
+      return 'Good evening! Check-in successful. Thanks for starting your shift.';
+  }
+}
+
+String _checkOutToast(DateTime now, int workedMinutes) {
+  final worked = _duration(workedMinutes);
+  switch (_dayPart(now)) {
+    case 'morning':
+      return 'Checked out. Good work this morning — you worked $worked.';
+    case 'afternoon':
+      return 'Checked out. Great work this afternoon — you worked $worked.';
+    default:
+      return 'Checked out. Great work today — you worked $worked. Rest well!';
+  }
+}

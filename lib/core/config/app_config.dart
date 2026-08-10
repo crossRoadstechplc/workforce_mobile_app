@@ -21,11 +21,31 @@ class AppConfig {
     defaultValue: false,
   );
 
+  /// When true (default in local development), attendance uses seeded office
+  /// coordinates so Chrome/emulator check-in works against demo data.
+  /// Set `--dart-define=USE_MOCK_ATTENDANCE_LOCATION=false` to use real GPS.
+  static const useMockAttendanceLocation = bool.fromEnvironment(
+    'USE_MOCK_ATTENDANCE_LOCATION',
+    defaultValue: true,
+  );
+
+  static const mockAttendanceLatitude = String.fromEnvironment(
+    'MOCK_ATTENDANCE_LAT',
+    defaultValue: '8.9806',
+  );
+
+  static const mockAttendanceLongitude = String.fromEnvironment(
+    'MOCK_ATTENDANCE_LNG',
+    defaultValue: '38.7578',
+  );
+
   static const connectTimeout = Duration(seconds: 15);
   static const receiveTimeout = Duration(seconds: 20);
 
   static bool get isProduction => environment.toLowerCase() == 'production';
   static bool get isStaging => environment.toLowerCase() == 'staging';
+  static bool get allowMockAttendanceLocation =>
+      !isProduction && !isStaging && useMockAttendanceLocation;
 
   static void validate() {
     const valid = {'development', 'staging', 'production'};
