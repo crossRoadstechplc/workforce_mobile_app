@@ -435,6 +435,21 @@ class AppLocalizationsAm extends AppLocalizations {
   String get demoPasswordLabel => 'የይለፍ ቃል: Demo123!';
 
   @override
+  String get demoEmailField => 'ኢሜይል';
+
+  @override
+  String get demoPasswordField => 'የይለፍ ቃል';
+
+  @override
+  String get copy => 'ቅዳ';
+
+  @override
+  String get copied => 'ተቀድቷል';
+
+  @override
+  String get refresh => 'አድስ';
+
+  @override
   String get demoLoginNote =>
       'ለተዘጋጁ ሰራተኞች Demo123! ይጠቀሙ። ChangeMe123! ለአስተዳዳሪ ፖርታል ብቻ።';
 
@@ -516,6 +531,9 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get photoUse => 'ፎቶ ተጠቀም';
+
+  @override
+  String get photoUploading => 'ፎቶ በመላክ ላይ...';
 
   @override
   String get photoCaptureFailed => 'ፎቶ ማንሳት አልተሳካም። እንደገና ይሞክሩ።';

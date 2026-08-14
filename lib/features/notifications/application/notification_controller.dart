@@ -4,6 +4,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/notifications/push_notification_service.dart';
 import '../../../core/realtime/socket_service.dart';
 import '../../attendance/application/attendance_controller.dart';
+import '../../attendance/application/location_preview_controller.dart';
 import '../../auth/application/session_controller.dart';
 import '../../history/application/history_controller.dart';
 import '../../leave/application/leave_controller.dart';
@@ -82,8 +83,11 @@ class RealtimeCoordinator extends Notifier<bool> {
     final isAuthed = next.status == SessionStatus.authenticated;
     final userChanged = previous?.user?.id != null && next.user?.id != null && previous!.user!.id != next.user!.id;
 
-    if (isAuthed && (!wasAuthed || userChanged)) {
+    if (isAuthed && userChanged) {
       _invalidateUserScoped();
+    }
+
+    if (isAuthed && (!wasAuthed || userChanged)) {
       try {
         await socket.connect();
         await ref.read(pushNotificationServiceProvider).initialize();
@@ -97,6 +101,7 @@ class RealtimeCoordinator extends Notifier<bool> {
     if (wasAuthed && !isAuthed) {
       socket.disconnect();
       ref.read(locationServiceProvider).clearMockAnchor();
+      ref.read(locationPreviewProvider.notifier).refreshPreview();
       _invalidateUserScoped();
       state = false;
     }

@@ -11,6 +11,19 @@ class AppConfig {
     defaultValue: 'http://10.0.2.2:4000/api/v1',
   );
 
+  /// Ensures REST calls always target `/api/v1`, even when the build flag
+  /// omits that suffix (a common release-packaging mistake).
+  static String get resolvedApiBaseUrl {
+    var url = apiBaseUrl.trim();
+    if (url.endsWith('/')) {
+      url = url.substring(0, url.length - 1);
+    }
+    if (!url.endsWith('/api/v1')) {
+      url = '$url/api/v1';
+    }
+    return url;
+  }
+
   static const socketBaseUrl = String.fromEnvironment(
     'SOCKET_BASE_URL',
     defaultValue: 'http://10.0.2.2:4000',
@@ -53,7 +66,7 @@ class AppConfig {
       throw StateError('Unsupported APP_ENV: $environment');
     }
 
-    final api = Uri.tryParse(apiBaseUrl);
+    final api = Uri.tryParse(resolvedApiBaseUrl);
     final socket = Uri.tryParse(socketBaseUrl);
     if (api == null || !api.hasScheme || api.host.isEmpty) {
       throw StateError('API_BASE_URL is invalid.');

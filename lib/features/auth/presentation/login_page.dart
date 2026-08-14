@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_config.dart';
@@ -14,6 +15,9 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
+  static const _demoEmail = 'sara@acme.demo';
+  static const _demoPassword = 'Demo123!';
+
   final _formKey = GlobalKey<FormState>();
   final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -42,6 +46,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _copyDemoCredential(String value, TextEditingController field) async {
+    await Clipboard.setData(ClipboardData(text: value));
+    field.text = value;
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.copied),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
   }
 
   @override
@@ -121,8 +140,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           children: [
                             Text(l10n.demoLoginTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
                             const SizedBox(height: 8),
-                            Text(l10n.demoEmailLabel, style: const TextStyle(fontSize: 13)),
-                            Text(l10n.demoPasswordLabel, style: const TextStyle(fontSize: 13)),
+                            _DemoCredentialRow(
+                              label: l10n.demoEmailField,
+                              value: _demoEmail,
+                              onCopy: () => _copyDemoCredential(_demoEmail, _loginController),
+                            ),
+                            const SizedBox(height: 4),
+                            _DemoCredentialRow(
+                              label: l10n.demoPasswordField,
+                              value: _demoPassword,
+                              onCopy: () => _copyDemoCredential(_demoPassword, _passwordController),
+                            ),
                             const SizedBox(height: 6),
                             Text(
                               l10n.demoLoginNote,
@@ -145,6 +173,50 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _DemoCredentialRow extends StatelessWidget {
+  const _DemoCredentialRow({
+    required this.label,
+    required this.value,
+    required this.onCopy,
+  });
+
+  final String label;
+  final String value;
+  final VoidCallback onCopy;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Row(
+      children: [
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: TextStyle(fontSize: 13, color: colors.textPrimary),
+              children: [
+                TextSpan(
+                  text: '$label: ',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                TextSpan(text: value),
+              ],
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: onCopy,
+          tooltip: context.l10n.copy,
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          icon: Icon(Icons.copy_rounded, size: 18, color: colors.primary),
+        ),
+      ],
     );
   }
 }

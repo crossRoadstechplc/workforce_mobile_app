@@ -10,22 +10,29 @@ import '../../../core/theme/app_theme_extension.dart';
 
 enum AttendancePhotoPurpose { checkIn, checkOut }
 
-/// Local selfie capture only — no upload. Returns `true` when the user confirms a photo.
-Future<bool?> showAttendancePhotoCapture(
+typedef AttendancePhotoUploader = Future<String> Function(Uint8List bytes, String mimeType);
+
+/// Capture a verification selfie, upload via API, return Cloudinary URL.
+Future<String?> showAttendancePhotoCapture(
   BuildContext context, {
   required AttendancePhotoPurpose purpose,
+  required AttendancePhotoUploader upload,
 }) {
-  return showDialog<bool>(
+  return showDialog<String>(
     context: context,
     barrierDismissible: false,
-    builder: (_) => _AttendancePhotoCaptureDialog(purpose: purpose),
+    builder: (_) => _AttendancePhotoCaptureDialog(purpose: purpose, upload: upload),
   );
 }
 
 class _AttendancePhotoCaptureDialog extends StatefulWidget {
-  const _AttendancePhotoCaptureDialog({required this.purpose});
+  const _AttendancePhotoCaptureDialog({
+    required this.purpose,
+    required this.upload,
+  });
 
   final AttendancePhotoPurpose purpose;
+  final AttendancePhotoUploader upload;
 
   @override
   State<_AttendancePhotoCaptureDialog> createState() => _AttendancePhotoCaptureDialogState();
@@ -34,6 +41,8 @@ class _AttendancePhotoCaptureDialog extends StatefulWidget {
 class _AttendancePhotoCaptureDialogState extends State<_AttendancePhotoCaptureDialog> {
   final _picker = ImagePicker();
   Uint8List? _bytes;
+  String _mimeType = 'image/jpeg';
+  bool _uploading = false;
   bool _permissionDenied = false;
   String? _error;
 
@@ -80,7 +89,10 @@ class _AttendancePhotoCaptureDialogState extends State<_AttendancePhotoCaptureDi
 
       final bytes = await picked.readAsBytes();
       if (!mounted) return;
-      setState(() => _bytes = bytes);
+      setState(() {
+        _bytes = bytes;
+        _mimeType = _mimeFromPath(picked.name.isNotEmpty ? picked.name : picked.path);
+      });
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -92,9 +104,31 @@ class _AttendancePhotoCaptureDialogState extends State<_AttendancePhotoCaptureDi
     }
   }
 
-  void _confirm() {
-    if (_bytes == null) return;
-    Navigator.pop(context, true);
+  String _mimeFromPath(String path) {
+    final lower = path.toLowerCase();
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.webp')) return 'image/webp';
+    return 'image/jpeg';
+  }
+
+  Future<void> _confirm() async {
+    final bytes = _bytes;
+    if (bytes == null) return;
+    setState(() {
+      _uploading = true;
+      _error = null;
+    });
+    try {
+      final url = await widget.upload(bytes, _mimeType);
+      if (mounted) Navigator.pop(context, url);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _uploading = false;
+          _error = e.toString();
+        });
+      }
+    }
   }
 
   @override
@@ -128,7 +162,7 @@ class _AttendancePhotoCaptureDialogState extends State<_AttendancePhotoCaptureDi
             _CirclePreview(
               bytes: _bytes,
               colors: colors,
-              onTap: _capture,
+              onTap: _uploading ? null : _capture,
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
@@ -148,7 +182,7 @@ class _AttendancePhotoCaptureDialogState extends State<_AttendancePhotoCaptureDi
             const SizedBox(height: 20),
             if (_bytes == null)
               FilledButton.icon(
-                onPressed: _capture,
+                onPressed: _uploading ? null : _capture,
                 icon: const Icon(Icons.camera_alt_rounded, size: 20),
                 label: Text(l10n.photoCaptureButton),
               )
@@ -157,22 +191,32 @@ class _AttendancePhotoCaptureDialogState extends State<_AttendancePhotoCaptureDi
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _capture,
+                      onPressed: _uploading ? null : _capture,
                       child: Text(l10n.photoRetake),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: FilledButton(
-                      onPressed: _confirm,
-                      child: Text(l10n.photoUse),
+                      onPressed: _uploading ? null : _confirm,
+                      child: _uploading
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: colors.surface),
+                            )
+                          : Text(l10n.photoUse),
                     ),
                   ),
                 ],
               ),
+            if (_uploading) ...[
+              const SizedBox(height: 12),
+              Text(l10n.photoUploading, style: TextStyle(fontSize: 12, color: colors.textSecondary)),
+            ],
             const SizedBox(height: 4),
             TextButton(
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: _uploading ? null : () => Navigator.pop(context),
               child: Text(l10n.cancel),
             ),
           ],

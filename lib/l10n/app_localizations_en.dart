@@ -444,6 +444,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demoPasswordLabel => 'Password: Demo123!';
 
   @override
+  String get demoEmailField => 'Email';
+
+  @override
+  String get demoPasswordField => 'Password';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get copied => 'Copied';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
   String get demoLoginNote =>
       'Use Demo123! for seeded employees. ChangeMe123! is only for bootstrap super admin in admin portal.';
 
@@ -525,6 +540,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get photoUse => 'Use photo';
+
+  @override
+  String get photoUploading => 'Uploading photo...';
 
   @override
   String get photoCaptureFailed => 'Could not capture photo. Try again.';

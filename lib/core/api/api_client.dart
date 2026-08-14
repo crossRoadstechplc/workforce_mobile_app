@@ -21,7 +21,7 @@ final dioProvider = Provider<Dio>((ref) {
   final tokenStorage = ref.watch(tokenStorageProvider);
   final dio = Dio(
     BaseOptions(
-      baseUrl: AppConfig.apiBaseUrl,
+      baseUrl: AppConfig.resolvedApiBaseUrl,
       connectTimeout: AppConfig.connectTimeout,
       receiveTimeout: AppConfig.receiveTimeout,
       headers: const {'Accept': 'application/json', 'Content-Type': 'application/json'},
@@ -84,7 +84,7 @@ class _AuthInterceptor extends Interceptor {
     try {
       final refreshToken = await _storage.readRefreshToken();
       if (refreshToken == null) throw StateError('No refresh token');
-      final bareDio = Dio(BaseOptions(baseUrl: AppConfig.apiBaseUrl));
+      final bareDio = Dio(BaseOptions(baseUrl: AppConfig.resolvedApiBaseUrl));
       final response = await bareDio.post<Map<String, dynamic>>(
         ApiEndpoints.refresh,
         data: {'refreshToken': refreshToken, 'deviceId': await _storage.readOrCreateDeviceId()},

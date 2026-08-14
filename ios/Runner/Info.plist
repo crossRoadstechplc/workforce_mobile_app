@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location is used when you check in or check out to verify that you are at the approved office.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Your camera is used to capture a verification photo when you check in or check out.</string>
 </dict>
 </plist>

@@ -878,6 +878,36 @@ abstract class AppLocalizations {
   /// **'Password: Demo123!'**
   String get demoPasswordLabel;
 
+  /// No description provided for @demoEmailField.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get demoEmailField;
+
+  /// No description provided for @demoPasswordField.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get demoPasswordField;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
   /// No description provided for @demoLoginNote.
   ///
   /// In en, this message translates to:
@@ -1021,6 +1051,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use photo'**
   String get photoUse;
+
+  /// No description provided for @photoUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading photo...'**
+  String get photoUploading;
 
   /// No description provided for @photoCaptureFailed.
   ///

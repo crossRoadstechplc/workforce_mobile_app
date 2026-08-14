@@ -10,9 +10,18 @@ class ApiException implements Exception {
   factory ApiException.fromDio(DioException error) {
     final data = error.response?.data;
     if (data is Map<String, dynamic>) {
+      final code = (data['code'] ?? data['error']?['code'])?.toString();
+      final rawMessage = (data['message'] ?? data['error']?['message'] ?? 'Request failed').toString();
+      final message = switch (code) {
+        'NOT_FOUND' when rawMessage == 'Route not found' =>
+          'Server route not found. Rebuild the app with API_BASE_URL ending in /api/v1.',
+        'STALE_LOCATION' =>
+          'Location timestamp was rejected. Enable automatic date & time on your phone, then try again.',
+        _ => rawMessage,
+      };
       return ApiException(
-        (data['message'] ?? data['error']?['message'] ?? 'Request failed').toString(),
-        code: (data['code'] ?? data['error']?['code'])?.toString(),
+        message,
+        code: code,
         statusCode: error.response?.statusCode,
       );
     }

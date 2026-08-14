@@ -19,6 +19,7 @@ class TimeClockStatusCard extends StatelessWidget {
     this.locating = false,
     this.unreadNotifications = 0,
     this.onOpenNotifications,
+    this.onLocationBannerTap,
   });
 
   final OfficeContext office;
@@ -30,6 +31,7 @@ class TimeClockStatusCard extends StatelessWidget {
   final bool locating;
   final int unreadNotifications;
   final VoidCallback? onOpenNotifications;
+  final VoidCallback? onLocationBannerTap;
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +108,7 @@ class TimeClockStatusCard extends StatelessWidget {
               locating: locating,
               distanceMeters: distanceMeters,
               detail: _locationDetail(l10n, locale, open: open, completed: completed, carriedOver: carriedOver),
+              onTap: onLocationBannerTap,
             ),
           ],
         ),
@@ -166,6 +169,7 @@ class _LocationBanner extends StatelessWidget {
     required this.locating,
     required this.distanceMeters,
     this.detail,
+    this.onTap,
   });
 
   final String officeName;
@@ -173,6 +177,7 @@ class _LocationBanner extends StatelessWidget {
   final bool locating;
   final double? distanceMeters;
   final String? detail;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -190,43 +195,50 @@ class _LocationBanner extends StatelessWidget {
         ),
     };
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: bg,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 20, color: tone),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: tone)),
-                const SizedBox(height: 2),
-                Text(
-                  officeName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.textPrimary),
-                ),
-                if (zoneStatus == LocationZoneStatus.outside && distanceMeters != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(l10n.metersAway(distanceMeters!.round()), style: TextStyle(fontSize: 12, color: tone)),
-                  )
-                else if (detail != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(detail!, style: TextStyle(fontSize: 12, color: colors.textSecondary)),
-                  ),
-              ],
-            ),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(14),
           ),
-        ],
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 20, color: tone),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: tone)),
+                    const SizedBox(height: 2),
+                    Text(
+                      officeName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.textPrimary),
+                    ),
+                    if (zoneStatus == LocationZoneStatus.outside && distanceMeters != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(l10n.metersAway(distanceMeters!.round()), style: TextStyle(fontSize: 12, color: tone)),
+                      )
+                    else if (detail != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(detail!, style: TextStyle(fontSize: 12, color: colors.textSecondary)),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

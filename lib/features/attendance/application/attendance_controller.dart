@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -51,7 +53,7 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     final currentState = state.value ?? const AttendanceState();
     state = AsyncData(AttendanceState(timesheet: currentState.timesheet, loading: true));
     try {
-      final location = await _locationService.capture();
+      final location = (await _locationService.captureForAction()).withFreshCapturedAt();
       final preview = await _repository.preview(location);
       state = AsyncData(AttendanceState(timesheet: currentState.timesheet));
       return CheckInAttempt(location: location, preview: preview);
@@ -70,7 +72,10 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     final currentState = state.value ?? const AttendanceState();
     state = AsyncData(AttendanceState(timesheet: currentState.timesheet, loading: true));
     try {
-      final location = await _locationService.capture();
+      final age = DateTime.now().toUtc().difference(attempt.location.capturedAt);
+      final location = age.inMinutes >= 4
+          ? (await _locationService.captureForAction()).withFreshCapturedAt()
+          : attempt.location.withFreshCapturedAt();
       final result = await _repository.checkIn(
         location: location,
         idempotencyKey: _uuid.v4(),
@@ -86,13 +91,19 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     }
   }
 
-  Future<Timesheet> checkOut(String workDescription, {String? photoUrl}) async {
+  Future<Timesheet> checkOut(
+    String workDescription, {
+    String? photoUrl,
+    AttendanceLocation? location,
+  }) async {
     final currentState = state.value ?? const AttendanceState();
     state = AsyncData(AttendanceState(timesheet: currentState.timesheet, loading: true));
     try {
-      final location = await _locationService.capture();
+      final fix = location != null
+          ? location.withFreshCapturedAt()
+          : (await _locationService.captureForAction()).withFreshCapturedAt();
       final result = await _repository.checkOut(
-        location: location,
+        location: fix,
         idempotencyKey: _uuid.v4(),
         workDescription: workDescription,
         photoUrl: photoUrl,
@@ -108,6 +119,15 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async => AttendanceState(timesheet: await _repository.current()));
+  }
+
+  Future<String> uploadAttendancePhoto({
+    required Uint8List bytes,
+    required String mimeType,
+    required String purpose,
+  }) async {
+    final upload = await _repository.uploadPhoto(bytes: bytes, mimeType: mimeType, purpose: purpose);
+    return upload.url;
   }
 }
 

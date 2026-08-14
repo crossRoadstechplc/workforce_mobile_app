@@ -7,13 +7,32 @@ import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/theme_mode_controller.dart';
 import '../../auth/application/session_controller.dart';
+import '../application/shell_refresh.dart';
 
-class AppShell extends ConsumerWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key, required this.child});
   final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends ConsumerState<AppShell> {
+  bool _refreshing = false;
+
+  Future<void> _refreshCurrentTab() async {
+    if (_refreshing) return;
+    setState(() => _refreshing = true);
+    try {
+      final path = GoRouterState.of(context).uri.path;
+      await refreshForRoute(ref, path);
+    } finally {
+      if (mounted) setState(() => _refreshing = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     final index = location.startsWith('/history')
         ? 1
@@ -70,6 +89,22 @@ class AppShell extends ConsumerWidget {
                           minimumSize: const Size(40, 40),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
+                        tooltip: l10n.refresh,
+                        onPressed: _refreshing ? null : _refreshCurrentTab,
+                        icon: _refreshing
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: colors.textSecondary),
+                              )
+                            : Icon(Icons.refresh_rounded, color: colors.textSecondary, size: 22),
+                      ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        style: IconButton.styleFrom(
+                          minimumSize: const Size(40, 40),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
                         tooltip: isDark ? l10n.themeLight : l10n.themeDark,
                         onPressed: () {
                           final next = isDark ? ThemeMode.light : ThemeMode.dark;
@@ -87,7 +122,7 @@ class AppShell extends ConsumerWidget {
               ),
             ),
           ),
-          Expanded(child: child),
+          Expanded(child: widget.child),
         ],
       ),
       bottomNavigationBar: NavigationBar(
