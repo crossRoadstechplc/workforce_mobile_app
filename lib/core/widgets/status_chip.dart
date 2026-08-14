@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/app_theme_extension.dart';
 
 class StatusChip extends StatelessWidget {
   const StatusChip({super.key, required this.label, required this.kind});
@@ -9,11 +9,12 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final (background, foreground) = switch (kind) {
-      StatusKind.success => (const Color(0xFFDCFCE7), AppColors.success),
-      StatusKind.warning => (const Color(0xFFFEF3C7), AppColors.warning),
-      StatusKind.error => (const Color(0xFFFEE2E2), AppColors.error),
-      StatusKind.neutral => (AppColors.muted, AppColors.textSecondary),
+      StatusKind.success => (colors.successBg, colors.success),
+      StatusKind.warning => (colors.warningBg, colors.warning),
+      StatusKind.error => (colors.errorBg, colors.error),
+      StatusKind.neutral => (colors.muted, colors.textSecondary),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

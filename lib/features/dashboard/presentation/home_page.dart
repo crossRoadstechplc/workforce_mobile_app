@@ -2,20 +2,22 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/connectivity/network_status.dart';
-import '../../../core/widgets/app_card.dart';
+import '../../../core/localization/l10n_extensions.dart';
+import '../../../core/location/geo_utils.dart';
+import '../../../core/location/location_service.dart';
+import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_skeleton.dart';
-import '../../../core/widgets/status_chip.dart';
 import '../../attendance/application/attendance_controller.dart';
 import '../../attendance/data/attendance_models.dart';
+import '../../attendance/presentation/attendance_map_view.dart';
+import '../../attendance/presentation/attendance_photo_capture_modal.dart';
 import '../../attendance/presentation/check_out_sheet.dart';
 import '../../attendance/presentation/late_reason_sheet.dart';
-import '../../auth/application/session_controller.dart';
+import '../../attendance/presentation/time_clock_status_card.dart';
 import '../../notifications/application/notification_controller.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -25,37 +27,52 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  Timer? _clock;
+  Timer? _ticker;
+  Timer? _locationTimer;
   DateTime _now = DateTime.now();
+  AttendanceLocation? _userLocation;
+  bool _locating = true;
 
   @override
   void initState() {
     super.initState();
-    _clock = Timer.periodic(const Duration(minutes: 1), (_) {
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() => _now = DateTime.now());
     });
+    _refreshLocation();
+    _locationTimer = Timer.periodic(const Duration(seconds: 12), (_) => _refreshLocation());
   }
 
   @override
   void dispose() {
-    _clock?.cancel();
+    _ticker?.cancel();
+    _locationTimer?.cancel();
     super.dispose();
   }
 
+  Future<void> _refreshLocation() async {
+    setState(() => _locating = _userLocation == null);
+    final location = await ref.read(locationServiceProvider).tryCapture();
+    if (!mounted) return;
+    setState(() {
+      if (location != null) _userLocation = location;
+      _locating = false;
+    });
+  }
+
   Future<void> _checkIn() async {
+    final l10n = context.l10n;
     if (ref.read(networkStatusProvider).value == false) {
-      _message('Check-in needs an internet connection.');
+      _message(l10n.checkInNeedsInternet);
       return;
     }
     try {
       final controller = ref.read(attendanceControllerProvider.notifier);
       final attempt = await controller.prepareCheckIn();
       if (!mounted) return;
+      setState(() => _userLocation = attempt.location);
       if (!attempt.preview.insideRadius) {
-        _message(
-          'You are outside the allowed office radius '
-          '(${attempt.preview.distanceMeters.round()} m away). Move closer and try again.',
-        );
+        _message(l10n.outsideRadius(attempt.preview.distanceMeters.round()));
         return;
       }
 
@@ -63,9 +80,19 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (attempt.preview.requiresLateReason) {
         reason = await showLateReasonSheet(context, attempt.preview.lateMinutes);
         if (reason == null) {
-          if (mounted) _message('Check-in cancelled. Add a late reason to continue.');
+          if (mounted) _message(l10n.checkInCancelled);
           return;
         }
+      }
+
+      if (!mounted) return;
+      final photoOk = await showAttendancePhotoCapture(
+        context,
+        purpose: AttendancePhotoPurpose.checkIn,
+      );
+      if (photoOk != true) {
+        if (mounted) _message(l10n.checkInCancelled);
+        return;
       }
 
       final result = await controller.confirmCheckIn(
@@ -73,26 +100,43 @@ class _HomePageState extends ConsumerState<HomePage> {
         lateReasonType: reason?.type,
         lateReasonDescription: reason?.description,
       );
-      if (mounted) _message(_checkInToast(DateTime.now(), result));
+      if (mounted) _message(_checkInToast(context, DateTime.now(), result));
     } catch (error) {
       if (mounted) _message(error.toString());
     }
   }
 
   Future<void> _checkOut() async {
+    final l10n = context.l10n;
     if (ref.read(networkStatusProvider).value == false) {
-      _message('Checkout needs an internet connection.');
+      _message(l10n.checkoutNeedsInternet);
       return;
     }
-    final description = await showCheckOutSheet(context);
+    final current = ref.read(attendanceControllerProvider).value?.timesheet;
+    final carriedOver = current?.isCarriedOverOpenShift == true;
+    final description = await showCheckOutSheet(
+      context,
+      carriedOverShift: carriedOver,
+      shiftWorkDate: current?.workDate ?? current?.actualCheckIn,
+    );
     if (description == null) {
-      if (mounted) _message('Checkout cancelled.');
+      if (mounted) _message(l10n.checkoutCancelled);
       return;
     }
     if (!mounted) return;
+
+    final photoOk = await showAttendancePhotoCapture(
+      context,
+      purpose: AttendancePhotoPurpose.checkOut,
+    );
+    if (photoOk != true) {
+      if (mounted) _message(l10n.checkoutCancelled);
+      return;
+    }
+
     try {
       final result = await ref.read(attendanceControllerProvider.notifier).checkOut(description);
-      if (mounted) _message(_checkOutToast(DateTime.now(), result.workedMinutes));
+      if (mounted) _message(_checkOutToast(context, result, carriedOver: carriedOver));
     } catch (error) {
       if (mounted) _message(error.toString());
     }
@@ -112,193 +156,295 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final session = ref.watch(sessionControllerProvider);
     final attendance = ref.watch(attendanceControllerProvider);
+    final officeAsync = ref.watch(officeContextProvider);
     final notifications = ref.watch(notificationControllerProvider);
-    final emailName = session.user?.email.split('@').first ?? 'Employee';
+    final colors = context.appColors;
+
+    ref.listen(officeContextProvider, (previous, next) {
+      next.whenData((_) => _refreshLocation());
+    });
 
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Good ${_dayPart(_now)},', style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w400)),
-            Text(emailName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-          ],
-        ),
-        actions: [
-          Semantics(
-            button: true,
-            label: 'Notifications',
-            child: IconButton(
-            tooltip: 'Notifications',
-            onPressed: () => context.push('/notifications'),
-            icon: Badge(
-              isLabelVisible: (notifications.value?.unreadCount ?? 0) > 0,
-              label: Text('${notifications.value?.unreadCount ?? 0}'),
-              child: const Icon(Icons.notifications_none_rounded),
+      backgroundColor: colors.background,
+      body: attendance.when(
+        loading: () => const Center(child: AttendanceCardSkeleton()),
+        error: (error, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: AppErrorView(
+              message: error.toString(),
+              onRetry: () => ref.read(attendanceControllerProvider.notifier).refresh(),
             ),
           ),
-          )
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => ref.read(attendanceControllerProvider.notifier).refresh(),
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text(DateFormat('EEEE, MMMM d').format(_now), style: const TextStyle(color: AppColors.textSecondary)),
-            const SizedBox(height: 18),
-            attendance.when(
-              loading: () => const AttendanceCardSkeleton(),
-              error: (error, _) => AppCard(child: AppErrorView(message: error.toString(), onRetry: () => ref.read(attendanceControllerProvider.notifier).refresh())),
-              data: (value) => _AttendanceCard(
-                timesheet: value.timesheet,
-                busy: value.loading,
-                onCheckIn: _checkIn,
-                onCheckOut: _checkOut,
+        ),
+        data: (value) => officeAsync.when(
+          loading: () => const Center(child: AttendanceCardSkeleton()),
+          error: (error, _) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: AppErrorView(
+                message: error.toString(),
+                onRetry: () => ref.invalidate(officeContextProvider),
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(child: _MetricCard(icon: Icons.event_available_rounded, label: 'This month', value: 'History', onTap: () => context.go('/history'))),
-                const SizedBox(width: 12),
-                Expanded(child: _MetricCard(icon: Icons.beach_access_outlined, label: 'Leave', value: 'Requests', onTap: () => context.go('/leave'))),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Today', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-                  SizedBox(height: 10),
-                  Text('Your attendance card above is always the source of truth for the current workday.', style: TextStyle(color: AppColors.textSecondary, height: 1.45)),
-                ],
-              ),
-            ),
-          ],
+          ),
+          data: (office) => _TimeClockBody(
+            office: office,
+            timesheet: value.timesheet,
+            busy: value.loading,
+            userLocation: _userLocation,
+            locating: _locating,
+            now: _now,
+            unreadNotifications: notifications.value?.unreadCount ?? 0,
+            onRefresh: () async {
+              await Future.wait([
+                ref.read(attendanceControllerProvider.notifier).refresh(),
+                _refreshLocation(),
+              ]);
+            },
+            onCheckIn: _checkIn,
+            onCheckOut: _checkOut,
+            onOpenNotifications: () => context.push('/notifications'),
+          ),
         ),
       ),
     );
   }
 }
 
-class _AttendanceCard extends StatelessWidget {
-  const _AttendanceCard({required this.timesheet, required this.busy, required this.onCheckIn, required this.onCheckOut});
+class _TimeClockBody extends StatelessWidget {
+  const _TimeClockBody({
+    required this.office,
+    required this.timesheet,
+    required this.busy,
+    required this.userLocation,
+    required this.locating,
+    required this.now,
+    required this.unreadNotifications,
+    required this.onRefresh,
+    required this.onCheckIn,
+    required this.onCheckOut,
+    required this.onOpenNotifications,
+  });
+
+  final OfficeContext office;
   final Timesheet? timesheet;
   final bool busy;
+  final AttendanceLocation? userLocation;
+  final bool locating;
+  final DateTime now;
+  final int unreadNotifications;
+  final Future<void> Function() onRefresh;
   final VoidCallback onCheckIn;
   final VoidCallback onCheckOut;
+  final VoidCallback onOpenNotifications;
+
+  LocationZoneStatus get _zoneStatus {
+    if (userLocation == null) {
+      return locating ? LocationZoneStatus.unknown : LocationZoneStatus.unknown;
+    }
+    final inside = GeoUtils.insideRadius(
+      userLat: userLocation!.latitude,
+      userLng: userLocation!.longitude,
+      officeLat: office.latitude,
+      officeLng: office.longitude,
+      radiusMeters: office.allowedRadiusMeters.toDouble(),
+    );
+    return inside ? LocationZoneStatus.inside : LocationZoneStatus.outside;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = context.appColors;
     final open = timesheet?.isOpen == true;
     final completed = timesheet != null && !timesheet!.isOpen;
+    final distance = userLocation == null
+        ? null
+        : GeoUtils.distanceMeters(
+            fromLat: userLocation!.latitude,
+            fromLng: userLocation!.longitude,
+            toLat: office.latitude,
+            toLng: office.longitude,
+          );
+    final zone = _zoneStatus;
+    final inside = zone == LocationZoneStatus.inside;
+    final carriedOver = open && timesheet!.isCarriedOverOpenShift;
+    final elapsed = open ? timesheet!.displayElapsedAt(now) : Duration.zero;
+    final bottomSafe = MediaQuery.paddingOf(context).bottom;
 
-    return AppCard(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    final canCheckIn = !open && !completed && inside && !busy;
+    final showCheckIn = !open && !completed;
+    final showCheckOut = open;
+
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      edgeOffset: 0,
+      child: Stack(
         children: [
-          Row(
-            children: [
-              const Expanded(child: Text("Today's attendance", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
-              StatusChip(
-                label: open
-                    ? (timesheet!.lateMinutes > 0 ? 'Late' : 'Checked in')
-                    : completed
-                        ? 'Completed'
-                        : 'Not checked in',
-                kind: open
-                    ? (timesheet!.lateMinutes > 0 ? StatusKind.warning : StatusKind.success)
-                    : completed
-                        ? StatusKind.success
-                        : StatusKind.neutral,
-              ),
-            ],
+          Positioned.fill(
+            child: AttendanceMapView(
+              office: office,
+              userLocation: userLocation,
+              insideRadius: inside || zone == LocationZoneStatus.unknown,
+            ),
           ),
-          const SizedBox(height: 20),
-          if (open) ...[
-            _InfoRow(label: 'Check-in', value: DateFormat('HH:mm').format(timesheet!.actualCheckIn)),
-            if (timesheet!.scheduledCheckOut != null) _InfoRow(label: 'Scheduled out', value: DateFormat('HH:mm').format(timesheet!.scheduledCheckOut!)),
-            _InfoRow(label: 'Late', value: timesheet!.lateMinutes == 0 ? 'On time' : '${timesheet!.lateMinutes} min'),
-            const SizedBox(height: 20),
-            Semantics(
-              button: true,
-              label: 'Check out of work',
-              child: ElevatedButton.icon(
-                onPressed: busy ? null : onCheckOut,
-                icon: const Icon(Icons.logout_rounded),
-                label: Text(busy ? 'Checking location...' : 'Check out'),
+          Positioned(
+            top: 8,
+            left: 16,
+            right: 16,
+            child: TimeClockStatusCard(
+              office: office,
+              timesheet: timesheet,
+              elapsed: elapsed,
+              now: now,
+              zoneStatus: zone,
+              locating: locating,
+              distanceMeters: distance,
+              unreadNotifications: unreadNotifications,
+              onOpenNotifications: onOpenNotifications,
+            ),
+          ),
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: bottomSafe + 12,
+            child: _ActionDock(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (showCheckIn && zone == LocationZoneStatus.outside) ...[
+                    Text(
+                      l10n.moveInsideZone,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: colors.warning, fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  if (showCheckIn)
+                    SizedBox(
+                      height: 54,
+                      child: FilledButton.icon(
+                        onPressed: canCheckIn ? onCheckIn : null,
+                        icon: busy
+                            ? SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: colors.surface),
+                              )
+                            : const Icon(Icons.login_rounded),
+                        label: Text(busy ? l10n.checkingLocation : l10n.checkIn),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.surface,
+                          disabledBackgroundColor: colors.muted,
+                          disabledForegroundColor: colors.textSecondary,
+                          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                      ),
+                    ),
+                  if (showCheckOut)
+                    SizedBox(
+                      height: 54,
+                      child: FilledButton.icon(
+                        onPressed: busy ? null : onCheckOut,
+                        icon: busy
+                            ? SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: colors.surface),
+                              )
+                            : const Icon(Icons.logout_rounded),
+                        label: Text(busy ? l10n.checkingLocation : (carriedOver ? l10n.closeShift : l10n.checkOut)),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colors.error,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: colors.muted,
+                          disabledForegroundColor: colors.textSecondary,
+                          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                      ),
+                    ),
+                  if (completed)
+                    Container(
+                      height: 54,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: colors.successBg,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        l10n.attendanceCompleted,
+                        style: TextStyle(color: colors.success, fontWeight: FontWeight.w700, fontSize: 15),
+                      ),
+                    ),
+                ],
               ),
             ),
-          ] else if (completed) ...[
-            _InfoRow(label: 'Check-in', value: DateFormat('HH:mm').format(timesheet!.actualCheckIn)),
-            if (timesheet!.actualCheckOut != null)
-              _InfoRow(label: 'Check-out', value: DateFormat('HH:mm').format(timesheet!.actualCheckOut!)),
-            _InfoRow(label: 'Worked', value: _duration(timesheet!.workedMinutes)),
-            _InfoRow(label: 'Late', value: timesheet!.lateMinutes == 0 ? 'On time' : '${timesheet!.lateMinutes} min'),
-            const SizedBox(height: 12),
-            const Text(
-              'You have already completed attendance for today.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-            ),
-          ] else ...[
-            const Text('Ready to start your workday?', style: TextStyle(color: AppColors.textSecondary)),
-            const SizedBox(height: 20),
-            Semantics(
-              button: true,
-              label: 'Check in to work',
-              child: ElevatedButton.icon(
-                onPressed: busy ? null : onCheckIn,
-                icon: const Icon(Icons.login_rounded),
-                label: Text(busy ? 'Checking location...' : 'Check in'),
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'You can check in any time today. If you are late, you will be asked for a reason.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-            ),
-          ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value});
-  final String label;
-  final String value;
+class _ActionDock extends StatelessWidget {
+  const _ActionDock({required this.child});
+  final Widget child;
+
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Row(children: [Expanded(child: Text(label, style: const TextStyle(color: AppColors.textSecondary))), Text(value, style: const TextStyle(fontWeight: FontWeight.w600))]),
-      );
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surface.withValues(alpha: isDark ? 0.95 : 0.98),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+        child: child,
+      ),
+    );
+  }
 }
 
-class _MetricCard extends StatelessWidget {
-  const _MetricCard({required this.icon, required this.label, required this.value, required this.onTap});
-  final IconData icon;
-  final String label;
-  final String value;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) => InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: AppCard(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(icon, color: AppColors.primary), const SizedBox(height: 14), Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)), const SizedBox(height: 2), Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13))]),
-        ),
-      );
+String _checkInToast(BuildContext context, DateTime now, Timesheet result) {
+  final l10n = context.l10n;
+  if (result.lateMinutes > 0) {
+    return l10n.checkInLate(result.lateMinutes, _dayPartLabel(context, now));
+  }
+  switch (_dayPart(now)) {
+    case 'morning':
+      return l10n.checkInSuccessMorning;
+    case 'afternoon':
+      return l10n.checkInSuccessAfternoon;
+    default:
+      return l10n.checkInSuccessEvening;
+  }
 }
 
-String _duration(int minutes) => '${minutes ~/ 60}h ${minutes % 60}m';
+String _checkOutToast(BuildContext context, Timesheet result, {required bool carriedOver}) {
+  final l10n = context.l10n;
+  final worked = formatDurationMinutes(context, result.workedMinutes);
+  if (carriedOver) {
+    return l10n.previousShiftClosed(worked);
+  }
+  return l10n.checkoutSuccess(worked);
+}
 
 String _dayPart(DateTime now) {
   if (now.hour < 12) return 'morning';
@@ -306,28 +452,14 @@ String _dayPart(DateTime now) {
   return 'evening';
 }
 
-String _checkInToast(DateTime now, Timesheet result) {
-  if (result.lateMinutes > 0) {
-    return 'Checked in ${result.lateMinutes} min late. Thanks for sharing your reason — have a good ${_dayPart(now)}.';
-  }
+String _dayPartLabel(BuildContext context, DateTime now) {
+  final l10n = context.l10n;
   switch (_dayPart(now)) {
     case 'morning':
-      return 'Good morning! Check-in successful. Have a productive day.';
+      return l10n.dayPartMorning;
     case 'afternoon':
-      return 'Good afternoon! Check-in successful. Keep up the good work.';
+      return l10n.dayPartAfternoon;
     default:
-      return 'Good evening! Check-in successful. Thanks for starting your shift.';
-  }
-}
-
-String _checkOutToast(DateTime now, int workedMinutes) {
-  final worked = _duration(workedMinutes);
-  switch (_dayPart(now)) {
-    case 'morning':
-      return 'Checked out. Good work this morning — you worked $worked.';
-    case 'afternoon':
-      return 'Checked out. Great work this afternoon — you worked $worked.';
-    default:
-      return 'Checked out. Great work today — you worked $worked. Rest well!';
+      return l10n.dayPartEvening;
   }
 }

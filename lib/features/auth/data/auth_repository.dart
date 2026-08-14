@@ -19,7 +19,7 @@ class AuthRepository {
         ApiEndpoints.login,
         data: {
           'login': login.trim(),
-          'password': password,
+          'password': password.trim(),
           if (deviceId != null) 'deviceId': deviceId,
           if (organizationSlug != null && organizationSlug.trim().isNotEmpty)
             'organizationSlug': organizationSlug.trim().toLowerCase(),

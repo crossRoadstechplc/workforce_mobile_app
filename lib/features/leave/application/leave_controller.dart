@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_client.dart';
+import '../../auth/application/session_controller.dart';
 import '../data/leave_models.dart';
 import '../data/leave_repository.dart';
 
@@ -11,7 +12,11 @@ class LeaveState {
 }
 final leaveControllerProvider=AsyncNotifierProvider<LeaveController,LeaveState>(LeaveController.new);
 class LeaveController extends AsyncNotifier<LeaveState>{
-  @override Future<LeaveState> build()=>_load();
+  @override Future<LeaveState> build() async {
+    final userId = ref.watch(sessionControllerProvider.select((s) => s.user?.id));
+    if (userId == null) return const LeaveState();
+    return _load();
+  }
   Future<LeaveState> _load() async { final r=ref.read(leaveRepositoryProvider); final values=await Future.wait([r.types(),r.list(),r.summary()]); return LeaveState(types:values[0] as List<LeaveType>,requests:values[1] as List<LeaveRequestItem>,summary:values[2] as LeaveSummary); }
   Future<void> refresh() async { state=await AsyncValue.guard(_load); }
   Future<void> create({required String leaveTypeId,required DateTime startDate,required DateTime endDate,required String reason}) async { await ref.read(leaveRepositoryProvider).create(leaveTypeId:leaveTypeId,startDate:startDate,endDate:endDate,reason:reason); await refresh(); }

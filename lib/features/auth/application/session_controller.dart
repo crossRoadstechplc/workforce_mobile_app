@@ -61,8 +61,6 @@ class SessionController extends Notifier<SessionState> {
   }
 
   Future<void> login(String login, String password, {String? organizationSlug}) async {
-    // Keep status as unauthenticated while logging in so the UI stays on
-    // /login (button spinner) instead of bouncing to /splash mid-request.
     try {
       final deviceId = await _storage.readOrCreateDeviceId();
       final session = await _repository.login(

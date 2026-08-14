@@ -31,11 +31,25 @@ class AttendanceLocation {
 }
 
 class LocationService {
+  double? _mockLat;
+  double? _mockLng;
+
+  /// When mock GPS is enabled, pin to the employee's office so UI and API stay aligned.
+  void setMockAnchor(double latitude, double longitude) {
+    _mockLat = latitude;
+    _mockLng = longitude;
+  }
+
+  void clearMockAnchor() {
+    _mockLat = null;
+    _mockLng = null;
+  }
+
   Future<AttendanceLocation> capture() async {
     if (AppConfig.allowMockAttendanceLocation) {
       return AttendanceLocation(
-        latitude: double.parse(AppConfig.mockAttendanceLatitude),
-        longitude: double.parse(AppConfig.mockAttendanceLongitude),
+        latitude: _mockLat ?? double.parse(AppConfig.mockAttendanceLatitude),
+        longitude: _mockLng ?? double.parse(AppConfig.mockAttendanceLongitude),
         accuracyMeters: 10,
         capturedAt: DateTime.now().toUtc(),
       );
@@ -63,8 +77,6 @@ class LocationService {
       ),
     );
 
-    // Always stamp with "now" — browser GPS timestamps are often stale/wrong
-    // and the API rejects locations older than 5 minutes.
     return AttendanceLocation(
       latitude: position.latitude,
       longitude: position.longitude,
@@ -72,4 +84,14 @@ class LocationService {
       capturedAt: DateTime.now().toUtc(),
     );
   }
+
+  Future<AttendanceLocation?> tryCapture() async {
+    try {
+      return await capture();
+    } on LocationFailure {
+      return null;
+    }
+  }
 }
+
+enum LocationZoneStatus { unknown, inside, outside }

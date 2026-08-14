@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../../core/location/location_service.dart';
+import '../../auth/application/session_controller.dart';
 import '../data/attendance_models.dart';
 import '../data/attendance_repository.dart';
 
@@ -18,6 +19,17 @@ class AttendanceState {
 
 final attendanceControllerProvider = AsyncNotifierProvider<AttendanceController, AttendanceState>(AttendanceController.new);
 
+final officeContextProvider = FutureProvider<OfficeContext>((ref) async {
+  final userId = ref.watch(sessionControllerProvider.select((s) => s.user?.id));
+  if (userId == null) {
+    throw StateError('Not authenticated');
+  }
+  final office = await ref.watch(attendanceRepositoryProvider).officeContext();
+  // Keep mock GPS anchored to this employee's office so UI matches check-in rules.
+  ref.read(locationServiceProvider).setMockAnchor(office.latitude, office.longitude);
+  return office;
+});
+
 class AttendanceController extends AsyncNotifier<AttendanceState> {
   late final AttendanceRepository _repository;
   late final LocationService _locationService;
@@ -25,6 +37,10 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
 
   @override
   Future<AttendanceState> build() async {
+    final userId = ref.watch(sessionControllerProvider.select((s) => s.user?.id));
+    if (userId == null) {
+      return const AttendanceState();
+    }
     _repository = ref.read(attendanceRepositoryProvider);
     _locationService = ref.read(locationServiceProvider);
     final current = await _repository.current();
@@ -49,17 +65,18 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     CheckInAttempt attempt, {
     String? lateReasonType,
     String? lateReasonDescription,
+    String? photoUrl,
   }) async {
     final currentState = state.value ?? const AttendanceState();
     state = AsyncData(AttendanceState(timesheet: currentState.timesheet, loading: true));
     try {
-      // Recapture so location is fresh after the late-reason sheet.
       final location = await _locationService.capture();
       final result = await _repository.checkIn(
         location: location,
         idempotencyKey: _uuid.v4(),
         lateReasonType: lateReasonType,
         lateReasonDescription: lateReasonDescription,
+        photoUrl: photoUrl,
       );
       state = AsyncData(AttendanceState(timesheet: result));
       return result;
@@ -69,7 +86,7 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     }
   }
 
-  Future<Timesheet> checkOut(String workDescription) async {
+  Future<Timesheet> checkOut(String workDescription, {String? photoUrl}) async {
     final currentState = state.value ?? const AttendanceState();
     state = AsyncData(AttendanceState(timesheet: currentState.timesheet, loading: true));
     try {
@@ -78,6 +95,7 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
         location: location,
         idempotencyKey: _uuid.v4(),
         workDescription: workDescription,
+        photoUrl: photoUrl,
       );
       state = AsyncData(AttendanceState(timesheet: result));
       return result;

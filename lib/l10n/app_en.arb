@@ -1,0 +1,272 @@
+{
+  "@@locale": "en",
+  "appTitle": "Workforce",
+  "greetingHi": "Hi, {name}",
+  "@greetingHi": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "navTimeClock": "Time Clock",
+  "navHistory": "History",
+  "navLeave": "Leave",
+  "navProfile": "Profile",
+  "loginTitle": "Employee sign in",
+  "loginSubtitle": "Use your work email or employee code.",
+  "emailOrCode": "Email or employee code",
+  "password": "Password",
+  "signIn": "Sign in",
+  "signingIn": "Signing in...",
+  "demoLoginHint": "Demo: sara@acme.demo / Demo123!",
+  "historyTitle": "History",
+  "tabTimesheet": "Timesheet",
+  "tabWorksheet": "Worksheet",
+  "noTimesheetDay": "No timesheet for this day.",
+  "noWorksheetDay": "No worksheet for this day.",
+  "checkIn": "Check in",
+  "checkOut": "Check out",
+  "closeShift": "Close shift",
+  "checkingLocation": "Checking location...",
+  "authorizedLocation": "Authorized location",
+  "outsideAuthorized": "Outside authorized area",
+  "locatingLocation": "Getting your location...",
+  "locationUnavailable": "Location unavailable",
+  "readyToCheckIn": "Ready to check in",
+  "readyToCheckOut": "Ready to check out",
+  "shiftInProgress": "Shift in progress",
+  "shiftComplete": "Shift complete",
+  "notCheckedIn": "Not checked in",
+  "checkedIn": "Checked in",
+  "checkedInLate": "Checked in · Late",
+  "openShiftPending": "Open shift pending checkout",
+  "attendanceCompleted": "Attendance completed",
+  "done": "Done",
+  "openShiftFrom": "Open shift from {date}. Check out below to start today.",
+  "@openShiftFrom": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "checkedInAt": "Checked in at {time}",
+  "@checkedInAt": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "checkedInOnAt": "Checked in {date} at {time}",
+  "@checkedInOnAt": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
+  "moveInsideZone": "Move inside the authorized zone to check in",
+  "checkInNeedsInternet": "Check-in needs an internet connection.",
+  "checkoutNeedsInternet": "Checkout needs an internet connection.",
+  "checkoutCancelled": "Checkout cancelled.",
+  "checkInCancelled": "Check-in cancelled. Add a late reason to continue.",
+  "outsideRadius": "You are outside the allowed office radius ({meters} m away). Move closer and try again.",
+  "@outsideRadius": {
+    "placeholders": {
+      "meters": { "type": "int" }
+    }
+  },
+  "metersAway": "{meters} m from office",
+  "@metersAway": {
+    "placeholders": {
+      "meters": { "type": "int" }
+    }
+  },
+  "metersAwayShort": "{meters} m away",
+  "@metersAwayShort": {
+    "placeholders": {
+      "meters": { "type": "int" }
+    }
+  },
+  "checkInSuccessMorning": "Good morning! Check-in successful. Have a productive day.",
+  "checkInSuccessAfternoon": "Good afternoon! Check-in successful. Keep up the good work.",
+  "checkInSuccessEvening": "Good evening! Check-in successful. Thanks for starting your shift.",
+  "checkInLate": "Checked in {minutes} min late. Thanks for sharing your reason — have a good {dayPart}.",
+  "@checkInLate": {
+    "placeholders": {
+      "minutes": { "type": "int" },
+      "dayPart": { "type": "String" }
+    }
+  },
+  "checkoutSuccess": "Checked out successfully — you worked {worked}.",
+  "@checkoutSuccess": {
+    "placeholders": {
+      "worked": { "type": "String" }
+    }
+  },
+  "previousShiftClosed": "Previous shift closed ({worked} recorded). You can check in for today now.",
+  "@previousShiftClosed": {
+    "placeholders": {
+      "worked": { "type": "String" }
+    }
+  },
+  "dayPartMorning": "morning",
+  "dayPartAfternoon": "afternoon",
+  "dayPartEvening": "evening",
+  "finishWorkday": "Check out",
+  "closeOpenShift": "Close open shift",
+  "checkoutDescribeToday": "Describe what you worked on today before checking out.",
+  "checkoutCloseShiftHint": "This closes your shift from {date}. You can check in for today afterward.",
+  "@checkoutCloseShiftHint": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "workSummary": "Work summary",
+  "workSummaryHint": "e.g. Completed client onboarding and team standup...",
+  "workSummaryShiftHint": "Summarize tasks completed during that shift...",
+  "readyToSubmit": "Ready to submit",
+  "minChars": "Minimum {min} characters · {current}/{min}",
+  "@minChars": {
+    "placeholders": {
+      "min": { "type": "int" },
+      "current": { "type": "int" }
+    }
+  },
+  "cancel": "Cancel",
+  "lateCheckInTitle": "You are {minutes} minute(s) late",
+  "@lateCheckInTitle": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "lateCheckInSubtitle": "You can still check in any time today. Select a reason to continue.",
+  "continueCheckIn": "Continue check-in",
+  "tellUsWhy": "Tell us why",
+  "leaveTitle": "Leave",
+  "profileTitle": "Profile",
+  "notificationsTitle": "Notifications",
+  "changePassword": "Change password",
+  "currentPassword": "Current password",
+  "newPassword": "New password",
+  "confirmPassword": "Confirm password",
+  "update": "Update",
+  "signOut": "Sign out",
+  "passwordChanged": "Password changed successfully.",
+  "passwordRules": "Passwords must match, be 10+ characters, and include upper/lowercase letters and a number.",
+  "accountId": "Account ID",
+  "role": "Role",
+  "access": "Access",
+  "permissionsCount": "{count} permissions",
+  "@permissionsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "settingsLanguage": "Language",
+  "settingsTheme": "Theme",
+  "languageEnglish": "English",
+  "languageAmharic": "አማርኛ",
+  "languageEnglishShort": "Eng",
+  "languageAmharicShort": "ኣማ",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "preferences": "Preferences",
+  "onTime": "On time",
+  "late": "Late",
+  "missingCheckout": "Missing checkout",
+  "submitted": "Submitted",
+  "checkInLabel": "Check-in",
+  "checkOutLabel": "Check-out",
+  "worked": "Worked",
+  "lateMinutes": "Late",
+  "earlyCheckout": "Early checkout",
+  "overtime": "Overtime",
+  "worksheetSubmitted": "Worksheet submitted.",
+  "workedDuration": "Worked {duration}",
+  "@workedDuration": {
+    "placeholders": {
+      "duration": { "type": "String" }
+    }
+  },
+  "retry": "Retry",
+  "offlineMessage": "You are offline. Some actions may not work.",
+  "approved": "Approved",
+  "pending": "Pending",
+  "rejected": "Rejected",
+  "submitLeaveRequest": "Submit request",
+  "splashLoading": "Loading...",
+  "splashSubtitle": "Clock in, track your hours, review your timesheet",
+  "offlineBannerDetail": "Offline — history remains visible, but attendance actions need a connection.",
+  "errorTitle": "Something went wrong",
+  "connectionUnavailable": "Connection unavailable",
+  "connectionRetryHint": "Check your connection and try again. Your saved server data is not changed.",
+  "tryAgain": "Try again",
+  "leaveHistory": "Leave history",
+  "noLeaveRequests": "No leave requests yet.",
+  "requestLeave": "Request leave",
+  "leaveRequestSubmitted": "Leave request submitted.",
+  "cancelRequest": "Cancel request",
+  "adminNote": "Admin: {note}",
+  "@adminNote": {
+    "placeholders": {
+      "note": { "type": "String" }
+    }
+  },
+  "notificationsTooltip": "Notifications",
+  "accountCreatedByAdmin": "Your account is created by your administrator.",
+  "demoLoginTitle": "Demo login",
+  "demoEmailLabel": "Email: sara@acme.demo",
+  "demoPasswordLabel": "Password: Demo123!",
+  "demoLoginNote": "Use Demo123! for seeded employees. ChangeMe123! is only for bootstrap super admin in admin portal.",
+  "enterEmailOrCode": "Enter your email or employee code",
+  "passwordMin8": "Password must contain at least 8 characters",
+  "thatDay": "that day",
+  "reasonTraffic": "Traffic",
+  "reasonTransportation": "Transportation",
+  "reasonHealth": "Health",
+  "reasonFamilyEmergency": "Family emergency",
+  "reasonWeather": "Weather",
+  "reasonOther": "Other",
+  "timeRange": "{start} – {end}",
+  "@timeRange": {
+    "placeholders": {
+      "start": { "type": "String" },
+      "end": { "type": "String" }
+    }
+  },
+  "daysCount": "{start} – {end} • {days} day(s)",
+  "@daysCount": {
+    "placeholders": {
+      "start": { "type": "String" },
+      "end": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "lateMinutesValue": "{minutes} min",
+  "@lateMinutesValue": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "earlyCheckoutMinutes": "{minutes} min",
+  "@earlyCheckoutMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "overtimeMinutes": "{minutes} min",
+  "@overtimeMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "dash": "—",
+  "readAll": "Read all",
+  "noNotificationsYet": "No notifications yet.",
+  "photoCaptureTitleCheckIn": "Verify check-in",
+  "photoCaptureTitleCheckOut": "Verify checkout",
+  "photoCaptureHint": "Position your face inside the circle",
+  "photoCaptureButton": "Capture photo",
+  "photoRetake": "Retake",
+  "photoUse": "Use photo",
+  "photoCaptureFailed": "Could not capture photo. Try again.",
+  "photoCameraPermissionRequired": "Camera access is required to take your verification photo. Allow camera permission and try again.",
+  "photoCameraPermissionWeb": "Camera access is required. Allow the camera for this site in your browser settings, then try again.",
+  "photoOpenSettings": "Open settings"
+}

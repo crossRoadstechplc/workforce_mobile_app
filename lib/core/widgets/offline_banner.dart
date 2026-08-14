@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../connectivity/network_status.dart';
-import '../theme/app_colors.dart';
+import '../localization/l10n_extensions.dart';
+import '../theme/app_theme_extension.dart';
 
 class OfflineBanner extends ConsumerWidget {
   const OfflineBanner({super.key, required this.child});
@@ -12,6 +13,7 @@ class OfflineBanner extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(networkStatusProvider);
     final isOffline = status.value == false;
+    final colors = context.appColors;
 
     return Column(
       children: [
@@ -20,27 +22,23 @@ class OfflineBanner extends ConsumerWidget {
           child: isOffline
               ? Semantics(
                   liveRegion: true,
-                  label: 'You are offline. Some actions are unavailable.',
+                  label: context.l10n.offlineMessage,
                   child: Container(
                     width: double.infinity,
-                    color: AppColors.warning,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: const SafeArea(
+                    color: colors.warning,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: SafeArea(
                       bottom: false,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.wifi_off_rounded,
-                              size: 18, color: Colors.white),
-                          SizedBox(width: 8),
+                          const Icon(Icons.wifi_off_rounded, size: 18, color: Colors.white),
+                          const SizedBox(width: 8),
                           Flexible(
                             child: Text(
-                              'Offline — history remains visible, but attendance actions need a connection.',
+                              context.l10n.offlineBannerDetail,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 12,

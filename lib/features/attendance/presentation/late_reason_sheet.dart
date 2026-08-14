@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/localization/l10n_extensions.dart';
+
 class LateReasonResult {
   const LateReasonResult(this.type, this.description);
   final String type;
@@ -25,14 +27,18 @@ class _LateReasonSheet extends StatefulWidget {
 class _LateReasonSheetState extends State<_LateReasonSheet> {
   String? _selected;
   final _description = TextEditingController();
-  final reasons = const {
-    'TRAFFIC': 'Traffic',
-    'TRANSPORTATION': 'Transportation',
-    'HEALTH': 'Health',
-    'FAMILY_EMERGENCY': 'Family emergency',
-    'WEATHER': 'Weather',
-    'OTHER': 'Other',
-  };
+
+  Map<String, String> _reasons(BuildContext context) {
+    final l10n = context.l10n;
+    return {
+      'TRAFFIC': l10n.reasonTraffic,
+      'TRANSPORTATION': l10n.reasonTransportation,
+      'HEALTH': l10n.reasonHealth,
+      'FAMILY_EMERGENCY': l10n.reasonFamilyEmergency,
+      'WEATHER': l10n.reasonWeather,
+      'OTHER': l10n.reasonOther,
+    };
+  }
 
   @override
   void dispose() {
@@ -42,31 +48,52 @@ class _LateReasonSheetState extends State<_LateReasonSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final reasons = _reasons(context);
+
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.viewInsetsOf(context).bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('You are ${widget.lateMinutes} minute(s) late', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+          Text(
+            l10n.lateCheckInTitle(widget.lateMinutes),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 6),
-          const Text('You can still check in any time today. Select a reason to continue.'),
+          Text(l10n.lateCheckInSubtitle),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: reasons.entries.map((entry) => ChoiceChip(label: Text(entry.value), selected: _selected == entry.key, onSelected: (_) => setState(() => _selected = entry.key))).toList(),
+            children: reasons.entries
+                .map(
+                  (entry) => ChoiceChip(
+                    label: Text(entry.value),
+                    selected: _selected == entry.key,
+                    onSelected: (_) => setState(() => _selected = entry.key),
+                  ),
+                )
+                .toList(),
           ),
           if (_selected == 'OTHER') ...[
             const SizedBox(height: 16),
-            TextField(controller: _description, maxLines: 3, decoration: const InputDecoration(labelText: 'Tell us why', alignLabelWithHint: true)),
+            TextField(
+              controller: _description,
+              maxLines: 3,
+              decoration: InputDecoration(labelText: l10n.tellUsWhy, alignLabelWithHint: true),
+            ),
           ],
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _selected == null || (_selected == 'OTHER' && _description.text.trim().length < 3)
                 ? null
-                : () => Navigator.pop(context, LateReasonResult(_selected!, _description.text.trim().isEmpty ? null : _description.text.trim())),
-            child: const Text('Continue check-in'),
+                : () => Navigator.pop(
+                      context,
+                      LateReasonResult(_selected!, _description.text.trim().isEmpty ? null : _description.text.trim()),
+                    ),
+            child: Text(l10n.continueCheckIn),
           ),
         ],
       ),

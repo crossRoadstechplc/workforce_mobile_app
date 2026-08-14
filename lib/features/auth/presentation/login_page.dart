@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/theme/app_colors.dart';
+import '../../../core/config/app_config.dart';
+import '../../../core/localization/l10n_extensions.dart';
+import '../../../core/theme/app_theme_extension.dart';
 import '../application/session_controller.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -15,7 +17,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _orgSlugController = TextEditingController();
   bool _loading = false;
   bool _obscure = true;
 
@@ -23,7 +24,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void dispose() {
     _loginController.dispose();
     _passwordController.dispose();
-    _orgSlugController.dispose();
     super.dispose();
   }
 
@@ -34,7 +34,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       await ref.read(sessionControllerProvider.notifier).login(
             _loginController.text,
             _passwordController.text,
-            organizationSlug: _orgSlugController.text.trim().isEmpty ? null : _orgSlugController.text.trim(),
           );
     } catch (error) {
       if (mounted) {
@@ -47,6 +46,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = context.appColors;
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -59,34 +61,30 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 30,
-                      backgroundColor: AppColors.primary,
-                      child: Icon(Icons.schedule_rounded, color: Colors.white, size: 32),
+                      backgroundColor: colors.primary,
+                      child: const Icon(Icons.schedule_rounded, color: Colors.white, size: 32),
                     ),
                     const SizedBox(height: 24),
-                    Text('Welcome back', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700)),
+                    Text(
+                      l10n.loginTitle,
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
+                    ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Sign in with your employee email or employee code. Organization slug is only needed when the same employee code exists in more than one company.',
-                      style: TextStyle(color: AppColors.textSecondary),
+                    Text(
+                      l10n.loginSubtitle,
+                      style: TextStyle(color: colors.textSecondary),
                     ),
                     const SizedBox(height: 28),
                     TextFormField(
                       controller: _loginController,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: 'Email or employee code', prefixIcon: Icon(Icons.person_outline_rounded)),
-                      validator: (value) => (value == null || value.trim().length < 3) ? 'Enter your email or employee code' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _orgSlugController,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Organization slug (optional)',
-                        prefixIcon: Icon(Icons.apartment_outlined),
-                        hintText: 'e.g. company-1',
+                      decoration: InputDecoration(
+                        labelText: l10n.emailOrCode,
+                        prefixIcon: const Icon(Icons.person_outline_rounded),
                       ),
+                      validator: (value) => (value == null || value.trim().length < 3) ? l10n.enterEmailOrCode : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -94,22 +92,52 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       obscureText: _obscure,
                       onFieldSubmitted: (_) => _submit(),
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: l10n.password,
                         prefixIcon: const Icon(Icons.lock_outline_rounded),
                         suffixIcon: IconButton(
                           onPressed: () => setState(() => _obscure = !_obscure),
                           icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
                         ),
                       ),
-                      validator: (value) => (value == null || value.length < 8) ? 'Password must contain at least 8 characters' : null,
+                      validator: (value) => (value == null || value.length < 8) ? l10n.passwordMin8 : null,
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: _loading ? null : _submit,
-                      child: _loading ? const SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Sign in'),
+                      child: _loading
+                          ? const SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : Text(l10n.signIn),
                     ),
                     const SizedBox(height: 20),
-                    const Text('Your account is created by your administrator.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                    if (!AppConfig.isProduction) ...[
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l10n.demoLoginTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
+                            const SizedBox(height: 8),
+                            Text(l10n.demoEmailLabel, style: const TextStyle(fontSize: 13)),
+                            Text(l10n.demoPasswordLabel, style: const TextStyle(fontSize: 13)),
+                            const SizedBox(height: 6),
+                            Text(
+                              l10n.demoLoginNote,
+                              style: TextStyle(fontSize: 12, color: colors.textSecondary, height: 1.4),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    Text(
+                      l10n.accountCreatedByAdmin,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: colors.textSecondary, fontSize: 13),
+                    ),
                   ],
                 ),
               ),

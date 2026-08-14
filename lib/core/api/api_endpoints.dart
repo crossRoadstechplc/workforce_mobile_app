@@ -8,9 +8,11 @@ class ApiEndpoints {
   static const me = '/auth/me';
 
   static const currentAttendance = '/attendance/current';
+  static const attendanceContext = '/attendance/context';
   static const checkInPreview = '/attendance/check-in/preview';
   static const checkIn = '/attendance/check-in';
   static const checkOut = '/attendance/check-out';
+  static const attendancePhotos = '/attendance/photos';
 
   static const timesheets = '/timesheets';
   static const timesheetCalendar = '/timesheets/calendar';

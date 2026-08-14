@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/app_theme_extension.dart';
 
 class AppSkeleton extends StatefulWidget {
   const AppSkeleton({super.key, this.height = 16, this.width, this.radius = 8});
@@ -12,8 +12,7 @@ class AppSkeleton extends StatefulWidget {
   State<AppSkeleton> createState() => _AppSkeletonState();
 }
 
-class _AppSkeletonState extends State<AppSkeleton>
-    with SingleTickerProviderStateMixin {
+class _AppSkeletonState extends State<AppSkeleton> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
@@ -33,6 +32,7 @@ class _AppSkeletonState extends State<AppSkeleton>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return ExcludeSemantics(
       child: AnimatedBuilder(
         animation: _controller,
@@ -42,7 +42,7 @@ class _AppSkeletonState extends State<AppSkeleton>
             width: widget.width,
             height: widget.height,
             decoration: BoxDecoration(
-              color: AppColors.border,
+              color: colors.border,
               borderRadius: BorderRadius.circular(widget.radius),
             ),
           ),
@@ -57,14 +57,15 @@ class AttendanceCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Semantics(
       label: 'Loading attendance',
       child: Container(
         height: 210,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          border: Border.all(color: AppColors.border),
+          color: colors.surface,
+          border: Border.all(color: colors.border),
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Column(

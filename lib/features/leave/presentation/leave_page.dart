@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../../core/theme/app_colors.dart';
+
+import '../../../core/localization/l10n_extensions.dart';
+import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/status_chip.dart';
@@ -9,14 +11,187 @@ import '../application/leave_controller.dart';
 import '../data/leave_models.dart';
 import 'leave_request_sheet.dart';
 
-class LeavePage extends ConsumerWidget{const LeavePage({super.key});
-  Future<void> _request(BuildContext context,WidgetRef ref,LeaveState state) async { final draft=await showLeaveRequestSheet(context,state.types); if(draft==null)return; try{await ref.read(leaveControllerProvider.notifier).create(leaveTypeId:draft.leaveTypeId,startDate:draft.startDate,endDate:draft.endDate,reason:draft.reason); if(context.mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Leave request submitted.')));}catch(e){if(context.mounted)ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(e.toString())));} }
-  @override Widget build(BuildContext context,WidgetRef ref){ final async=ref.watch(leaveControllerProvider); return Scaffold(appBar:AppBar(title:const Text('Leave')),floatingActionButton:async.value==null?null:FloatingActionButton.extended(onPressed:()=>_request(context,ref,async.value!),icon:const Icon(Icons.add_rounded),label:const Text('Request leave')),body:async.when(loading:()=>const Center(child:CircularProgressIndicator()),error:(e,_)=>AppErrorView(message:e.toString(),onRetry:()=>ref.read(leaveControllerProvider.notifier).refresh()),data:(state)=>RefreshIndicator(onRefresh:()=>ref.read(leaveControllerProvider.notifier).refresh(),child:ListView(padding:const EdgeInsets.all(16),children:[
-    _Summary(summary:state.summary),const SizedBox(height:20),const Text('Leave history',style:TextStyle(fontSize:18,fontWeight:FontWeight.w700)),const SizedBox(height:10),
-    if(state.requests.isEmpty)const AppCard(child:Padding(padding:EdgeInsets.symmetric(vertical:28),child:Center(child:Text('No leave requests yet.',style:TextStyle(color:AppColors.textSecondary))))) else ...state.requests.map((r)=>Padding(padding:const EdgeInsets.only(bottom:12),child:_LeaveCard(item:r,onCancel:r.status=='PENDING'?()=>ref.read(leaveControllerProvider.notifier).cancel(r.id):null))),const SizedBox(height:80)
-  ])))); }
+class LeavePage extends ConsumerWidget {
+  const LeavePage({super.key});
+
+  Future<void> _request(BuildContext context, WidgetRef ref, LeaveState state) async {
+    final l10n = context.l10n;
+    final draft = await showLeaveRequestSheet(context, state.types);
+    if (draft == null) return;
+    try {
+      await ref.read(leaveControllerProvider.notifier).create(
+            leaveTypeId: draft.leaveTypeId,
+            startDate: draft.startDate,
+            endDate: draft.endDate,
+            reason: draft.reason,
+          );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.leaveRequestSubmitted)));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(leaveControllerProvider);
+    final l10n = context.l10n;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.leaveTitle)),
+      floatingActionButton: async.value == null
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _request(context, ref, async.value!),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(l10n.requestLeave),
+            ),
+      body: async.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => AppErrorView(
+          message: e.toString(),
+          onRetry: () => ref.read(leaveControllerProvider.notifier).refresh(),
+        ),
+        data: (state) => RefreshIndicator(
+          onRefresh: () => ref.read(leaveControllerProvider.notifier).refresh(),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              _Summary(summary: state.summary),
+              const SizedBox(height: 20),
+              Text(l10n.leaveHistory, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 10),
+              if (state.requests.isEmpty)
+                AppCard(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 28),
+                    child: Center(
+                      child: Text(l10n.noLeaveRequests, style: TextStyle(color: context.appColors.textSecondary)),
+                    ),
+                  ),
+                )
+              else
+                ...state.requests.map(
+                  (r) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _LeaveCard(
+                      item: r,
+                      onCancel: r.status == 'PENDING' ? () => ref.read(leaveControllerProvider.notifier).cancel(r.id) : null,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 80),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
-class _Summary extends StatelessWidget{const _Summary({required this.summary});final LeaveSummary summary;@override Widget build(BuildContext context)=>Row(children:[Expanded(child:_Metric(label:'Approved',value:'${summary.approvedRequests}',kind:StatusKind.success)),const SizedBox(width:8),Expanded(child:_Metric(label:'Pending',value:'${summary.pendingRequests}',kind:StatusKind.warning)),const SizedBox(width:8),Expanded(child:_Metric(label:'Rejected',value:'${summary.rejectedRequests}',kind:StatusKind.error))]);}
-class _Metric extends StatelessWidget{const _Metric({required this.label,required this.value,required this.kind});final String label,value;final StatusKind kind;@override Widget build(BuildContext context)=>AppCard(padding:const EdgeInsets.all(14),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(value,style:const TextStyle(fontSize:24,fontWeight:FontWeight.w800)),const SizedBox(height:4),Text(label,style:const TextStyle(color:AppColors.textSecondary,fontSize:12))]));}
-class _LeaveCard extends StatelessWidget{const _LeaveCard({required this.item,this.onCancel});final LeaveRequestItem item;final VoidCallback? onCancel;@override Widget build(BuildContext context)=>AppCard(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Row(children:[Expanded(child:Text(item.leaveTypeName,style:const TextStyle(fontSize:16,fontWeight:FontWeight.w700))),StatusChip(label:item.status,kind:_kind(item.status))]),const SizedBox(height:10),Text('${DateFormat('MMM d').format(item.startDate)} – ${DateFormat('MMM d, yyyy').format(item.endDate)} • ${item.numberOfDays.toStringAsFixed(item.numberOfDays%1==0?0:1)} day(s)',style:const TextStyle(color:AppColors.textSecondary)),const SizedBox(height:10),Text(item.reason),if(item.decisionReason?.isNotEmpty==true)...[const SizedBox(height:12),Container(width:double.infinity,padding:const EdgeInsets.all(12),decoration:BoxDecoration(color:AppColors.background,borderRadius:BorderRadius.circular(12)),child:Text('Admin: ${item.decisionReason!}'))],if(onCancel!=null)...[const SizedBox(height:12),TextButton.icon(onPressed:onCancel,icon:const Icon(Icons.close_rounded),label:const Text('Cancel request'))]]));}
-StatusKind _kind(String status)=>switch(status){'APPROVED'=>StatusKind.success,'REJECTED'=>StatusKind.error,'PENDING'=>StatusKind.warning,_=>StatusKind.neutral};
+
+class _Summary extends StatelessWidget {
+  const _Summary({required this.summary});
+  final LeaveSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Row(
+      children: [
+        Expanded(child: _Metric(label: l10n.approved, value: '${summary.approvedRequests}', kind: StatusKind.success)),
+        const SizedBox(width: 8),
+        Expanded(child: _Metric(label: l10n.pending, value: '${summary.pendingRequests}', kind: StatusKind.warning)),
+        const SizedBox(width: 8),
+        Expanded(child: _Metric(label: l10n.rejected, value: '${summary.rejectedRequests}', kind: StatusKind.error)),
+      ],
+    );
+  }
+}
+
+class _Metric extends StatelessWidget {
+  const _Metric({required this.label, required this.value, required this.kind});
+  final String label;
+  final String value;
+  final StatusKind kind;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            Text(label, style: TextStyle(color: context.appColors.textSecondary, fontSize: 12)),
+          ],
+        ),
+      );
+}
+
+class _LeaveCard extends StatelessWidget {
+  const _LeaveCard({required this.item, this.onCancel});
+  final LeaveRequestItem item;
+  final VoidCallback? onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = context.appColors;
+    final locale = Localizations.localeOf(context).toString();
+    final days = item.numberOfDays.toStringAsFixed(item.numberOfDays % 1 == 0 ? 0 : 1);
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(item.leaveTypeName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              ),
+              StatusChip(label: item.status, kind: _kind(item.status)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            l10n.daysCount(
+              DateFormat('MMM d', locale).format(item.startDate),
+              DateFormat('MMM d, yyyy', locale).format(item.endDate),
+              days,
+            ),
+            style: TextStyle(color: colors.textSecondary),
+          ),
+          const SizedBox(height: 10),
+          Text(item.reason),
+          if (item.decisionReason?.isNotEmpty == true) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: colors.background, borderRadius: BorderRadius.circular(12)),
+              child: Text(l10n.adminNote(item.decisionReason!)),
+            ),
+          ],
+          if (onCancel != null) ...[
+            const SizedBox(height: 12),
+            TextButton.icon(
+              onPressed: onCancel,
+              icon: const Icon(Icons.close_rounded),
+              label: Text(l10n.cancelRequest),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+StatusKind _kind(String status) => switch (status) {
+      'APPROVED' => StatusKind.success,
+      'REJECTED' => StatusKind.error,
+      'PENDING' => StatusKind.warning,
+      _ => StatusKind.neutral,
+    };

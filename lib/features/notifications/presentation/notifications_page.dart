@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../../core/theme/app_colors.dart';
+
+import '../../../core/localization/l10n_extensions.dart';
+import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../application/notification_controller.dart';
 import '../data/notification_models.dart';
@@ -12,15 +14,18 @@ class NotificationsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(notificationControllerProvider);
+    final l10n = context.l10n;
+    final colors = context.appColors;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(l10n.notificationsTitle),
         actions: [
           TextButton(
             onPressed: async.value?.unreadCount == 0
                 ? null
                 : () => ref.read(notificationControllerProvider.notifier).markAllRead(),
-            child: const Text('Read all'),
+            child: Text(l10n.readAll),
           ),
         ],
       ),
@@ -34,13 +39,13 @@ class NotificationsPage extends ConsumerWidget {
           onRefresh: () => ref.read(notificationControllerProvider.notifier).refresh(),
           child: data.items.isEmpty
               ? ListView(
-                  children: const [
+                  children: [
                     Padding(
-                      padding: EdgeInsets.only(top: 160),
+                      padding: const EdgeInsets.only(top: 160),
                       child: Center(
                         child: Text(
-                          'No notifications yet.',
-                          style: TextStyle(color: AppColors.textSecondary),
+                          l10n.noNotificationsYet,
+                          style: TextStyle(color: colors.textSecondary),
                         ),
                       ),
                     ),
@@ -52,9 +57,7 @@ class NotificationsPage extends ConsumerWidget {
                   separatorBuilder: (context, index) => const SizedBox(height: 8),
                   itemBuilder: (context, i) => _Tile(
                     item: data.items[i],
-                    onTap: () => ref
-                        .read(notificationControllerProvider.notifier)
-                        .markRead(data.items[i].id),
+                    onTap: () => ref.read(notificationControllerProvider.notifier).markRead(data.items[i].id),
                   ),
                 ),
         ),
@@ -71,8 +74,11 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final locale = Localizations.localeOf(context).toString();
+
     return Material(
-      color: item.isRead ? Colors.white : AppColors.primary.withValues(alpha: 0.06),
+      color: item.isRead ? colors.surface : colors.primary.withValues(alpha: 0.06),
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
@@ -84,8 +90,8 @@ class _Tile extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.10),
-                child: Icon(_icon(item.type), color: AppColors.primary, size: 20),
+                backgroundColor: colors.primary.withValues(alpha: 0.10),
+                child: Icon(_icon(item.type), color: colors.primary, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -97,29 +103,27 @@ class _Tile extends StatelessWidget {
                         Expanded(
                           child: Text(
                             item.title,
-                            style: TextStyle(
-                              fontWeight: item.isRead ? FontWeight.w600 : FontWeight.w800,
-                            ),
+                            style: TextStyle(fontWeight: item.isRead ? FontWeight.w600 : FontWeight.w800),
                           ),
                         ),
                         Text(
-                          DateFormat('MMM d').format(item.createdAt),
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                          DateFormat('MMM d', locale).format(item.createdAt),
+                          style: TextStyle(color: colors.textSecondary, fontSize: 12),
                         ),
                       ],
                     ),
                     const SizedBox(height: 5),
                     Text(
                       item.message,
-                      style: const TextStyle(color: AppColors.textSecondary, height: 1.4),
+                      style: TextStyle(color: colors.textSecondary, height: 1.4),
                     ),
                   ],
                 ),
               ),
               if (!item.isRead)
-                const Padding(
-                  padding: EdgeInsets.only(left: 8, top: 4),
-                  child: CircleAvatar(radius: 4, backgroundColor: AppColors.primary),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, top: 4),
+                  child: CircleAvatar(radius: 4, backgroundColor: colors.primary),
                 ),
             ],
           ),

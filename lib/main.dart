@@ -3,9 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
 import 'app/bootstrap.dart';
+import 'core/preferences/app_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await bootstrap();
-  runApp(const ProviderScope(child: WorkforceEmployeeApp()));
+  final preferences = await bootstrap();
+  runApp(
+    ProviderScope(
+      overrides: [
+        appPreferencesProvider.overrideWithValue(preferences),
+      ],
+      child: const WorkforceEmployeeApp(),
+    ),
+  );
 }
