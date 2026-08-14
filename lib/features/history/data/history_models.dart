@@ -1,3 +1,5 @@
+import '../history_date_utils.dart';
+
 class PageMeta {
   const PageMeta({required this.page, required this.pageSize, required this.total, required this.totalPages});
   final int page;
@@ -44,7 +46,7 @@ class TimesheetHistoryItem {
 
   factory TimesheetHistoryItem.fromJson(Map<String, dynamic> json) => TimesheetHistoryItem(
         id: json['id'] as String,
-        workDate: DateTime.parse(json['workDate'] as String).toLocal(),
+        workDate: parseCalendarDate(json['workDate'] as String),
         status: json['status']?.toString() ?? 'UNKNOWN',
         actualCheckIn: _date(json['actualCheckIn']),
         actualCheckOut: _date(json['actualCheckOut']),
@@ -77,7 +79,7 @@ class WorksheetHistoryItem {
 
   factory WorksheetHistoryItem.fromJson(Map<String, dynamic> json) => WorksheetHistoryItem(
         id: json['id'] as String,
-        workDate: DateTime.parse(json['workDate'] as String).toLocal(),
+        workDate: parseCalendarDate(json['workDate'] as String),
         status: json['status']?.toString() ?? 'SUBMITTED',
         description: json['workDescription']?.toString() ?? '',
         submittedAt: _date(json['submittedAt']),

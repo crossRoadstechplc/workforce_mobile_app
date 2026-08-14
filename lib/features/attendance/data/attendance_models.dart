@@ -1,3 +1,5 @@
+import '../../history/history_date_utils.dart';
+
 class CheckInPreview {
   const CheckInPreview({
     required this.insideRadius,
@@ -106,7 +108,7 @@ class Timesheet {
         actualCheckOut: json['actualCheckOut'] == null ? null : DateTime.parse(json['actualCheckOut'] as String).toLocal(),
         scheduledCheckIn: json['scheduledCheckIn'] == null ? null : DateTime.parse(json['scheduledCheckIn'] as String).toLocal(),
         scheduledCheckOut: json['scheduledCheckOut'] == null ? null : DateTime.parse(json['scheduledCheckOut'] as String).toLocal(),
-        workDate: json['workDate'] == null ? null : DateTime.parse(json['workDate'] as String).toLocal(),
+        workDate: json['workDate'] == null ? null : parseCalendarDate(json['workDate'] as String),
         lateMinutes: (json['lateMinutes'] as num?)?.toInt() ?? 0,
         workedMinutes: (json['workedMinutes'] as num?)?.toInt() ?? 0,
         earlyCheckoutMinutes: (json['earlyCheckoutMinutes'] as num?)?.toInt() ?? 0,

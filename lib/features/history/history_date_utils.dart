@@ -1,6 +1,16 @@
 bool isSameCalendarDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;
 
+/// Parses API calendar dates (`YYYY-MM-DD` or ISO midnight UTC) without timezone shift.
+DateTime parseCalendarDate(String value) {
+  final datePart = value.split('T').first;
+  final parts = datePart.split('-');
+  if (parts.length == 3) {
+    return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+  }
+  return DateTime.parse(value).toLocal();
+}
+
 bool isSameCalendarMonth(DateTime a, DateTime b) => a.year == b.year && a.month == b.month;
 
 DateTime normalizeDate(DateTime value) => DateTime(value.year, value.month, value.day);
