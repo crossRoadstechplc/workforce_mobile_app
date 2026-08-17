@@ -1081,6 +1081,40 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open settings'**
   String get photoOpenSettings;
+
+  String get evaluationsTitle;
+  String get noEvaluationsYet;
+  String evaluationDue(String date);
+  String evaluationSelfAverage(String value);
+  String evaluationDueCard(String name);
+  String get evaluationStatusOpen;
+  String get evaluationStatusWaiting;
+  String get evaluationStatusScored;
+  String get evaluationStatusFinal;
+  String get evaluationStepInfo;
+  String get evaluationStepMetrics;
+  String get evaluationStepRoles;
+  String get evaluationStepSkills;
+  String get evaluationStepGoals;
+  String get evaluationStepReview;
+  String get evaluationEmployee;
+  String get evaluationPosition;
+  String get evaluationSupervisor;
+  String get evaluationPeriod;
+  String get evaluationNumber;
+  String evaluationPrevious(String value);
+  String get evaluationPickDate;
+  String get evaluationCriteria;
+  String get evaluationReviewHint;
+  String get evaluationFocus;
+  String get evaluationActionPlan;
+  String evaluationEvaluatorScore(String value);
+  String get evaluationSubmit;
+  String get evaluationSubmitConfirm;
+  String get evaluationSubmitted;
+  String get evaluationIncomplete;
+  String get back;
+  String get next;
 }
 
 class _AppLocalizationsDelegate

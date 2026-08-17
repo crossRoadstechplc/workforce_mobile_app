@@ -19,6 +19,7 @@ import '../../attendance/presentation/attendance_photo_capture_modal.dart';
 import '../../attendance/presentation/check_out_sheet.dart';
 import '../../attendance/presentation/late_reason_sheet.dart';
 import '../../attendance/presentation/time_clock_status_card.dart';
+import '../../evaluation/presentation/evaluation_due_banner.dart';
 import '../../notifications/application/notification_controller.dart';
 import '../application/shell_refresh.dart';
 
@@ -297,7 +298,12 @@ class _TimeClockBody extends StatelessWidget {
                   top: 8,
                   left: 16,
                   right: 16,
-                  child: TimeClockStatusCard(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const EvaluationDueBanner(),
+                      const SizedBox(height: 8),
+                      TimeClockStatusCard(
                     office: office,
                     timesheet: timesheet,
                     elapsed: elapsed,
@@ -308,6 +314,8 @@ class _TimeClockBody extends StatelessWidget {
                     unreadNotifications: unreadNotifications,
                     onOpenNotifications: onOpenNotifications,
                     onLocationBannerTap: onLocationBannerTap,
+                  ),
+                    ],
                   ),
                 ),
                 Positioned(

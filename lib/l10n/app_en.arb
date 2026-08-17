@@ -274,5 +274,53 @@
   "photoCaptureFailed": "Could not capture photo. Try again.",
   "photoCameraPermissionRequired": "Camera access is required to take your verification photo. Allow camera permission and try again.",
   "photoCameraPermissionWeb": "Camera access is required. Allow the camera for this site in your browser settings, then try again.",
-  "photoOpenSettings": "Open settings"
+  "photoOpenSettings": "Open settings",
+  "evaluationsTitle": "Evaluations",
+  "noEvaluationsYet": "No reviews yet.",
+  "evaluationDue": "Due {date}",
+  "@evaluationDue": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "evaluationSelfAverage": "Self average: {value}",
+  "@evaluationSelfAverage": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "evaluationDueCard": "Complete your {name} review",
+  "@evaluationDueCard": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "evaluationStatusOpen": "Action needed",
+  "evaluationStatusWaiting": "With reviewer",
+  "evaluationStatusScored": "Scored",
+  "evaluationStatusFinal": "Final",
+  "evaluationStepInfo": "Employee information",
+  "evaluationStepMetrics": "Metrics",
+  "evaluationStepRoles": "Roles & responsibilities",
+  "evaluationStepSkills": "Skills improved",
+  "evaluationStepGoals": "Development goals",
+  "evaluationStepReview": "Review & submit",
+  "evaluationEmployee": "Name",
+  "evaluationPosition": "Position",
+  "evaluationSupervisor": "Direct supervisor",
+  "evaluationPeriod": "Period",
+  "evaluationNumber": "Number",
+  "evaluationPrevious": "Previous: {value}",
+  "@evaluationPrevious": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "evaluationPickDate": "Pick target date",
+  "evaluationCriteria": "Evaluation criteria",
+  "evaluationReviewHint": "Check your scores, then submit. You cannot change self-scores after submitting.",
+  "evaluationFocus": "Focus competency",
+  "evaluationActionPlan": "Action plan",
+  "evaluationEvaluatorScore": "Evaluator: {value}",
+  "@evaluationEvaluatorScore": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "evaluationSubmit": "Submit self-evaluation",
+  "evaluationSubmitConfirm": "Submit your scores to your reviewer? You will not be able to edit them afterwards.",
+  "evaluationSubmitted": "Self-evaluation submitted.",
+  "evaluationIncomplete": "Score every metric and responsibility item from 1 to 10.",
+  "back": "Back",
+  "next": "Next"
 }

@@ -26,6 +26,9 @@ class SocketService {
     'leave.approved',
     'leave.rejected',
     'checkout.reminder',
+    'evaluation.opened',
+    'evaluation.scored',
+    'evaluation.finalized',
   ];
 
   Future<void> connect() async {

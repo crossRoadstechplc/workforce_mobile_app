@@ -557,4 +557,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get photoOpenSettings => 'Open settings';
+
+  @override
+  String get evaluationsTitle => 'Evaluations';
+  @override
+  String get noEvaluationsYet => 'No reviews yet.';
+  @override
+  String evaluationDue(String date) => 'Due $date';
+  @override
+  String evaluationSelfAverage(String value) => 'Self average: $value';
+  @override
+  String evaluationDueCard(String name) => 'Complete your $name review';
+  @override
+  String get evaluationStatusOpen => 'Action needed';
+  @override
+  String get evaluationStatusWaiting => 'With reviewer';
+  @override
+  String get evaluationStatusScored => 'Scored';
+  @override
+  String get evaluationStatusFinal => 'Final';
+  @override
+  String get evaluationStepInfo => 'Employee information';
+  @override
+  String get evaluationStepMetrics => 'Metrics';
+  @override
+  String get evaluationStepRoles => 'Roles & responsibilities';
+  @override
+  String get evaluationStepSkills => 'Skills improved';
+  @override
+  String get evaluationStepGoals => 'Development goals';
+  @override
+  String get evaluationStepReview => 'Review & submit';
+  @override
+  String get evaluationEmployee => 'Name';
+  @override
+  String get evaluationPosition => 'Position';
+  @override
+  String get evaluationSupervisor => 'Direct supervisor';
+  @override
+  String get evaluationPeriod => 'Period';
+  @override
+  String get evaluationNumber => 'Number';
+  @override
+  String evaluationPrevious(String value) => 'Previous: $value';
+  @override
+  String get evaluationPickDate => 'Pick target date';
+  @override
+  String get evaluationCriteria => 'Evaluation criteria';
+  @override
+  String get evaluationReviewHint => 'Check your scores, then submit. You cannot change self-scores after submitting.';
+  @override
+  String get evaluationFocus => 'Focus competency';
+  @override
+  String get evaluationActionPlan => 'Action plan';
+  @override
+  String evaluationEvaluatorScore(String value) => 'Evaluator: $value';
+  @override
+  String get evaluationSubmit => 'Submit self-evaluation';
+  @override
+  String get evaluationSubmitConfirm => 'Submit your scores to your reviewer? You will not be able to edit them afterwards.';
+  @override
+  String get evaluationSubmitted => 'Self-evaluation submitted.';
+  @override
+  String get evaluationIncomplete => 'Score every metric and responsibility item from 1 to 10.';
+  @override
+  String get back => 'Back';
+  @override
+  String get next => 'Next';
 }

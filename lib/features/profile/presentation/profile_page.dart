@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
 import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_card.dart';
@@ -138,6 +139,16 @@ class ProfilePage extends ConsumerWidget {
                     const Divider(),
                     _item(context, Icons.lock_outline_rounded, l10n.access, l10n.permissionsCount(user.permissions.length)),
                   ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              AppCard(
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.assignment_outlined, color: colors.primary),
+                  title: Text(l10n.evaluationsTitle),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/evaluations'),
                 ),
               ),
               const SizedBox(height: 16),

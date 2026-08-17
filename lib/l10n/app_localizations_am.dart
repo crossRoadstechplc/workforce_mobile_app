@@ -548,4 +548,71 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get photoOpenSettings => 'ቅንብሮች ክፈት';
+
+  @override
+  String get evaluationsTitle => 'ግምገማዎች';
+  @override
+  String get noEvaluationsYet => 'ገና ግምገማ የለም።';
+  @override
+  String evaluationDue(String date) => 'የመጨረሻ ቀን $date';
+  @override
+  String evaluationSelfAverage(String value) => 'የራስ አማካይ: $value';
+  @override
+  String evaluationDueCard(String name) => 'የ$name ግምገማዎን ይሙሉ';
+  @override
+  String get evaluationStatusOpen => 'እርምጃ ያስፈልጋል';
+  @override
+  String get evaluationStatusWaiting => 'ከገምጋሚ ጋር';
+  @override
+  String get evaluationStatusScored => 'ተገምግሟል';
+  @override
+  String get evaluationStatusFinal => 'የተጠናቀቀ';
+  @override
+  String get evaluationStepInfo => 'የሰራተኛ መረጃ';
+  @override
+  String get evaluationStepMetrics => 'መለኪያዎች';
+  @override
+  String get evaluationStepRoles => 'ሚናዎች እና ኃላፊነቶች';
+  @override
+  String get evaluationStepSkills => 'የተሻሻሉ ክህሎቶች';
+  @override
+  String get evaluationStepGoals => 'የልማት ግቦች';
+  @override
+  String get evaluationStepReview => 'ይገምግሙ እና ይላኩ';
+  @override
+  String get evaluationEmployee => 'ስም';
+  @override
+  String get evaluationPosition => 'የስራ መደብ';
+  @override
+  String get evaluationSupervisor => 'ቀጥተኛ ኃላፊ';
+  @override
+  String get evaluationPeriod => 'ጊዜ';
+  @override
+  String get evaluationNumber => 'ቁጥር';
+  @override
+  String evaluationPrevious(String value) => 'ቀዳሚ: $value';
+  @override
+  String get evaluationPickDate => 'የዒላማ ቀን ይምረጡ';
+  @override
+  String get evaluationCriteria => 'የግምገማ መስፈርት';
+  @override
+  String get evaluationReviewHint => 'ውጤቶችዎን ያረጋግጡና ይላኩ። ከተላከ በኋላ መቀየር አይችሉም።';
+  @override
+  String get evaluationFocus => 'የትኩረት ብቃት';
+  @override
+  String get evaluationActionPlan => 'የእርምጃ እቅድ';
+  @override
+  String evaluationEvaluatorScore(String value) => 'ገምጋሚ: $value';
+  @override
+  String get evaluationSubmit => 'የራስ ግምገማ ላክ';
+  @override
+  String get evaluationSubmitConfirm => 'ውጤቶችዎን ለገምጋሚ ይላኩ? ከዚያ በኋላ ማስተካከል አይችሉም።';
+  @override
+  String get evaluationSubmitted => 'የራስ ግምገማ ተልኳል።';
+  @override
+  String get evaluationIncomplete => 'ሁሉንም መለኪያዎች ከ 1 እስከ 10 ይስጡ።';
+  @override
+  String get back => 'ተመለስ';
+  @override
+  String get next => 'ቀጣይ';
 }

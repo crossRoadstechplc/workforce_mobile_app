@@ -23,6 +23,8 @@ class ApiEndpoints {
   static const leaveTypes = '/leave-requests/types';
   static const leaveSummary = '/leave-requests/summary';
 
+  static const evaluations = '/evaluations';
+
   static const notifications = '/notifications';
   static const notificationReadAll = '/notifications/read-all';
   static const notificationDevices = '/notifications/devices';

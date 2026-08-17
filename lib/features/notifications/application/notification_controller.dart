@@ -8,6 +8,7 @@ import '../../attendance/application/location_preview_controller.dart';
 import '../../auth/application/session_controller.dart';
 import '../../history/application/history_controller.dart';
 import '../../leave/application/leave_controller.dart';
+import '../../evaluation/application/evaluation_controller.dart';
 import '../../profile/application/profile_controller.dart';
 import '../data/notification_models.dart';
 import '../data/notification_repository.dart';
@@ -61,6 +62,7 @@ class NotificationController extends AsyncNotifier<NotificationPageData> {
       ref.invalidate(historyControllerProvider);
     }
     if (event.name.startsWith('leave.')) ref.invalidate(leaveControllerProvider);
+    if (event.name.startsWith('evaluation.')) ref.invalidate(evaluationListControllerProvider);
     if (event.name == 'worksheet.reviewed') ref.invalidate(historyControllerProvider);
   }
 }
@@ -112,6 +114,7 @@ class RealtimeCoordinator extends Notifier<bool> {
     ref.invalidate(officeContextProvider);
     ref.invalidate(historyControllerProvider);
     ref.invalidate(leaveControllerProvider);
+    ref.invalidate(evaluationListControllerProvider);
     ref.invalidate(profileControllerProvider);
     ref.invalidate(notificationControllerProvider);
   }

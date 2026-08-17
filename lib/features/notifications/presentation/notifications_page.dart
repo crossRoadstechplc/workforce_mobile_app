@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import 'package:go_router/go_router.dart';
 import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_error_view.dart';
@@ -57,7 +58,13 @@ class NotificationsPage extends ConsumerWidget {
                   separatorBuilder: (context, index) => const SizedBox(height: 8),
                   itemBuilder: (context, i) => _Tile(
                     item: data.items[i],
-                    onTap: () => ref.read(notificationControllerProvider.notifier).markRead(data.items[i].id),
+                    onTap: () {
+                      final item = data.items[i];
+                      ref.read(notificationControllerProvider.notifier).markRead(item.id);
+                      if (item.relatedEntityType == 'Evaluation' && item.relatedEntityId != null) {
+                        context.push('/evaluations/${item.relatedEntityId}');
+                      }
+                    },
                   ),
                 ),
         ),
@@ -133,8 +140,10 @@ class _Tile extends StatelessWidget {
   }
 }
 
-IconData _icon(String type) => type.contains('LEAVE')
-    ? Icons.beach_access_outlined
-    : type.contains('CHECK') || type.contains('ATTENDANCE')
-        ? Icons.schedule_rounded
-        : Icons.notifications_none_rounded;
+IconData _icon(String type) => type.contains('EVALUATION')
+    ? Icons.assignment_outlined
+    : type.contains('LEAVE')
+        ? Icons.beach_access_outlined
+        : type.contains('CHECK') || type.contains('ATTENDANCE')
+            ? Icons.schedule_rounded
+            : Icons.notifications_none_rounded;

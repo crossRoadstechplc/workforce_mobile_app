@@ -9,6 +9,8 @@ import '../features/dashboard/presentation/app_shell.dart';
 import '../features/dashboard/presentation/home_page.dart';
 import '../features/history/presentation/history_page.dart';
 import '../features/leave/presentation/leave_page.dart';
+import '../features/evaluation/presentation/evaluations_list_page.dart';
+import '../features/evaluation/presentation/evaluation_form_page.dart';
 import '../features/notifications/presentation/notifications_page.dart';
 import '../features/profile/presentation/profile_page.dart';
 
@@ -48,6 +50,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/home', builder: (_, __) => const HomePage()),
           GoRoute(path: '/history', builder: (_, __) => const HistoryPage()),
           GoRoute(path: '/leave', builder: (_, __) => const LeavePage()),
+          GoRoute(path: '/evaluations', builder: (_, __) => const EvaluationsListPage()),
+          GoRoute(
+            path: '/evaluations/:id',
+            builder: (_, state) => EvaluationFormPage(id: state.pathParameters['id']!),
+          ),
           GoRoute(path: '/profile', builder: (_, __) => const ProfilePage()),
           GoRoute(path: '/notifications', builder: (_, __) => const NotificationsPage()),
         ],
