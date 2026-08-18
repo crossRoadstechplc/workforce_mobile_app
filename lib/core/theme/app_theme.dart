@@ -44,7 +44,18 @@ class AppTheme {
         backgroundColor: colors.background,
         foregroundColor: colors.textPrimary,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: false,
+        titleTextStyle: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: colors.textPrimary,
+          fontFamily: isAmharic ? GoogleFonts.notoSansEthiopic().fontFamily : GoogleFonts.inter().fontFamily,
+        ),
+        shape: Border(
+          bottom: BorderSide(color: colors.border),
+        ),
       ),
       cardTheme: CardThemeData(
         color: colors.surface,
@@ -53,6 +64,15 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           side: BorderSide(color: colors.border),
+        ),
+      ),
+      drawerTheme: DrawerThemeData(
+        backgroundColor: colors.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 1,
+        width: 304,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.horizontal(right: Radius.circular(16)),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
@@ -66,6 +86,14 @@ class AppTheme {
             color: selected ? colors.primary : colors.textSecondary,
           );
         }),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: colors.primary,
+        unselectedLabelColor: colors.textSecondary,
+        indicatorColor: colors.primary,
+        dividerColor: colors.border,
+        labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

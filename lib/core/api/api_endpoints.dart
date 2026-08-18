@@ -25,6 +25,9 @@ class ApiEndpoints {
 
   static const evaluations = '/evaluations';
 
+  static const meetingRooms = '/meetings/rooms';
+  static const meetingBookings = '/meetings/bookings';
+
   static const notifications = '/notifications';
   static const notificationReadAll = '/notifications/read-all';
   static const notificationDevices = '/notifications/devices';

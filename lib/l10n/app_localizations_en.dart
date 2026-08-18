@@ -29,6 +29,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navProfile => 'Profile';
 
   @override
+  String get navMeetings => 'Meetings';
+
+  @override
+  String get navPerformance => 'Performance';
+
+  @override
+  String get navNotifications => 'Notifications';
+
+  @override
+  String get drawerSectionWork => 'Work';
+
+  @override
+  String get drawerSectionWorkplace => 'Workplace';
+
+  @override
+  String get drawerSectionAccount => 'Account';
+
+  @override
+  String get openMenu => 'Menu';
+
+  @override
+  String get employeeWorkspace => 'Employee workspace';
+
+  @override
   String get loginTitle => 'Employee sign in';
 
   @override
@@ -560,68 +584,152 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get evaluationsTitle => 'Evaluations';
+
   @override
   String get noEvaluationsYet => 'No reviews yet.';
+
   @override
-  String evaluationDue(String date) => 'Due $date';
+  String evaluationDue(String date) {
+    return 'Due $date';
+  }
+
   @override
-  String evaluationSelfAverage(String value) => 'Self average: $value';
+  String evaluationSelfAverage(String value) {
+    return 'Self average: $value';
+  }
+
   @override
-  String evaluationDueCard(String name) => 'Complete your $name review';
+  String evaluationDueCard(String name) {
+    return 'Complete your $name review';
+  }
+
   @override
   String get evaluationStatusOpen => 'Action needed';
+
   @override
   String get evaluationStatusWaiting => 'With reviewer';
+
   @override
   String get evaluationStatusScored => 'Scored';
+
   @override
   String get evaluationStatusFinal => 'Final';
+
   @override
   String get evaluationStepInfo => 'Employee information';
+
   @override
   String get evaluationStepMetrics => 'Metrics';
+
   @override
   String get evaluationStepRoles => 'Roles & responsibilities';
+
   @override
   String get evaluationStepSkills => 'Skills improved';
+
   @override
   String get evaluationStepGoals => 'Development goals';
+
   @override
   String get evaluationStepReview => 'Review & submit';
+
   @override
   String get evaluationEmployee => 'Name';
+
   @override
   String get evaluationPosition => 'Position';
+
   @override
   String get evaluationSupervisor => 'Direct supervisor';
+
   @override
   String get evaluationPeriod => 'Period';
+
   @override
   String get evaluationNumber => 'Number';
+
   @override
-  String evaluationPrevious(String value) => 'Previous: $value';
+  String evaluationPrevious(String value) {
+    return 'Previous: $value';
+  }
+
   @override
   String get evaluationPickDate => 'Pick target date';
+
   @override
   String get evaluationCriteria => 'Evaluation criteria';
+
   @override
-  String get evaluationReviewHint => 'Check your scores, then submit. You cannot change self-scores after submitting.';
+  String get evaluationReviewHint =>
+      'Check your scores, then submit. You cannot change self-scores after submitting.';
+
   @override
   String get evaluationFocus => 'Focus competency';
+
   @override
   String get evaluationActionPlan => 'Action plan';
+
   @override
-  String evaluationEvaluatorScore(String value) => 'Evaluator: $value';
+  String evaluationEvaluatorScore(String value) {
+    return 'Evaluator: $value';
+  }
+
   @override
   String get evaluationSubmit => 'Submit self-evaluation';
+
   @override
-  String get evaluationSubmitConfirm => 'Submit your scores to your reviewer? You will not be able to edit them afterwards.';
+  String get evaluationSubmitConfirm =>
+      'Submit your scores to your reviewer? You will not be able to edit them afterwards.';
+
   @override
   String get evaluationSubmitted => 'Self-evaluation submitted.';
+
   @override
-  String get evaluationIncomplete => 'Score every metric and responsibility item from 1 to 10.';
+  String get evaluationIncomplete =>
+      'Score every metric and responsibility item from 1 to 10.';
+
   @override
   String get back => 'Back';
+
   @override
   String get next => 'Next';
+
+  @override
+  String get meetingsTitle => 'Meetings';
+
+  @override
+  String get bookMeeting => 'Book room';
+
+  @override
+  String get noMeetingsYet => 'No bookings yet.';
+
+  @override
+  String get meetingBooked => 'Room booked.';
+
+  @override
+  String get meetingCancelled => 'Booking cancelled.';
+
+  @override
+  String get meetingRoom => 'Room';
+
+  @override
+  String get meetingTitle => 'Title';
+
+  @override
+  String get meetingNotes => 'Notes (optional)';
+
+  @override
+  String get meetingStart => 'Start';
+
+  @override
+  String get meetingEnd => 'End';
+
+  @override
+  String get meetingBusy => 'Already booked';
+
+  @override
+  String get pickRoom => 'Select a room';
+
+  @override
+  String get confirmCancelMeeting => 'Cancel this booking?';
 }

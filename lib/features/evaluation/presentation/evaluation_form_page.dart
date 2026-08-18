@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/localization/l10n_extensions.dart';
@@ -28,9 +29,8 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
     final l10n = context.l10n;
 
     return async.when(
-      loading: () => Scaffold(appBar: AppBar(title: Text(l10n.evaluationsTitle)), body: const Center(child: CircularProgressIndicator())),
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
-        appBar: AppBar(title: Text(l10n.evaluationsTitle)),
         body: AppErrorView(message: e.toString(), onRetry: () => ref.invalidate(evaluationDetailProvider(widget.id))),
       ),
       data: (detail) {
@@ -45,13 +45,39 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
           l10n.evaluationStepReview,
         ];
         return Scaffold(
-          appBar: AppBar(title: Text(detail.cycleName)),
           body: Column(
             children: [
               LinearProgressIndicator(value: (_step + 1) / steps.length),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: Text(steps[_step], style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                child: Row(
+                  children: [
+                    if (context.canPop()) ...[
+                      IconButton(
+                        tooltip: l10n.back,
+                        onPressed: () => context.pop(),
+                        icon: const Icon(Icons.arrow_back_rounded),
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                    Expanded(
+                      child: Text(
+                        detail.cycleName,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    steps[_step],
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: context.appColors.textSecondary),
+                  ),
+                ),
               ),
               Expanded(
                 child: ListView(

@@ -29,6 +29,30 @@ class AppLocalizationsAm extends AppLocalizations {
   String get navProfile => 'መገለጫ';
 
   @override
+  String get navMeetings => 'ስብሰባዎች';
+
+  @override
+  String get navPerformance => 'አፈጻጸም';
+
+  @override
+  String get navNotifications => 'ማሳወቂያዎች';
+
+  @override
+  String get drawerSectionWork => 'ስራ';
+
+  @override
+  String get drawerSectionWorkplace => 'የስራ ቦታ';
+
+  @override
+  String get drawerSectionAccount => 'መለያ';
+
+  @override
+  String get openMenu => 'ምናሌ';
+
+  @override
+  String get employeeWorkspace => 'የሰራተኛ መስሪያ';
+
+  @override
   String get loginTitle => 'የሰራተኛ መግቢያ';
 
   @override
@@ -551,68 +575,150 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get evaluationsTitle => 'ግምገማዎች';
+
   @override
   String get noEvaluationsYet => 'ገና ግምገማ የለም።';
+
   @override
-  String evaluationDue(String date) => 'የመጨረሻ ቀን $date';
+  String evaluationDue(String date) {
+    return 'የመጨረሻ ቀን $date';
+  }
+
   @override
-  String evaluationSelfAverage(String value) => 'የራስ አማካይ: $value';
+  String evaluationSelfAverage(String value) {
+    return 'የራስ አማካይ: $value';
+  }
+
   @override
-  String evaluationDueCard(String name) => 'የ$name ግምገማዎን ይሙሉ';
+  String evaluationDueCard(String name) {
+    return 'የ$name ግምገማዎን ይሙሉ';
+  }
+
   @override
   String get evaluationStatusOpen => 'እርምጃ ያስፈልጋል';
+
   @override
   String get evaluationStatusWaiting => 'ከገምጋሚ ጋር';
+
   @override
   String get evaluationStatusScored => 'ተገምግሟል';
+
   @override
   String get evaluationStatusFinal => 'የተጠናቀቀ';
+
   @override
   String get evaluationStepInfo => 'የሰራተኛ መረጃ';
+
   @override
   String get evaluationStepMetrics => 'መለኪያዎች';
+
   @override
   String get evaluationStepRoles => 'ሚናዎች እና ኃላፊነቶች';
+
   @override
   String get evaluationStepSkills => 'የተሻሻሉ ክህሎቶች';
+
   @override
   String get evaluationStepGoals => 'የልማት ግቦች';
+
   @override
   String get evaluationStepReview => 'ይገምግሙ እና ይላኩ';
+
   @override
   String get evaluationEmployee => 'ስም';
+
   @override
   String get evaluationPosition => 'የስራ መደብ';
+
   @override
   String get evaluationSupervisor => 'ቀጥተኛ ኃላፊ';
+
   @override
   String get evaluationPeriod => 'ጊዜ';
+
   @override
   String get evaluationNumber => 'ቁጥር';
+
   @override
-  String evaluationPrevious(String value) => 'ቀዳሚ: $value';
+  String evaluationPrevious(String value) {
+    return 'ቀዳሚ: $value';
+  }
+
   @override
   String get evaluationPickDate => 'የዒላማ ቀን ይምረጡ';
+
   @override
   String get evaluationCriteria => 'የግምገማ መስፈርት';
+
   @override
   String get evaluationReviewHint => 'ውጤቶችዎን ያረጋግጡና ይላኩ። ከተላከ በኋላ መቀየር አይችሉም።';
+
   @override
   String get evaluationFocus => 'የትኩረት ብቃት';
+
   @override
   String get evaluationActionPlan => 'የእርምጃ እቅድ';
+
   @override
-  String evaluationEvaluatorScore(String value) => 'ገምጋሚ: $value';
+  String evaluationEvaluatorScore(String value) {
+    return 'ገምጋሚ: $value';
+  }
+
   @override
   String get evaluationSubmit => 'የራስ ግምገማ ላክ';
+
   @override
-  String get evaluationSubmitConfirm => 'ውጤቶችዎን ለገምጋሚ ይላኩ? ከዚያ በኋላ ማስተካከል አይችሉም።';
+  String get evaluationSubmitConfirm =>
+      'ውጤቶችዎን ለገምጋሚ ይላኩ? ከዚያ በኋላ ማስተካከል አይችሉም።';
+
   @override
   String get evaluationSubmitted => 'የራስ ግምገማ ተልኳል።';
+
   @override
   String get evaluationIncomplete => 'ሁሉንም መለኪያዎች ከ 1 እስከ 10 ይስጡ።';
+
   @override
   String get back => 'ተመለስ';
+
   @override
   String get next => 'ቀጣይ';
+
+  @override
+  String get meetingsTitle => 'ስብሰባዎች';
+
+  @override
+  String get bookMeeting => 'ክፍል ያስይዙ';
+
+  @override
+  String get noMeetingsYet => 'እስካሁን ቦታ አልተያዘም።';
+
+  @override
+  String get meetingBooked => 'ክፍሉ ተይዟል።';
+
+  @override
+  String get meetingCancelled => 'ቦታ ማስያዙ ተሰርዟል።';
+
+  @override
+  String get meetingRoom => 'ክፍል';
+
+  @override
+  String get meetingTitle => 'ርዕስ';
+
+  @override
+  String get meetingNotes => 'ማስታወሻ (አማራጭ)';
+
+  @override
+  String get meetingStart => 'መጀመሪያ';
+
+  @override
+  String get meetingEnd => 'መጨረሻ';
+
+  @override
+  String get meetingBusy => 'ተይዟል';
+
+  @override
+  String get pickRoom => 'ክፍል ይምረጡ';
+
+  @override
+  String get confirmCancelMeeting => 'ይህን ቦታ ማስያዝ ይሰረዝ?';
 }

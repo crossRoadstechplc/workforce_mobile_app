@@ -42,52 +42,59 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with SingleTickerProv
   Widget build(BuildContext context) {
     final history = ref.watch(historyControllerProvider);
     final l10n = context.l10n;
+    final colors = context.appColors;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.historyTitle),
-        bottom: TabBar(
-          controller: _tab,
-          tabs: [
-            Tab(text: l10n.tabTimesheet),
-            Tab(text: l10n.tabWorksheet),
-          ],
-        ),
-      ),
-      body: history.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => AppErrorView(
-          message: e.toString(),
-          onRetry: () => ref.read(historyControllerProvider.notifier).refresh(),
-        ),
-        data: (data) => Column(
-          children: [
-            DayStripPicker(
-              monthKeys: data.loadedMonthKeys.toList(),
-              selected: _selectedDay,
-              visibleMonth: data.visibleMonth,
-              onSelected: (day) => setState(() => _selectedDay = normalizeDate(day)),
-              onVisibleMonthChanged: (month) {
-                ref.read(historyControllerProvider.notifier).onVisibleMonthChanged(month);
-              },
-              onPrefetchEarlier: (month) {
-                ref.read(historyControllerProvider.notifier).prefetchEarlier(month);
-              },
-              hasData: _tab.index == 0
-                  ? (day) => data.timesheets.any((e) => isSameCalendarDay(e.workDate, day))
-                  : (day) => data.worksheets.any((e) => isSameCalendarDay(e.workDate, day)),
+      body: Column(
+        children: [
+          Material(
+            color: colors.background,
+            child: TabBar(
+              controller: _tab,
+              tabs: [
+                Tab(text: l10n.tabTimesheet),
+                Tab(text: l10n.tabWorksheet),
+              ],
             ),
-            Expanded(
-              child: TabBarView(
-                controller: _tab,
+          ),
+          Expanded(
+            child: history.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => AppErrorView(
+                message: e.toString(),
+                onRetry: () => ref.read(historyControllerProvider.notifier).refresh(),
+              ),
+              data: (data) => Column(
                 children: [
-                  _TimesheetDayView(data: data, selectedDay: _selectedDay),
-                  _WorksheetDayView(data: data, selectedDay: _selectedDay),
+                  DayStripPicker(
+                    monthKeys: data.loadedMonthKeys.toList(),
+                    selected: _selectedDay,
+                    visibleMonth: data.visibleMonth,
+                    onSelected: (day) => setState(() => _selectedDay = normalizeDate(day)),
+                    onVisibleMonthChanged: (month) {
+                      ref.read(historyControllerProvider.notifier).onVisibleMonthChanged(month);
+                    },
+                    onPrefetchEarlier: (month) {
+                      ref.read(historyControllerProvider.notifier).prefetchEarlier(month);
+                    },
+                    hasData: _tab.index == 0
+                        ? (day) => data.timesheets.any((e) => isSameCalendarDay(e.workDate, day))
+                        : (day) => data.worksheets.any((e) => isSameCalendarDay(e.workDate, day)),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tab,
+                      children: [
+                        _TimesheetDayView(data: data, selectedDay: _selectedDay),
+                        _WorksheetDayView(data: data, selectedDay: _selectedDay),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

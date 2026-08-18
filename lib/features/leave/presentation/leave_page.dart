@@ -41,7 +41,6 @@ class LeavePage extends ConsumerWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.leaveTitle)),
       floatingActionButton: async.value == null
           ? null
           : FloatingActionButton.extended(

@@ -22,7 +22,6 @@ class EvaluationsListPage extends ConsumerWidget {
     final colors = context.appColors;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.evaluationsTitle)),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => AppErrorView(

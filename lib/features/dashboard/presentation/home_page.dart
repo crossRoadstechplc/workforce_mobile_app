@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/connectivity/network_status.dart';
 import '../../../core/localization/l10n_extensions.dart';
@@ -20,7 +19,6 @@ import '../../attendance/presentation/check_out_sheet.dart';
 import '../../attendance/presentation/late_reason_sheet.dart';
 import '../../attendance/presentation/time_clock_status_card.dart';
 import '../../evaluation/presentation/evaluation_due_banner.dart';
-import '../../notifications/application/notification_controller.dart';
 import '../application/shell_refresh.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -172,7 +170,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final attendance = ref.watch(attendanceControllerProvider);
     final officeAsync = ref.watch(officeContextProvider);
-    final notifications = ref.watch(notificationControllerProvider);
     final locationPreview = ref.watch(locationPreviewProvider);
     final colors = context.appColors;
 
@@ -208,11 +205,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             locating: locationPreview.locating,
             userLocation: locationPreview.location,
             now: _now,
-            unreadNotifications: notifications.value?.unreadCount ?? 0,
             onRefresh: () => refreshTimeClock(ref),
             onCheckIn: _checkIn,
             onCheckOut: _checkOut,
-            onOpenNotifications: () => context.push('/notifications'),
             onLocationBannerTap: locationPreview.needsLocationAction
                 ? () => ref.read(locationPreviewProvider.notifier).requestAccessAndRefresh()
                 : null,
@@ -232,11 +227,9 @@ class _TimeClockBody extends StatelessWidget {
     required this.locating,
     required this.userLocation,
     required this.now,
-    required this.unreadNotifications,
     required this.onRefresh,
     required this.onCheckIn,
     required this.onCheckOut,
-    required this.onOpenNotifications,
     this.onLocationBannerTap,
   });
 
@@ -247,11 +240,9 @@ class _TimeClockBody extends StatelessWidget {
   final bool locating;
   final AttendanceLocation? userLocation;
   final DateTime now;
-  final int unreadNotifications;
   final Future<void> Function() onRefresh;
   final VoidCallback onCheckIn;
   final VoidCallback onCheckOut;
-  final VoidCallback onOpenNotifications;
   final VoidCallback? onLocationBannerTap;
 
   @override
@@ -311,8 +302,6 @@ class _TimeClockBody extends StatelessWidget {
                     zoneStatus: zoneStatus,
                     locating: locating,
                     distanceMeters: distance,
-                    unreadNotifications: unreadNotifications,
-                    onOpenNotifications: onOpenNotifications,
                     onLocationBannerTap: onLocationBannerTap,
                   ),
                     ],

@@ -4,6 +4,7 @@ import '../../attendance/application/attendance_controller.dart';
 import '../../attendance/application/location_preview_controller.dart';
 import '../../history/application/history_controller.dart';
 import '../../leave/application/leave_controller.dart';
+import '../../meetings/application/meeting_controller.dart';
 import '../../evaluation/application/evaluation_controller.dart';
 import '../../notifications/application/notification_controller.dart';
 import '../../profile/application/profile_controller.dart';
@@ -32,8 +33,16 @@ Future<void> refreshForRoute(WidgetRef ref, String path) async {
     await ref.read(leaveControllerProvider.notifier).refresh();
     return;
   }
+  if (path.startsWith('/meetings')) {
+    await ref.read(meetingControllerProvider.notifier).refresh();
+    return;
+  }
   if (path.startsWith('/evaluations')) {
     await ref.read(evaluationListControllerProvider.notifier).refresh();
+    return;
+  }
+  if (path.startsWith('/notifications')) {
+    await ref.read(notificationControllerProvider.notifier).refresh();
     return;
   }
   if (path.startsWith('/profile')) {

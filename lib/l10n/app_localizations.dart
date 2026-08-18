@@ -134,6 +134,54 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get navProfile;
 
+  /// No description provided for @navMeetings.
+  ///
+  /// In en, this message translates to:
+  /// **'Meetings'**
+  String get navMeetings;
+
+  /// No description provided for @navPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get navPerformance;
+
+  /// No description provided for @navNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get navNotifications;
+
+  /// No description provided for @drawerSectionWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get drawerSectionWork;
+
+  /// No description provided for @drawerSectionWorkplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Workplace'**
+  String get drawerSectionWorkplace;
+
+  /// No description provided for @drawerSectionAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get drawerSectionAccount;
+
+  /// No description provided for @openMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get openMenu;
+
+  /// No description provided for @employeeWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee workspace'**
+  String get employeeWorkspace;
+
   /// No description provided for @loginTitle.
   ///
   /// In en, this message translates to:
@@ -1082,39 +1130,281 @@ abstract class AppLocalizations {
   /// **'Open settings'**
   String get photoOpenSettings;
 
+  /// No description provided for @evaluationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluations'**
   String get evaluationsTitle;
+
+  /// No description provided for @noEvaluationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet.'**
   String get noEvaluationsYet;
+
+  /// No description provided for @evaluationDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
   String evaluationDue(String date);
+
+  /// No description provided for @evaluationSelfAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Self average: {value}'**
   String evaluationSelfAverage(String value);
+
+  /// No description provided for @evaluationDueCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your {name} review'**
   String evaluationDueCard(String name);
+
+  /// No description provided for @evaluationStatusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Action needed'**
   String get evaluationStatusOpen;
+
+  /// No description provided for @evaluationStatusWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'With reviewer'**
   String get evaluationStatusWaiting;
+
+  /// No description provided for @evaluationStatusScored.
+  ///
+  /// In en, this message translates to:
+  /// **'Scored'**
   String get evaluationStatusScored;
+
+  /// No description provided for @evaluationStatusFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Final'**
   String get evaluationStatusFinal;
+
+  /// No description provided for @evaluationStepInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee information'**
   String get evaluationStepInfo;
+
+  /// No description provided for @evaluationStepMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Metrics'**
   String get evaluationStepMetrics;
+
+  /// No description provided for @evaluationStepRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles & responsibilities'**
   String get evaluationStepRoles;
+
+  /// No description provided for @evaluationStepSkills.
+  ///
+  /// In en, this message translates to:
+  /// **'Skills improved'**
   String get evaluationStepSkills;
+
+  /// No description provided for @evaluationStepGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Development goals'**
   String get evaluationStepGoals;
+
+  /// No description provided for @evaluationStepReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review & submit'**
   String get evaluationStepReview;
+
+  /// No description provided for @evaluationEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
   String get evaluationEmployee;
+
+  /// No description provided for @evaluationPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
   String get evaluationPosition;
+
+  /// No description provided for @evaluationSupervisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct supervisor'**
   String get evaluationSupervisor;
+
+  /// No description provided for @evaluationPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
   String get evaluationPeriod;
+
+  /// No description provided for @evaluationNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Number'**
   String get evaluationNumber;
+
+  /// No description provided for @evaluationPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous: {value}'**
   String evaluationPrevious(String value);
+
+  /// No description provided for @evaluationPickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick target date'**
   String get evaluationPickDate;
+
+  /// No description provided for @evaluationCriteria.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluation criteria'**
   String get evaluationCriteria;
+
+  /// No description provided for @evaluationReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your scores, then submit. You cannot change self-scores after submitting.'**
   String get evaluationReviewHint;
+
+  /// No description provided for @evaluationFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus competency'**
   String get evaluationFocus;
+
+  /// No description provided for @evaluationActionPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Action plan'**
   String get evaluationActionPlan;
+
+  /// No description provided for @evaluationEvaluatorScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluator: {value}'**
   String evaluationEvaluatorScore(String value);
+
+  /// No description provided for @evaluationSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit self-evaluation'**
   String get evaluationSubmit;
+
+  /// No description provided for @evaluationSubmitConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit your scores to your reviewer? You will not be able to edit them afterwards.'**
   String get evaluationSubmitConfirm;
+
+  /// No description provided for @evaluationSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Self-evaluation submitted.'**
   String get evaluationSubmitted;
+
+  /// No description provided for @evaluationIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Score every metric and responsibility item from 1 to 10.'**
   String get evaluationIncomplete;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
   String get back;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
   String get next;
+
+  /// No description provided for @meetingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meetings'**
+  String get meetingsTitle;
+
+  /// No description provided for @bookMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Book room'**
+  String get bookMeeting;
+
+  /// No description provided for @noMeetingsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings yet.'**
+  String get noMeetingsYet;
+
+  /// No description provided for @meetingBooked.
+  ///
+  /// In en, this message translates to:
+  /// **'Room booked.'**
+  String get meetingBooked;
+
+  /// No description provided for @meetingCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking cancelled.'**
+  String get meetingCancelled;
+
+  /// No description provided for @meetingRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Room'**
+  String get meetingRoom;
+
+  /// No description provided for @meetingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get meetingTitle;
+
+  /// No description provided for @meetingNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get meetingNotes;
+
+  /// No description provided for @meetingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get meetingStart;
+
+  /// No description provided for @meetingEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get meetingEnd;
+
+  /// No description provided for @meetingBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Already booked'**
+  String get meetingBusy;
+
+  /// No description provided for @pickRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a room'**
+  String get pickRoom;
+
+  /// No description provided for @confirmCancelMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this booking?'**
+  String get confirmCancelMeeting;
 }
 
 class _AppLocalizationsDelegate

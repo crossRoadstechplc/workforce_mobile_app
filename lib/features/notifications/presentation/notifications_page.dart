@@ -19,17 +19,6 @@ class NotificationsPage extends ConsumerWidget {
     final colors = context.appColors;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.notificationsTitle),
-        actions: [
-          TextButton(
-            onPressed: async.value?.unreadCount == 0
-                ? null
-                : () => ref.read(notificationControllerProvider.notifier).markAllRead(),
-            child: Text(l10n.readAll),
-          ),
-        ],
-      ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => AppErrorView(
@@ -63,6 +52,9 @@ class NotificationsPage extends ConsumerWidget {
                       ref.read(notificationControllerProvider.notifier).markRead(item.id);
                       if (item.relatedEntityType == 'Evaluation' && item.relatedEntityId != null) {
                         context.push('/evaluations/${item.relatedEntityId}');
+                      }
+                      if (item.relatedEntityType == 'MeetingBooking') {
+                        context.go('/meetings');
                       }
                     },
                   ),
