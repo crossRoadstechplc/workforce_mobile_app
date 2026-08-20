@@ -38,6 +38,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navNotifications => 'Notifications';
 
   @override
+  String get navChat => 'Chat';
+
+  @override
   String get drawerSectionWork => 'Work';
 
   @override
@@ -732,4 +735,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmCancelMeeting => 'Cancel this booking?';
+
+  @override
+  String get newChat => 'New chat';
+
+  @override
+  String get noChatsYet => 'No conversations yet.';
+
+  @override
+  String get noChatsHint => 'Start a private chat with a colleague.';
+
+  @override
+  String get searchColleagues => 'Search colleagues';
+
+  @override
+  String get noColleaguesFound => 'No colleagues found.';
+
+  @override
+  String get noMessagesYet => 'No messages yet';
+
+  @override
+  String get sayHello => 'Say hello to start the conversation.';
+
+  @override
+  String get messageHint => 'Message';
 }

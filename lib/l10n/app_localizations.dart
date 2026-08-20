@@ -152,6 +152,12 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get navNotifications;
 
+  /// No description provided for @navChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get navChat;
+
   /// No description provided for @drawerSectionWork.
   ///
   /// In en, this message translates to:
@@ -1405,6 +1411,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel this booking?'**
   String get confirmCancelMeeting;
+
+  /// No description provided for @newChat.
+  ///
+  /// In en, this message translates to:
+  /// **'New chat'**
+  String get newChat;
+
+  /// No description provided for @noChatsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet.'**
+  String get noChatsYet;
+
+  /// No description provided for @noChatsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a private chat with a colleague.'**
+  String get noChatsHint;
+
+  /// No description provided for @searchColleagues.
+  ///
+  /// In en, this message translates to:
+  /// **'Search colleagues'**
+  String get searchColleagues;
+
+  /// No description provided for @noColleaguesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No colleagues found.'**
+  String get noColleaguesFound;
+
+  /// No description provided for @noMessagesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get noMessagesYet;
+
+  /// No description provided for @sayHello.
+  ///
+  /// In en, this message translates to:
+  /// **'Say hello to start the conversation.'**
+  String get sayHello;
+
+  /// No description provided for @messageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get messageHint;
 }
 
 class _AppLocalizationsDelegate

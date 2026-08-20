@@ -56,6 +56,9 @@ class NotificationsPage extends ConsumerWidget {
                       if (item.relatedEntityType == 'MeetingBooking') {
                         context.go('/meetings');
                       }
+                      if (item.relatedEntityType == 'ChatConversation' && item.relatedEntityId != null) {
+                        context.push('/chat/${item.relatedEntityId}');
+                      }
                     },
                   ),
                 ),
@@ -132,7 +135,9 @@ class _Tile extends StatelessWidget {
   }
 }
 
-IconData _icon(String type) => type.contains('EVALUATION')
+IconData _icon(String type) => type.contains('CHAT')
+    ? Icons.forum_outlined
+    : type.contains('EVALUATION')
     ? Icons.assignment_outlined
     : type.contains('LEAVE')
         ? Icons.beach_access_outlined

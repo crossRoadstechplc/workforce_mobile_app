@@ -9,6 +9,7 @@
   "navMeetings": "ስብሰባዎች",
   "navPerformance": "አፈጻጸም",
   "navNotifications": "ማሳወቂያዎች",
+  "navChat": "ውይይት",
   "drawerSectionWork": "ስራ",
   "drawerSectionWorkplace": "የስራ ቦታ",
   "drawerSectionAccount": "መለያ",
@@ -217,5 +218,13 @@
   "meetingEnd": "መጨረሻ",
   "meetingBusy": "ተይዟል",
   "pickRoom": "ክፍል ይምረጡ",
-  "confirmCancelMeeting": "ይህን ቦታ ማስያዝ ይሰረዝ?"
+  "confirmCancelMeeting": "ይህን ቦታ ማስያዝ ይሰረዝ?",
+  "newChat": "አዲስ ውይይት",
+  "noChatsYet": "እስካሁን ውይይት የለም።",
+  "noChatsHint": "ከስራ ባልደረባ ጋር የግል ውይይት ይጀምሩ።",
+  "searchColleagues": "ባልደረቦችን ፈልግ",
+  "noColleaguesFound": "ባልደረባ አልተገኘም።",
+  "noMessagesYet": "መልእክት የለም",
+  "sayHello": "ውይይቱን ለመጀመር ሰላም በሉ።",
+  "messageHint": "መልእክት"
 }

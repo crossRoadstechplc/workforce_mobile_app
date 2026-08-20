@@ -38,6 +38,9 @@ class AppLocalizationsAm extends AppLocalizations {
   String get navNotifications => 'ማሳወቂያዎች';
 
   @override
+  String get navChat => 'ውይይት';
+
+  @override
   String get drawerSectionWork => 'ስራ';
 
   @override
@@ -721,4 +724,28 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get confirmCancelMeeting => 'ይህን ቦታ ማስያዝ ይሰረዝ?';
+
+  @override
+  String get newChat => 'አዲስ ውይይት';
+
+  @override
+  String get noChatsYet => 'እስካሁን ውይይት የለም።';
+
+  @override
+  String get noChatsHint => 'ከስራ ባልደረባ ጋር የግል ውይይት ይጀምሩ።';
+
+  @override
+  String get searchColleagues => 'ባልደረቦችን ፈልግ';
+
+  @override
+  String get noColleaguesFound => 'ባልደረባ አልተገኘም።';
+
+  @override
+  String get noMessagesYet => 'መልእክት የለም';
+
+  @override
+  String get sayHello => 'ውይይቱን ለመጀመር ሰላም በሉ።';
+
+  @override
+  String get messageHint => 'መልእክት';
 }

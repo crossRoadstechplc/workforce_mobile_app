@@ -8,6 +8,7 @@ import '../../meetings/application/meeting_controller.dart';
 import '../../evaluation/application/evaluation_controller.dart';
 import '../../notifications/application/notification_controller.dart';
 import '../../profile/application/profile_controller.dart';
+import '../../chat/application/chat_controller.dart';
 
 Future<void> refreshTimeClock(WidgetRef ref) async {
   ref.invalidate(officeContextProvider);
@@ -35,6 +36,10 @@ Future<void> refreshForRoute(WidgetRef ref, String path) async {
   }
   if (path.startsWith('/meetings')) {
     await ref.read(meetingControllerProvider.notifier).refresh();
+    return;
+  }
+  if (path.startsWith('/chat')) {
+    await ref.read(chatListControllerProvider.notifier).refresh();
     return;
   }
   if (path.startsWith('/evaluations')) {

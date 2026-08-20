@@ -9,7 +9,9 @@ import '../../auth/application/session_controller.dart';
 import '../../history/application/history_controller.dart';
 import '../../leave/application/leave_controller.dart';
 import '../../evaluation/application/evaluation_controller.dart';
+import '../../meetings/application/meeting_controller.dart';
 import '../../profile/application/profile_controller.dart';
+import '../../chat/application/chat_controller.dart';
 import '../data/notification_models.dart';
 import '../data/notification_repository.dart';
 
@@ -63,6 +65,8 @@ class NotificationController extends AsyncNotifier<NotificationPageData> {
     }
     if (event.name.startsWith('leave.')) ref.invalidate(leaveControllerProvider);
     if (event.name.startsWith('evaluation.')) ref.invalidate(evaluationListControllerProvider);
+    if (event.name.startsWith('meeting.')) ref.invalidate(meetingControllerProvider);
+    if (event.name.startsWith('chat.')) ref.invalidate(chatListControllerProvider);
     if (event.name == 'worksheet.reviewed') ref.invalidate(historyControllerProvider);
   }
 }
@@ -115,7 +119,9 @@ class RealtimeCoordinator extends Notifier<bool> {
     ref.invalidate(historyControllerProvider);
     ref.invalidate(leaveControllerProvider);
     ref.invalidate(evaluationListControllerProvider);
+    ref.invalidate(meetingControllerProvider);
     ref.invalidate(profileControllerProvider);
     ref.invalidate(notificationControllerProvider);
+    ref.invalidate(chatListControllerProvider);
   }
 }

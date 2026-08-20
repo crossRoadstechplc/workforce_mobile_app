@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/auth/application/session_controller.dart';
@@ -14,6 +15,12 @@ import '../features/evaluation/presentation/evaluations_list_page.dart';
 import '../features/evaluation/presentation/evaluation_form_page.dart';
 import '../features/notifications/presentation/notifications_page.dart';
 import '../features/profile/presentation/profile_page.dart';
+import '../features/chat/presentation/chat_list_page.dart';
+import '../features/chat/presentation/chat_thread_page.dart';
+import '../features/chat/presentation/new_chat_page.dart';
+
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+final shellNavigatorKey = GlobalKey<NavigatorState>();
 
 class _RouterRefresh extends ChangeNotifier {
   void ping() => notifyListeners();
@@ -25,6 +32,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/splash',
     refreshListenable: refresh,
     redirect: (context, state) {
@@ -46,12 +54,29 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
       GoRoute(path: '/change-password', builder: (_, __) => const ChangePasswordPage()),
       ShellRoute(
+        navigatorKey: shellNavigatorKey,
         builder: (_, __, child) => AppShell(child: child),
         routes: [
           GoRoute(path: '/home', builder: (_, __) => const HomePage()),
           GoRoute(path: '/history', builder: (_, __) => const HistoryPage()),
           GoRoute(path: '/leave', builder: (_, __) => const LeavePage()),
           GoRoute(path: '/meetings', builder: (_, __) => const MeetingsPage()),
+          GoRoute(
+            path: '/chat',
+            builder: (_, __) => const ChatListPage(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, __) => const NewChatPage(),
+              ),
+              GoRoute(
+                path: ':id',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, state) => ChatThreadPage(conversationId: state.pathParameters['id']!),
+              ),
+            ],
+          ),
           GoRoute(path: '/evaluations', builder: (_, __) => const EvaluationsListPage()),
           GoRoute(
             path: '/evaluations/:id',

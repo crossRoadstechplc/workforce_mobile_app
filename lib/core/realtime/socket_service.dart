@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../auth/token_storage.dart';
 import '../config/app_config.dart';
@@ -29,6 +30,10 @@ class SocketService {
     'evaluation.opened',
     'evaluation.scored',
     'evaluation.finalized',
+    'meeting.changed',
+    'meeting.cancelled',
+    'meeting.rescheduled',
+    'chat.message.created',
   ];
 
   Future<void> connect() async {
@@ -37,7 +42,12 @@ class SocketService {
     disconnect();
     final socket = io.io(
       AppConfig.socketBaseUrl,
-      io.OptionBuilder().setTransports(['websocket']).disableAutoConnect().setAuth({'token': token}).enableReconnection().build(),
+      io.OptionBuilder()
+          .setTransports(kIsWeb ? ['polling', 'websocket'] : ['websocket'])
+          .disableAutoConnect()
+          .setAuth({'token': token})
+          .enableReconnection()
+          .build(),
     );
     _socket = socket;
     for (final name in _eventNames) {

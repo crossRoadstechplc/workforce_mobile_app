@@ -14,6 +14,7 @@
   "navMeetings": "Meetings",
   "navPerformance": "Performance",
   "navNotifications": "Notifications",
+  "navChat": "Chat",
   "drawerSectionWork": "Work",
   "drawerSectionWorkplace": "Workplace",
   "drawerSectionAccount": "Account",
@@ -343,5 +344,13 @@
   "meetingEnd": "End",
   "meetingBusy": "Already booked",
   "pickRoom": "Select a room",
-  "confirmCancelMeeting": "Cancel this booking?"
+  "confirmCancelMeeting": "Cancel this booking?",
+  "newChat": "New chat",
+  "noChatsYet": "No conversations yet.",
+  "noChatsHint": "Start a private chat with a colleague.",
+  "searchColleagues": "Search colleagues",
+  "noColleaguesFound": "No colleagues found.",
+  "noMessagesYet": "No messages yet",
+  "sayHello": "Say hello to start the conversation.",
+  "messageHint": "Message"
 }

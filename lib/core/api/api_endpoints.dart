@@ -31,4 +31,7 @@ class ApiEndpoints {
   static const notifications = '/notifications';
   static const notificationReadAll = '/notifications/read-all';
   static const notificationDevices = '/notifications/devices';
+
+  static const chatColleagues = '/chat/colleagues';
+  static const chatConversations = '/chat/conversations';
 }

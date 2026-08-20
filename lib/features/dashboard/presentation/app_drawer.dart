@@ -9,6 +9,7 @@ import '../../../core/theme/theme_mode_controller.dart';
 import '../../auth/application/session_controller.dart';
 import '../../evaluation/application/evaluation_controller.dart';
 import '../../notifications/application/notification_controller.dart';
+import '../../chat/application/chat_controller.dart';
 
 class AppSidebar extends ConsumerWidget {
   const AppSidebar({super.key, this.permanent = false});
@@ -115,6 +116,14 @@ class _SidebarBody extends ConsumerWidget {
                 label: l10n.navMeetings,
                 selected: location.startsWith('/meetings'),
                 onTap: () => _go(context, '/meetings'),
+              ),
+              _NavTile(
+                icon: Icons.forum_outlined,
+                selectedIcon: Icons.forum_rounded,
+                label: l10n.navChat,
+                selected: location == '/chat' || location.startsWith('/chat/'),
+                badge: ref.watch(chatListControllerProvider).value?.unreadTotal ?? 0,
+                onTap: () => _go(context, '/chat'),
               ),
               _NavTile(
                 icon: Icons.insights_outlined,
