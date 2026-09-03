@@ -203,7 +203,7 @@
   "evaluationSubmit": "የራስ ግምገማ ላክ",
   "evaluationSubmitConfirm": "ውጤቶችዎን ለገምጋሚ ይላኩ? ከዚያ በኋላ ማስተካከል አይችሉም።",
   "evaluationSubmitted": "የራስ ግምገማ ተልኳል።",
-  "evaluationIncomplete": "ሁሉንም መለኪያዎች ከ 1 እስከ 10 ይስጡ።",
+  "evaluationIncomplete": "እያንዳንዱን ክፍል ከ 1 እስከ 5 ይስጡ። መገኘት በስርዓቱ ይሰላል።",
   "back": "ተመለስ",
   "next": "ቀጣይ",
   "meetingsTitle": "ስብሰባዎች",
@@ -226,5 +226,12 @@
   "noColleaguesFound": "ባልደረባ አልተገኘም።",
   "noMessagesYet": "መልእክት የለም",
   "sayHello": "ውይይቱን ለመጀመር ሰላም በሉ።",
-  "messageHint": "መልእክት"
+  "messageHint": "መልእክት",
+  "contextPickerTitle": "በምን መንገድ ይግቡ?",
+  "contextPickerSubtitle": "መለያዎ ተጨማሪ ሚናዎች አሉት። ይህን መተግበሪያ ለመጠቀም Employee ይምረጡ።",
+  "contextSuggested": "የተመከረ",
+  "switchContext": "ሚና ቀይር",
+  "switchToEmployee": "እንደ ሰራተኛ",
+  "nonEmployeeContextBanner": "እንደ {role} ገብተዋል። የመግቢያ ባህሪዎች የEmployee ሚና ይፈልጋሉ።",
+  "backToSignIn": "ወደ መግቢያ ተመለስ"
 }

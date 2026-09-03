@@ -2,6 +2,9 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   static const login = '/auth/login';
+  static const selectContext = '/auth/select-context';
+  static const switchContext = '/auth/switch-context';
+  static const contexts = '/auth/contexts';
   static const refresh = '/auth/refresh';
   static const changePassword = '/auth/change-password';
   static const logout = '/auth/logout';
@@ -13,6 +16,8 @@ class ApiEndpoints {
   static const checkIn = '/attendance/check-in';
   static const checkOut = '/attendance/check-out';
   static const attendancePhotos = '/attendance/photos';
+
+  static const attendanceCorrectnessRequests = '/attendance/correctness-requests';
 
   static const timesheets = '/timesheets';
   static const timesheetCalendar = '/timesheets/calendar';

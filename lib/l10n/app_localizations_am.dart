@@ -678,7 +678,8 @@ class AppLocalizationsAm extends AppLocalizations {
   String get evaluationSubmitted => 'የራስ ግምገማ ተልኳል።';
 
   @override
-  String get evaluationIncomplete => 'ሁሉንም መለኪያዎች ከ 1 እስከ 10 ይስጡ።';
+  String get evaluationIncomplete =>
+      'እያንዳንዱን ክፍል ከ 1 እስከ 5 ይስጡ። መገኘት በስርዓቱ ይሰላል።';
 
   @override
   String get back => 'ተመለስ';
@@ -748,4 +749,28 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get messageHint => 'መልእክት';
+
+  @override
+  String get contextPickerTitle => 'በምን መንገድ ይግቡ?';
+
+  @override
+  String get contextPickerSubtitle =>
+      'መለያዎ ተጨማሪ ሚናዎች አሉት። ይህን መተግበሪያ ለመጠቀም Employee ይምረጡ።';
+
+  @override
+  String get contextSuggested => 'የተመከረ';
+
+  @override
+  String get switchContext => 'ሚና ቀይር';
+
+  @override
+  String get switchToEmployee => 'እንደ ሰራተኛ';
+
+  @override
+  String nonEmployeeContextBanner(String role) {
+    return 'እንደ $role ገብተዋል። የመግቢያ ባህሪዎች የEmployee ሚና ይፈልጋሉ።';
+  }
+
+  @override
+  String get backToSignIn => 'ወደ መግቢያ ተመለስ';
 }

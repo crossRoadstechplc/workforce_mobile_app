@@ -13,25 +13,35 @@ class HistoryState {
     this.loadedMonthKeys = const {},
     this.timesheets = const [],
     this.worksheets = const [],
+    this.correctnessByDate = const {},
   });
 
   final DateTime visibleMonth;
   final Set<String> loadedMonthKeys;
   final List<TimesheetHistoryItem> timesheets;
   final List<WorksheetHistoryItem> worksheets;
+  final Map<String, String> correctnessByDate;
 
   HistoryState copyWith({
     DateTime? visibleMonth,
     Set<String>? loadedMonthKeys,
     List<TimesheetHistoryItem>? timesheets,
     List<WorksheetHistoryItem>? worksheets,
+    Map<String, String>? correctnessByDate,
   }) {
     return HistoryState(
       visibleMonth: visibleMonth ?? this.visibleMonth,
       loadedMonthKeys: loadedMonthKeys ?? this.loadedMonthKeys,
       timesheets: timesheets ?? this.timesheets,
       worksheets: worksheets ?? this.worksheets,
+      correctnessByDate: correctnessByDate ?? this.correctnessByDate,
     );
+  }
+
+  String? correctnessForDay(DateTime day) {
+    final key = '${day.year.toString().padLeft(4, '0')}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
+    final fromItem = timesheets.where((e) => isSameCalendarDay(e.workDate, day)).map((e) => e.correctnessStatus).whereType<String>().firstOrNull;
+    return fromItem ?? correctnessByDate[key];
   }
 }
 
@@ -83,6 +93,12 @@ class HistoryController extends AsyncNotifier<HistoryState> {
     if (next.loadedMonthKeys.length > current.loadedMonthKeys.length) {
       state = AsyncData(next);
     }
+  }
+
+  Future<void> submitCorrectnessRequests(List<String> dates, {String? note}) async {
+    final repository = ref.read(historyRepositoryProvider);
+    await repository.submitCorrectnessRequests(dates, note: note);
+    await refresh();
   }
 
   Future<void> ensureMonthsAround(DateTime month) async {

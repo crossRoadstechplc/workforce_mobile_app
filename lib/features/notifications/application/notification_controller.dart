@@ -61,6 +61,7 @@ class NotificationController extends AsyncNotifier<NotificationPageData> {
     if (event.name == 'notification.created') refresh();
     if (event.name.startsWith('attendance.')) {
       ref.invalidate(attendanceControllerProvider);
+      ref.invalidate(officeContextProvider);
       ref.invalidate(historyControllerProvider);
     }
     if (event.name.startsWith('leave.')) ref.invalidate(leaveControllerProvider);

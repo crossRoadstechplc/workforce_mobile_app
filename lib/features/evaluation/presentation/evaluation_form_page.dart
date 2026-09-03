@@ -10,6 +10,14 @@ import '../../../core/widgets/app_error_view.dart';
 import '../application/evaluation_controller.dart';
 import '../data/evaluation_models.dart';
 
+const _ratings = [
+  (1, '😞', 'Unsatisfactory'),
+  (2, '😕', 'Needs Improvement'),
+  (3, '🙂', 'Meets Expectations'),
+  (4, '😊', 'Exceeds Expectations'),
+  (5, '🤩', 'Outstanding'),
+];
+
 class EvaluationFormPage extends ConsumerStatefulWidget {
   const EvaluationFormPage({super.key, required this.id});
   final String id;
@@ -19,7 +27,6 @@ class EvaluationFormPage extends ConsumerStatefulWidget {
 }
 
 class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
-  int _step = 0;
   EvaluationDetail? _draft;
   bool _saving = false;
 
@@ -36,234 +43,147 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
       data: (detail) {
         _draft ??= EvaluationDetail.fromJson(_toJson(detail));
         final draft = _draft!;
-        final steps = [
-          l10n.evaluationStepInfo,
-          l10n.evaluationStepMetrics,
-          l10n.evaluationStepRoles,
-          l10n.evaluationStepSkills,
-          l10n.evaluationStepGoals,
-          l10n.evaluationStepReview,
-        ];
+        final fmt = DateFormat.yMMMd(Localizations.localeOf(context).toString());
+        final liveTotal = _liveSelfTotal(draft);
         return Scaffold(
-          body: Column(
+          appBar: AppBar(
+            leading: context.canPop()
+                ? IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back_rounded))
+                : null,
+            title: Text(detail.cycleName),
+          ),
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
             children: [
-              LinearProgressIndicator(value: (_step + 1) / steps.length),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: Row(
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (context.canPop()) ...[
-                      IconButton(
-                        tooltip: l10n.back,
-                        onPressed: () => context.pop(),
-                        icon: const Icon(Icons.arrow_back_rounded),
-                      ),
-                      const SizedBox(width: 4),
-                    ],
-                    Expanded(
-                      child: Text(
-                        detail.cycleName,
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-                      ),
-                    ),
+                    _kv(l10n.evaluationEmployee, draft.employeeName),
+                    _kv(l10n.evaluationPosition, draft.jobTitle ?? '—'),
+                    _kv('Department', draft.department ?? '—'),
+                    _kv(l10n.evaluationSupervisor, draft.supervisorName ?? '—'),
+                    _kv(l10n.evaluationPeriod, '${fmt.format(draft.periodStart)} – ${fmt.format(draft.periodEnd)}'),
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    steps[_step],
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: context.appColors.textSecondary),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [_stepBody(draft)],
-                ),
-              ),
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  child: Row(
+              const SizedBox(height: 12),
+              ...draft.scores.map((s) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _scoreCard(draft, s),
+                  )),
+              if (draft.resultsVisible && (draft.focusCompetency?.isNotEmpty ?? false))
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_step > 0)
-                        OutlinedButton(onPressed: _saving ? null : () => setState(() => _step--), child: Text(l10n.back)),
-                      const Spacer(),
-                      if (_step < steps.length - 1)
-                        FilledButton(
-                          onPressed: _saving
-                              ? null
-                              : () async {
-                                  await _autosave(draft);
-                                  if (mounted) setState(() => _step++);
-                                },
-                          child: Text(l10n.next),
-                        )
-                      else if (draft.needsSelfScore)
-                        FilledButton(
-                          onPressed: _saving ? null : () => _submit(draft),
-                          child: Text(l10n.evaluationSubmit),
-                        ),
+                      _kv(l10n.evaluationFocus, draft.focusCompetency),
+                      if (draft.actionPlan != null) _kv(l10n.evaluationActionPlan, draft.actionPlan),
                     ],
                   ),
                 ),
-              ),
             ],
+          ),
+          bottomNavigationBar: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      liveTotal == null
+                          ? (draft.overallSelf == null ? '' : l10n.evaluationSelfAverage(draft.overallSelf!.toStringAsFixed(0)))
+                          : '${l10n.evaluationSelfAverage('$liveTotal / 50')}${draft.overallSelfBandLabel == null ? '' : ''}',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  if (draft.needsSelfScore)
+                    FilledButton(
+                      onPressed: _saving ? null : () => _submit(draft),
+                      child: Text(l10n.evaluationSubmit),
+                    ),
+                ],
+              ),
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _stepBody(EvaluationDetail draft) {
-    final l10n = context.l10n;
-    final fmt = DateFormat.yMMMd(Localizations.localeOf(context).toString());
-    final metrics = draft.scores.where((s) => s.section == 'METRIC').toList();
-    final roles = draft.scores.where((s) => s.section == 'RESPONSIBILITY').toList();
-    switch (_step) {
-      case 0:
-        return AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _kv(l10n.evaluationEmployee, draft.employeeName),
-              _kv(l10n.evaluationPosition, draft.jobTitle ?? '—'),
-              _kv(l10n.evaluationSupervisor, draft.supervisorName ?? '—'),
-              _kv(l10n.evaluationPeriod, '${fmt.format(draft.periodStart)} – ${fmt.format(draft.periodEnd)}'),
-              _kv(l10n.evaluationNumber, draft.number),
-            ],
-          ),
-        );
-      case 1:
-        return _scoreList(draft, metrics, editable: draft.needsSelfScore);
-      case 2:
-        return _scoreList(draft, roles, editable: draft.needsSelfScore);
-      case 3:
-        return Column(
-          children: draft.goals
-              .map(
-                (g) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(g.skill, style: const TextStyle(fontWeight: FontWeight.w700)),
-                        if (g.previousSelfScore != null) Text(l10n.evaluationPrevious(g.previousSelfScore.toString())),
-                        const SizedBox(height: 8),
-                        _chips(
-                          selected: g.improvementSelfScore,
-                          enabled: draft.needsSelfScore,
-                          onSelect: (n) => setState(() => g.improvementSelfScore = n),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
-        );
-      case 4:
-        return Column(
-          children: draft.goals
-              .map(
-                (g) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(g.skill, style: const TextStyle(fontWeight: FontWeight.w700)),
-                        const SizedBox(height: 8),
-                        OutlinedButton(
-                          onPressed: !draft.needsSelfScore
-                              ? null
-                              : () async {
-                                  final picked = await showDatePicker(
-                                    context: context,
-                                    initialDate: g.targetDate ?? DateTime.now().add(const Duration(days: 90)),
-                                    firstDate: DateTime.now(),
-                                    lastDate: DateTime.now().add(const Duration(days: 800)),
-                                  );
-                                  if (picked != null) setState(() => g.targetDate = picked);
-                                },
-                          child: Text(g.targetDate == null ? l10n.evaluationPickDate : fmt.format(g.targetDate!)),
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          enabled: draft.needsSelfScore,
-                          initialValue: g.criteria ?? '',
-                          decoration: InputDecoration(labelText: l10n.evaluationCriteria),
-                          maxLines: 3,
-                          onChanged: (v) => g.criteria = v,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
-        );
-      default:
-        return AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l10n.evaluationReviewHint),
-              const SizedBox(height: 12),
-              if (draft.resultsVisible) ...[
-                if (draft.focusCompetency != null) _kv(l10n.evaluationFocus, draft.focusCompetency),
-                if (draft.actionPlan != null) _kv(l10n.evaluationActionPlan, draft.actionPlan),
-              ],
-            ],
-          ),
-        );
+  int? _liveSelfTotal(EvaluationDetail draft) {
+    var total = 0;
+    for (final s in draft.scores) {
+      if (s.isSystem) {
+        if (s.systemScore == null && s.selfScore == null) return null;
+        total += s.systemScore ?? s.selfScore!;
+      } else {
+        if (s.selfScore == null) return null;
+        total += s.selfScore!;
+      }
     }
+    return total;
   }
 
-  Widget _scoreList(EvaluationDetail draft, List<EvaluationScoreItem> items, {required bool editable}) {
-    return Column(
-      children: items
-          .map(
-            (s) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(s.label, style: const TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
-                    _chips(selected: s.selfScore, enabled: editable, onSelect: (n) => setState(() => s.selfScore = n)),
-                    if (draft.resultsVisible && s.evaluatorScore != null) ...[
-                      const SizedBox(height: 8),
-                      Text(context.l10n.evaluationEvaluatorScore(s.evaluatorScore.toString())),
-                      if (s.evaluatorComment != null && s.evaluatorComment!.isNotEmpty) Text(s.evaluatorComment!),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          )
-          .toList(),
+  Widget _scoreCard(EvaluationDetail draft, EvaluationScoreItem s) {
+    final colors = context.appColors;
+    final system = s.isSystem;
+    final selected = system ? (s.systemScore ?? s.selfScore) : s.selfScore;
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(s.label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16))),
+            ],
+          ),
+          if (s.prompt != null && s.prompt!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(s.prompt!, style: TextStyle(color: colors.textSecondary, height: 1.35)),
+          ],
+          const SizedBox(height: 12),
+          _emojiRow(
+            selected: selected,
+            enabled: draft.needsSelfScore && !system,
+            onSelect: (n) => setState(() => s.selfScore = n),
+          ),
+          if (draft.resultsVisible && !system && s.evaluatorScore != null) ...[
+            const SizedBox(height: 10),
+            Text(context.l10n.evaluationEvaluatorScore(s.evaluatorScore.toString())),
+            if (s.evaluatorComment != null && s.evaluatorComment!.isNotEmpty) Text(s.evaluatorComment!),
+          ],
+        ],
+      ),
     );
   }
 
-  Widget _chips({required int? selected, required bool enabled, required void Function(int) onSelect}) {
-    final colors = context.appColors;
+  Widget _emojiRow({required int? selected, required bool enabled, required void Function(int) onSelect}) {
     return Wrap(
-      spacing: 6,
-      runSpacing: 6,
+      spacing: 8,
+      runSpacing: 8,
       children: [
-        for (var n = 1; n <= 10; n++)
-          ChoiceChip(
-            label: Text('$n'),
-            selected: selected == n,
-            onSelected: enabled ? (_) => onSelect(n) : null,
-            selectedColor: colors.primary.withValues(alpha: 0.18),
+        for (final r in _ratings)
+          GestureDetector(
+            onTap: enabled ? () => onSelect(r.$1) : null,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              width: 56,
+              height: 64,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected == r.$1 ? const Color(0xFFECFDF5) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: selected == r.$1 ? const Color(0xFF10B981) : const Color(0xFFE2E8F0), width: selected == r.$1 ? 2 : 1),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(r.$2, style: TextStyle(fontSize: 22, color: enabled || selected == r.$1 ? null : Colors.black38)),
+                  Text('${r.$1}', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: context.appColors.textSecondary)),
+                ],
+              ),
+            ),
           ),
       ],
     );
@@ -282,19 +202,8 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
     );
   }
 
-  Future<void> _autosave(EvaluationDetail draft) async {
-    if (!draft.needsSelfScore) return;
-    setState(() => _saving = true);
-    try {
-      await ref.read(evaluationRepositoryProvider).saveDraft(widget.id, draft);
-    } catch (_) {
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
-
   Future<void> _submit(EvaluationDetail draft) async {
-    final missing = draft.scores.where((s) => (s.section == 'METRIC' || s.section == 'RESPONSIBILITY') && s.selfScore == null);
+    final missing = draft.scores.where((s) => !s.isSystem && s.selfScore == null);
     if (missing.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.evaluationIncomplete)));
       return;
@@ -340,6 +249,7 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
         'employee': {
           'name': d.employeeName,
           'jobTitle': d.jobTitle,
+          'department': d.department,
           'supervisor': {'name': d.supervisorName},
         },
         'scores': d.scores
@@ -347,8 +257,11 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
                   'itemKey': s.itemKey,
                   'section': s.section,
                   'label': s.label,
+                  'prompt': s.prompt,
+                  'scoringSource': s.scoringSource,
                   'selfScore': s.selfScore,
                   'evaluatorScore': s.evaluatorScore,
+                  'systemScore': s.systemScore,
                   'evaluatorComment': s.evaluatorComment,
                 })
             .toList(),
@@ -369,5 +282,7 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
         'actionPlan': d.actionPlan,
         'overallSelf': d.overallSelf,
         'overallEvaluator': d.overallEvaluator,
+        'overallSelfBandLabel': d.overallSelfBandLabel,
+        'ratingScale': {'max': d.ratingMax},
       };
 }

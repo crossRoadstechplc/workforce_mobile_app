@@ -26,38 +26,56 @@ class CheckInPreview {
 
 class OfficeContext {
   const OfficeContext({
-    required this.id,
-    required this.name,
-    required this.address,
-    required this.latitude,
-    required this.longitude,
-    required this.allowedRadiusMeters,
-    required this.maximumAccuracyMeters,
-    required this.timezone,
+    required this.assigned,
+    this.id,
+    this.name,
+    this.address,
+    this.latitude,
+    this.longitude,
+    this.allowedRadiusMeters,
+    this.maximumAccuracyMeters,
+    this.timezone,
     this.photoRequired = false,
+    this.reason,
+    this.message,
   });
 
-  final String id;
-  final String name;
-  final String address;
-  final double latitude;
-  final double longitude;
-  final int allowedRadiusMeters;
-  final int maximumAccuracyMeters;
-  final String timezone;
+  final bool assigned;
+  final String? id;
+  final String? name;
+  final String? address;
+  final double? latitude;
+  final double? longitude;
+  final int? allowedRadiusMeters;
+  final int? maximumAccuracyMeters;
+  final String? timezone;
   final bool photoRequired;
+  final String? reason;
+  final String? message;
 
-  factory OfficeContext.fromJson(Map<String, dynamic> json) => OfficeContext(
-        id: json['id'] as String,
-        name: json['name'] as String? ?? 'Office',
-        address: json['address'] as String? ?? '',
-        latitude: (json['latitude'] as num).toDouble(),
-        longitude: (json['longitude'] as num).toDouble(),
-        allowedRadiusMeters: (json['allowedRadiusMeters'] as num?)?.toInt() ?? 150,
-        maximumAccuracyMeters: (json['maximumAccuracyMeters'] as num?)?.toInt() ?? 100,
-        timezone: json['timezone'] as String? ?? 'UTC',
+  factory OfficeContext.fromJson(Map<String, dynamic> json) {
+    final assigned = json['assigned'] as bool? ?? true;
+    if (!assigned) {
+      return OfficeContext(
+        assigned: false,
+        reason: json['reason'] as String?,
+        message: json['message'] as String? ?? 'Work assignment is not complete yet.',
         photoRequired: json['photoRequired'] as bool? ?? false,
       );
+    }
+    return OfficeContext(
+      assigned: true,
+      id: json['id'] as String?,
+      name: json['name'] as String? ?? 'Office',
+      address: json['address'] as String? ?? '',
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      allowedRadiusMeters: (json['allowedRadiusMeters'] as num?)?.toInt() ?? 150,
+      maximumAccuracyMeters: (json['maximumAccuracyMeters'] as num?)?.toInt() ?? 100,
+      timezone: json['timezone'] as String? ?? 'UTC',
+      photoRequired: json['photoRequired'] as bool? ?? false,
+    );
+  }
 }
 
 class Timesheet {

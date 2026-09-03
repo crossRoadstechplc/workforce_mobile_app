@@ -15,6 +15,9 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
   final _next = TextEditingController();
   final _confirm = TextEditingController();
   bool _loading = false;
+  bool _obscureCurrent = true;
+  bool _obscureNext = true;
+  bool _obscureConfirm = true;
 
   @override
   void dispose() {
@@ -48,6 +51,20 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
     }
   }
 
+  InputDecoration _passwordDecoration({
+    required String label,
+    required bool obscure,
+    required VoidCallback onToggle,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      suffixIcon: IconButton(
+        onPressed: onToggle,
+        icon: Icon(obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,19 +80,55 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text('Change your temporary password', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
+                    Text(
+                      'Change your temporary password',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                    ),
                     const SizedBox(height: 8),
                     const Text('This is required before you can access attendance and leave features.'),
                     const SizedBox(height: 24),
-                    TextFormField(controller: _current, obscureText: true, decoration: const InputDecoration(labelText: 'Temporary password'), validator: (v) => (v?.length ?? 0) < 8 ? 'Enter your temporary password' : null),
+                    TextFormField(
+                      controller: _current,
+                      obscureText: _obscureCurrent,
+                      decoration: _passwordDecoration(
+                        label: 'Temporary password',
+                        obscure: _obscureCurrent,
+                        onToggle: () => setState(() => _obscureCurrent = !_obscureCurrent),
+                      ),
+                      validator: (v) => (v?.length ?? 0) < 8 ? 'Enter your temporary password' : null,
+                    ),
                     const SizedBox(height: 16),
-                    TextFormField(controller: _next, obscureText: true, decoration: const InputDecoration(labelText: 'New password'), validator: _validateNew),
+                    TextFormField(
+                      controller: _next,
+                      obscureText: _obscureNext,
+                      decoration: _passwordDecoration(
+                        label: 'New password',
+                        obscure: _obscureNext,
+                        onToggle: () => setState(() => _obscureNext = !_obscureNext),
+                      ),
+                      validator: _validateNew,
+                    ),
                     const SizedBox(height: 16),
-                    TextFormField(controller: _confirm, obscureText: true, decoration: const InputDecoration(labelText: 'Confirm new password'), validator: (v) => (v?.isEmpty ?? true) ? 'Confirm your password' : null),
+                    TextFormField(
+                      controller: _confirm,
+                      obscureText: _obscureConfirm,
+                      decoration: _passwordDecoration(
+                        label: 'Confirm new password',
+                        obscure: _obscureConfirm,
+                        onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                      ),
+                      validator: (v) => (v?.isEmpty ?? true) ? 'Confirm your password' : null,
+                    ),
                     const SizedBox(height: 24),
-                    ElevatedButton(onPressed: _loading ? null : _submit, child: Text(_loading ? 'Saving...' : 'Change password')),
+                    ElevatedButton(
+                      onPressed: _loading ? null : _submit,
+                      child: Text(_loading ? 'Saving...' : 'Change password'),
+                    ),
                     const SizedBox(height: 12),
-                    TextButton(onPressed: _loading ? null : () => ref.read(sessionControllerProvider.notifier).logout(), child: const Text('Sign out')),
+                    TextButton(
+                      onPressed: _loading ? null : () => ref.read(sessionControllerProvider.notifier).logout(),
+                      child: const Text('Sign out'),
+                    ),
                   ],
                 ),
               ),

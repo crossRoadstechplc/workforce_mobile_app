@@ -103,7 +103,7 @@ class TimeClockStatusCard extends StatelessWidget {
             ],
             const SizedBox(height: 14),
             _LocationBanner(
-              officeName: office.name,
+              officeName: office.name ?? '',
               zoneStatus: zoneStatus,
               locating: locating,
               distanceMeters: distanceMeters,

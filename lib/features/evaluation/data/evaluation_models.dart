@@ -14,6 +14,7 @@ class EvaluationSummary {
     this.selfDueAt,
     this.overallSelf,
     this.overallEvaluator,
+    this.ratingMax,
   });
 
   final String id;
@@ -25,12 +26,15 @@ class EvaluationSummary {
   final DateTime? selfDueAt;
   final double? overallSelf;
   final double? overallEvaluator;
+  final int? ratingMax;
 
   bool get needsSelfScore => status == 'OPEN' || status == 'SELF_DRAFT';
   bool get resultsVisible => status == 'EVALUATOR_SUBMITTED' || status == 'FINALIZED';
+  bool get isFiveScale => ratingMax == 5;
 
   factory EvaluationSummary.fromJson(Map<String, dynamic> json) {
     final cycle = json['cycle'] as Map<String, dynamic>? ?? const {};
+    final scale = json['ratingScale'] as Map<String, dynamic>?;
     return EvaluationSummary(
       id: json['id'] as String,
       number: json['number']?.toString() ?? '',
@@ -41,6 +45,7 @@ class EvaluationSummary {
       selfDueAt: cycle['selfDueAt'] == null ? null : DateTime.tryParse(cycle['selfDueAt'].toString()),
       overallSelf: (json['overallSelf'] as num?)?.toDouble(),
       overallEvaluator: (json['overallEvaluator'] as num?)?.toDouble(),
+      ratingMax: (scale?['max'] as num?)?.toInt(),
     );
   }
 }
@@ -55,6 +60,7 @@ class EvaluationDetail {
     required this.periodEnd,
     required this.employeeName,
     this.jobTitle,
+    this.department,
     this.supervisorName,
     this.scores = const [],
     this.goals = const [],
@@ -63,6 +69,8 @@ class EvaluationDetail {
     this.actionPlan,
     this.overallSelf,
     this.overallEvaluator,
+    this.overallSelfBandLabel,
+    this.ratingMax,
   });
 
   final String id;
@@ -73,6 +81,7 @@ class EvaluationDetail {
   final DateTime periodEnd;
   final String employeeName;
   final String? jobTitle;
+  final String? department;
   final String? supervisorName;
   final List<EvaluationScoreItem> scores;
   final List<EvaluationGoalItem> goals;
@@ -81,14 +90,18 @@ class EvaluationDetail {
   final String? actionPlan;
   final double? overallSelf;
   final double? overallEvaluator;
+  final String? overallSelfBandLabel;
+  final int? ratingMax;
 
   bool get needsSelfScore => status == 'OPEN' || status == 'SELF_DRAFT';
   bool get resultsVisible => status == 'EVALUATOR_SUBMITTED' || status == 'FINALIZED';
+  bool get isFiveScale => ratingMax == 5 || scores.any((s) => s.isSystem);
 
   factory EvaluationDetail.fromJson(Map<String, dynamic> json) {
     final cycle = json['cycle'] as Map<String, dynamic>? ?? const {};
     final employee = json['employee'] as Map<String, dynamic>? ?? const {};
     final supervisor = employee['supervisor'] as Map<String, dynamic>?;
+    final scale = json['ratingScale'] as Map<String, dynamic>?;
     return EvaluationDetail(
       id: json['id'] as String,
       number: json['number']?.toString() ?? '',
@@ -98,6 +111,7 @@ class EvaluationDetail {
       periodEnd: DateTime.tryParse(cycle['periodEnd']?.toString() ?? '') ?? DateTime.now(),
       employeeName: employee['name']?.toString() ?? '',
       jobTitle: employee['jobTitle']?.toString(),
+      department: employee['department']?.toString(),
       supervisorName: supervisor?['name']?.toString(),
       scores: (json['scores'] as List<dynamic>? ?? const [])
           .map((e) => EvaluationScoreItem.fromJson(e as Map<String, dynamic>))
@@ -110,6 +124,8 @@ class EvaluationDetail {
       actionPlan: json['actionPlan']?.toString(),
       overallSelf: (json['overallSelf'] as num?)?.toDouble(),
       overallEvaluator: (json['overallEvaluator'] as num?)?.toDouble(),
+      overallSelfBandLabel: json['overallSelfBandLabel']?.toString(),
+      ratingMax: (scale?['max'] as num?)?.toInt(),
     );
   }
 }
@@ -119,24 +135,35 @@ class EvaluationScoreItem {
     required this.itemKey,
     required this.section,
     required this.label,
+    this.prompt,
+    this.scoringSource,
     this.selfScore,
     this.evaluatorScore,
+    this.systemScore,
     this.evaluatorComment,
   });
 
   final String itemKey;
   final String section;
   final String label;
+  final String? prompt;
+  final String? scoringSource;
   int? selfScore;
   final int? evaluatorScore;
+  final int? systemScore;
   final String? evaluatorComment;
+
+  bool get isSystem => scoringSource == 'SYSTEM_ATTENDANCE' || itemKey == 'competency.reliability_attendance';
 
   factory EvaluationScoreItem.fromJson(Map<String, dynamic> json) => EvaluationScoreItem(
         itemKey: json['itemKey'] as String,
         section: json['section']?.toString() ?? 'METRIC',
         label: json['label']?.toString() ?? '',
+        prompt: json['prompt']?.toString(),
+        scoringSource: json['scoringSource']?.toString(),
         selfScore: (json['selfScore'] as num?)?.toInt(),
         evaluatorScore: (json['evaluatorScore'] as num?)?.toInt(),
+        systemScore: (json['systemScore'] as num?)?.toInt(),
         evaluatorComment: json['evaluatorComment']?.toString(),
       );
 }

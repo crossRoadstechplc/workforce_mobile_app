@@ -8,11 +8,13 @@ class AuthRepository {
   AuthRepository(this._dio);
   final Dio _dio;
 
-  Future<AuthSession> login({
+  Future<LoginResponse> login({
     required String login,
     required String password,
     String? deviceId,
     String? organizationSlug,
+    String? lastContextKey,
+    String? contextKey,
   }) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
@@ -23,9 +25,61 @@ class AuthRepository {
           if (deviceId != null) 'deviceId': deviceId,
           if (organizationSlug != null && organizationSlug.trim().isNotEmpty)
             'organizationSlug': organizationSlug.trim().toLowerCase(),
+          if (lastContextKey != null && lastContextKey.isNotEmpty) 'lastContextKey': lastContextKey,
+          if (contextKey != null && contextKey.isNotEmpty) 'contextKey': contextKey,
+        },
+      );
+      return LoginResponse.fromJson(response.data!);
+    } on DioException catch (error) {
+      throw ApiException.fromDio(error);
+    }
+  }
+
+  Future<AuthSession> selectContext({
+    required String preAuthToken,
+    required String contextKey,
+    String? deviceId,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.selectContext,
+        data: {
+          'preAuthToken': preAuthToken,
+          'contextKey': contextKey,
+          if (deviceId != null) 'deviceId': deviceId,
         },
       );
       return AuthSession.fromJson(response.data!);
+    } on DioException catch (error) {
+      throw ApiException.fromDio(error);
+    }
+  }
+
+  Future<AuthSession> switchContext({
+    required String contextKey,
+    String? deviceId,
+    String? refreshToken,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.switchContext,
+        data: {
+          'contextKey': contextKey,
+          if (deviceId != null) 'deviceId': deviceId,
+          if (refreshToken != null) 'refreshToken': refreshToken,
+        },
+      );
+      return AuthSession.fromJson(response.data!);
+    } on DioException catch (error) {
+      throw ApiException.fromDio(error);
+    }
+  }
+
+  Future<List<LoginContext>> listContexts() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(ApiEndpoints.contexts);
+      final items = response.data?['contexts'] as List<dynamic>? ?? const [];
+      return items.map((item) => LoginContext.fromJson(item as Map<String, dynamic>)).toList();
     } on DioException catch (error) {
       throw ApiException.fromDio(error);
     }

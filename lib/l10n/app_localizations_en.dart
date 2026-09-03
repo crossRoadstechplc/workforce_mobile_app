@@ -598,7 +598,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String evaluationSelfAverage(String value) {
-    return 'Self average: $value';
+    return 'Self total: $value';
   }
 
   @override
@@ -689,7 +689,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get evaluationIncomplete =>
-      'Score every metric and responsibility item from 1 to 10.';
+      'Rate every area from 1 to 5. Attendance is scored automatically.';
 
   @override
   String get back => 'Back';
@@ -759,4 +759,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get messageHint => 'Message';
+
+  @override
+  String get contextPickerTitle => 'How are you signing in?';
+
+  @override
+  String get contextPickerSubtitle =>
+      'Your account can sign in as more than one role. Choose Employee to use this app.';
+
+  @override
+  String get contextSuggested => 'Suggested';
+
+  @override
+  String get switchContext => 'Switch role';
+
+  @override
+  String get switchToEmployee => 'Use employee';
+
+  @override
+  String nonEmployeeContextBanner(String role) {
+    return 'Signed in as $role. Employee features like check-in need the Employee role.';
+  }
+
+  @override
+  String get backToSignIn => 'Back to sign in';
 }

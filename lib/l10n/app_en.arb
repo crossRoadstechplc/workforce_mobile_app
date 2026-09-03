@@ -290,7 +290,7 @@
   "@evaluationDue": {
     "placeholders": { "date": { "type": "String" } }
   },
-  "evaluationSelfAverage": "Self average: {value}",
+  "evaluationSelfAverage": "Self total: {value}",
   "@evaluationSelfAverage": {
     "placeholders": { "value": { "type": "String" } }
   },
@@ -329,7 +329,7 @@
   "evaluationSubmit": "Submit self-evaluation",
   "evaluationSubmitConfirm": "Submit your scores to your reviewer? You will not be able to edit them afterwards.",
   "evaluationSubmitted": "Self-evaluation submitted.",
-  "evaluationIncomplete": "Score every metric and responsibility item from 1 to 10.",
+  "evaluationIncomplete": "Rate every area from 1 to 5. Attendance is scored automatically.",
   "back": "Back",
   "next": "Next",
   "meetingsTitle": "Meetings",
@@ -352,5 +352,17 @@
   "noColleaguesFound": "No colleagues found.",
   "noMessagesYet": "No messages yet",
   "sayHello": "Say hello to start the conversation.",
-  "messageHint": "Message"
+  "messageHint": "Message",
+  "contextPickerTitle": "How are you signing in?",
+  "contextPickerSubtitle": "Your account can sign in as more than one role. Choose Employee to use this app.",
+  "contextSuggested": "Suggested",
+  "switchContext": "Switch role",
+  "switchToEmployee": "Use employee",
+  "nonEmployeeContextBanner": "Signed in as {role}. Employee features like check-in need the Employee role.",
+  "@nonEmployeeContextBanner": {
+    "placeholders": {
+      "role": { "type": "String" }
+    }
+  },
+  "backToSignIn": "Back to sign in"
 }

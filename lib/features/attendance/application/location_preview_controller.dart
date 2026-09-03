@@ -121,7 +121,7 @@ class LocationPreviewController extends Notifier<LocationPreviewState> {
   Future<void> _applyPreviewFix(LocationService locationService) async {
     final office = ref.read(officeContextProvider).asData?.value;
     final fix = await locationService.preview();
-    if (fix == null || office == null) {
+    if (fix == null || office == null || !office.assigned || office.latitude == null || office.longitude == null) {
       state = const LocationPreviewState(access: LocationAccess.granted);
       return;
     }
@@ -129,9 +129,9 @@ class LocationPreviewController extends Notifier<LocationPreviewState> {
     final inside = GeoUtils.insideRadius(
       userLat: fix.latitude,
       userLng: fix.longitude,
-      officeLat: office.latitude,
-      officeLng: office.longitude,
-      radiusMeters: office.allowedRadiusMeters.toDouble(),
+      officeLat: office.latitude!,
+      officeLng: office.longitude!,
+      radiusMeters: (office.allowedRadiusMeters ?? 150).toDouble(),
     );
 
     state = LocationPreviewState(
@@ -143,7 +143,7 @@ class LocationPreviewController extends Notifier<LocationPreviewState> {
 
   void applyActionLocation(AttendanceLocation location) {
     final office = ref.read(officeContextProvider).asData?.value;
-    if (office == null) {
+    if (office == null || !office.assigned || office.latitude == null || office.longitude == null) {
       state = LocationPreviewState(
         access: LocationAccess.granted,
         location: location,
@@ -154,9 +154,9 @@ class LocationPreviewController extends Notifier<LocationPreviewState> {
     final inside = GeoUtils.insideRadius(
       userLat: location.latitude,
       userLng: location.longitude,
-      officeLat: office.latitude,
-      officeLng: office.longitude,
-      radiusMeters: office.allowedRadiusMeters.toDouble(),
+      officeLat: office.latitude!,
+      officeLng: office.longitude!,
+      radiusMeters: (office.allowedRadiusMeters ?? 150).toDouble(),
     );
 
     state = LocationPreviewState(

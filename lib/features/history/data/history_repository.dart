@@ -12,7 +12,9 @@ class HistoryRepository {
       final response = await _dio.get<Map<String, dynamic>>(ApiEndpoints.timesheetCalendar, queryParameters: {'year': year, 'month': month});
       final items = response.data?['data'] as List<dynamic>? ?? const [];
       return items.map((e) => TimesheetHistoryItem.fromJson(e as Map<String, dynamic>)).toList();
-    } on DioException catch (error) { throw ApiException.fromDio(error); }
+    } on DioException catch (error) {
+      throw ApiException.fromDio(error);
+    }
   }
 
   Future<List<WorksheetHistoryItem>> worksheetCalendar(int year, int month) async {
@@ -35,5 +37,19 @@ class HistoryRepository {
       final response = await _dio.get<Map<String, dynamic>>('${ApiEndpoints.worksheets}/$id');
       return WorksheetHistoryItem.fromJson(response.data!['data'] as Map<String, dynamic>);
     } on DioException catch (error) { throw ApiException.fromDio(error); }
+  }
+
+  Future<void> submitCorrectnessRequests(List<String> dates, {String? note}) async {
+    try {
+      await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.attendanceCorrectnessRequests,
+        data: {
+          'dates': dates,
+          if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+        },
+      );
+    } on DioException catch (error) {
+      throw ApiException.fromDio(error);
+    }
   }
 }

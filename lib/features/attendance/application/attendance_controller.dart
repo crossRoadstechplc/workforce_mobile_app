@@ -27,8 +27,9 @@ final officeContextProvider = FutureProvider<OfficeContext>((ref) async {
     throw StateError('Not authenticated');
   }
   final office = await ref.watch(attendanceRepositoryProvider).officeContext();
-  // Keep mock GPS anchored to this employee's office so UI matches check-in rules.
-  ref.read(locationServiceProvider).setMockAnchor(office.latitude, office.longitude);
+  if (office.assigned && office.latitude != null && office.longitude != null) {
+    ref.read(locationServiceProvider).setMockAnchor(office.latitude!, office.longitude!);
+  }
   return office;
 });
 
@@ -114,6 +115,14 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
       state = AsyncData(AttendanceState(timesheet: currentState.timesheet, error: error.toString()));
       rethrow;
     }
+  }
+
+  Future<OfficeContext> latestOfficeContext() async {
+    final office = await _repository.officeContext();
+    if (office.assigned && office.latitude != null && office.longitude != null) {
+      ref.read(locationServiceProvider).setMockAnchor(office.latitude!, office.longitude!);
+    }
+    return office;
   }
 
   Future<void> refresh() async {

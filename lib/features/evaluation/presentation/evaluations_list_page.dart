@@ -74,7 +74,7 @@ class _Card extends StatelessWidget {
             const SizedBox(height: 8),
             Text('${fmt.format(item.periodStart)} – ${fmt.format(item.periodEnd)}'),
             if (item.selfDueAt != null) Text(l10n.evaluationDue(fmt.format(item.selfDueAt!))),
-            if (item.overallSelf != null) Text(l10n.evaluationSelfAverage(item.overallSelf!.toStringAsFixed(1))),
+            if (item.overallSelf != null) Text(l10n.evaluationSelfAverage('${item.overallSelf!.toStringAsFixed(0)} / 50')),
           ],
         ),
       ),

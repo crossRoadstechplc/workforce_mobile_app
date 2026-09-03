@@ -29,6 +29,7 @@ class TimesheetHistoryItem {
     this.isLate = false,
     this.isMissingCheckout = false,
     this.hasWorksheet = false,
+    this.correctnessStatus,
   });
 
   final String id;
@@ -43,6 +44,7 @@ class TimesheetHistoryItem {
   final bool isLate;
   final bool isMissingCheckout;
   final bool hasWorksheet;
+  final String? correctnessStatus;
 
   factory TimesheetHistoryItem.fromJson(Map<String, dynamic> json) => TimesheetHistoryItem(
         id: json['id'] as String,
@@ -57,6 +59,7 @@ class TimesheetHistoryItem {
         isLate: json['isLate'] as bool? ?? ((json['lateMinutes'] as num?)?.toInt() ?? 0) > 0,
         isMissingCheckout: json['isMissingCheckout'] as bool? ?? false,
         hasWorksheet: json['worksheet'] != null,
+        correctnessStatus: json['correctnessStatus'] as String?,
       );
 }
 

@@ -22,10 +22,10 @@ class AttendanceMapView extends StatelessWidget {
   Widget build(BuildContext context) {
     // Map tiles stay light in dark app theme; overlay colors match the light map.
     const mapColors = AppColorsExtension.light;
-    final officePoint = LatLng(office.latitude, office.longitude);
+    final officePoint = LatLng(office.latitude ?? 0, office.longitude ?? 0);
     final userPoint = userLocation == null ? null : LatLng(userLocation!.latitude, userLocation!.longitude);
     final center = userPoint ?? officePoint;
-    final zoom = _zoomForRadius(office.allowedRadiusMeters);
+    final zoom = _zoomForRadius(office.allowedRadiusMeters ?? 150);
     final zoneColor = insideRadius ? mapColors.success : mapColors.warning;
 
     return FlutterMap(
@@ -43,7 +43,7 @@ class AttendanceMapView extends StatelessWidget {
           circles: [
             CircleMarker(
               point: officePoint,
-              radius: office.allowedRadiusMeters.toDouble(),
+              radius: (office.allowedRadiusMeters ?? 150).toDouble(),
               useRadiusInMeter: true,
               color: zoneColor.withValues(alpha: 0.18),
               borderColor: zoneColor,

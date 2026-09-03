@@ -9,9 +9,14 @@ class TokenStorage {
   static const _accessKey = 'access_token';
   static const _refreshKey = 'refresh_token';
   static const _deviceKey = 'device_id';
+  static const _lastContextKey = 'last_context_key';
 
   Future<String?> readAccessToken() => _storage.read(key: _accessKey);
   Future<String?> readRefreshToken() => _storage.read(key: _refreshKey);
+  Future<String?> readLastContextKey() => _storage.read(key: _lastContextKey);
+
+  Future<void> writeLastContextKey(String contextKey) =>
+      _storage.write(key: _lastContextKey, value: contextKey);
 
   Future<String> readOrCreateDeviceId() async {
     final existing = await _storage.read(key: _deviceKey);

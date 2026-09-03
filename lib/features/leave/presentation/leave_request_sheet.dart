@@ -8,11 +8,28 @@ class _LeaveRequestSheet extends StatefulWidget{const _LeaveRequestSheet({requir
 class _State extends State<_LeaveRequestSheet>{
   String? typeId; DateTime? start; DateTime? end; final reason=TextEditingController();
   @override void dispose(){reason.dispose();super.dispose();}
-  Future<void> pick(bool isStart) async { final initial=isStart?(start??DateTime.now()):(end??start??DateTime.now()); final value=await showDatePicker(context:context,firstDate:DateTime.now(),lastDate:DateTime(DateTime.now().year+2),initialDate:initial); if(value!=null)setState((){if(isStart){start=value;if(end!=null&&end!.isBefore(value))end=value;}else{end=value;}}); }
+  Future<void> pick(bool isStart) async {
+    final now = DateTime.now();
+    final first = DateTime(now.year - 1, now.month, now.day);
+    final last = DateTime(now.year + 2);
+    final initial = isStart ? (start ?? now) : (end ?? start ?? now);
+    final value = await showDatePicker(context: context, firstDate: first, lastDate: last, initialDate: initial.isBefore(first) ? first : initial);
+    if (value != null) {
+      setState(() {
+        if (isStart) {
+          start = value;
+          if (end != null && end!.isBefore(value)) end = value;
+        } else {
+          end = value;
+        }
+      });
+    }
+  }
   @override Widget build(BuildContext context){ final valid=typeId!=null&&start!=null&&end!=null&&!end!.isBefore(start!)&&reason.text.trim().length>=5; return Padding(padding:EdgeInsets.fromLTRB(20,20,20,20+MediaQuery.viewInsetsOf(context).bottom),child:SingleChildScrollView(child:Column(mainAxisSize:MainAxisSize.min,crossAxisAlignment:CrossAxisAlignment.stretch,children:[
     Text('Request leave',style:Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight:FontWeight.w700)),const SizedBox(height:16),
     DropdownButtonFormField<String>(value:typeId,decoration:const InputDecoration(labelText:'Leave type'),items:widget.types.map((t)=>DropdownMenuItem(value:t.id,child:Text(t.name))).toList(),onChanged:(v)=>setState(()=>typeId=v)),const SizedBox(height:12),
-    Row(children:[Expanded(child:OutlinedButton.icon(onPressed:()=>pick(true),icon:const Icon(Icons.calendar_today_outlined),label:Text(start==null?'Start date':DateFormat('MMM d, yyyy').format(start!)))),const SizedBox(width:10),Expanded(child:OutlinedButton.icon(onPressed:()=>pick(false),icon:const Icon(Icons.event_outlined),label:Text(end==null?'End date':DateFormat('MMM d, yyyy').format(end!))))]),const SizedBox(height:12),
+    Row(children:[Expanded(child:OutlinedButton.icon(onPressed:()=>pick(true),icon:const Icon(Icons.calendar_today_outlined),label:Text(start==null?'Start date':DateFormat('MMM d, yyyy').format(start!)))),const SizedBox(width:10),Expanded(child:OutlinedButton.icon(onPressed:()=>pick(false),icon:const Icon(Icons.event_outlined),label:Text(end==null?'End date':DateFormat('MMM d, yyyy').format(end!))))]),const SizedBox(height:8),
+    Text('Past dates are allowed for missing attendance days. Days are counted from your work schedule (half days count as 0.5).',style:Theme.of(context).textTheme.bodySmall?.copyWith(color:Theme.of(context).hintColor)),const SizedBox(height:12),
     TextField(controller:reason,minLines:3,maxLines:6,maxLength:2000,onChanged:(_)=>setState((){}),decoration:const InputDecoration(labelText:'Reason',hintText:'Briefly explain your leave request')),const SizedBox(height:12),
     ElevatedButton(onPressed:valid?()=>Navigator.pop(context,LeaveDraft(leaveTypeId:typeId!,startDate:start!,endDate:end!,reason:reason.text.trim())):null,child:const Text('Submit request')),
   ])));}

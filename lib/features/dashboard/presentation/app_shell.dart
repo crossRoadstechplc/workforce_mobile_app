@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
+import '../../auth/application/session_controller.dart';
+import '../../auth/data/auth_models.dart';
+import '../../auth/presentation/context_picker.dart';
 import '../../notifications/application/notification_controller.dart';
 import '../application/shell_refresh.dart';
 import 'app_drawer.dart';
@@ -47,10 +50,21 @@ class _AppShellState extends ConsumerState<AppShell> {
     final location = GoRouterState.of(context).uri.path;
     final l10n = context.l10n;
     final colors = context.appColors;
+    final session = ref.watch(sessionControllerProvider);
+    final user = session.user;
     final unread = ref.watch(notificationControllerProvider).value?.unreadCount ?? 0;
     final wide = MediaQuery.sizeOf(context).width >= 840;
     final onNotifications = location.startsWith('/notifications');
     final canPopDetail = GoRouter.of(context).canPop();
+    final switchableContexts = session.availableContexts;
+    final activeKey = user?.activeContext?.key;
+    String? firstEmployeeContext;
+    for (final item in switchableContexts) {
+      if (item.type.isEmployee) {
+        firstEmployeeContext = item.key;
+        break;
+      }
+    }
 
     final appBar = AppBar(
       automaticallyImplyLeading: false,
@@ -69,7 +83,27 @@ class _AppShellState extends ConsumerState<AppShell> {
                 icon: const Icon(Icons.menu_rounded),
               ),
             ),
-      title: Text(_titleFor(location, context)),
+      title: Row(
+        children: [
+          if (switchableContexts.length > 1) ...[
+            ContextSwitcher(
+              contexts: switchableContexts,
+              activeContextKey: activeKey,
+              switching: session.contextSwitching,
+              onSwitch: (key) async {
+                try {
+                  await ref.read(sessionControllerProvider.notifier).switchContext(key);
+                } catch (error) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+                }
+              },
+            ),
+            const SizedBox(width: 8),
+          ],
+          Expanded(child: Text(_titleFor(location, context), overflow: TextOverflow.ellipsis)),
+        ],
+      ),
       actions: [
         if (onNotifications)
           TextButton(
@@ -103,6 +137,27 @@ class _AppShellState extends ConsumerState<AppShell> {
       ],
     );
 
+    final shellBody = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (user != null && !user.isEmployeeContext && firstEmployeeContext != null)
+          NonEmployeeContextBanner(
+            user: user,
+            onSwitchToEmployee: () async {
+              final employeeKey = firstEmployeeContext;
+              if (employeeKey == null) return;
+              try {
+                await ref.read(sessionControllerProvider.notifier).switchContext(employeeKey);
+              } catch (error) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+              }
+            },
+          ),
+        Expanded(child: widget.child),
+      ],
+    );
+
     if (wide) {
       return Scaffold(
         body: Row(
@@ -112,7 +167,7 @@ class _AppShellState extends ConsumerState<AppShell> {
             Expanded(
               child: Scaffold(
                 appBar: appBar,
-                body: widget.child,
+                body: shellBody,
               ),
             ),
           ],
@@ -123,7 +178,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     return Scaffold(
       drawer: const AppSidebar(),
       appBar: appBar,
-      body: widget.child,
+      body: shellBody,
     );
   }
 }

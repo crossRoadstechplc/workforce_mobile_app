@@ -41,6 +41,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       return switch (session.status) {
         SessionStatus.checking => path == '/splash' ? null : '/splash',
         SessionStatus.unauthenticated => path == '/login' ? null : '/login',
+        SessionStatus.selectContext => path == '/login' ? null : '/login',
         SessionStatus.mustChangePassword =>
           path == '/change-password' ? null : '/change-password',
         SessionStatus.authenticated =>

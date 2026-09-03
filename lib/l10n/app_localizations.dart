@@ -1157,7 +1157,7 @@ abstract class AppLocalizations {
   /// No description provided for @evaluationSelfAverage.
   ///
   /// In en, this message translates to:
-  /// **'Self average: {value}'**
+  /// **'Self total: {value}'**
   String evaluationSelfAverage(String value);
 
   /// No description provided for @evaluationDueCard.
@@ -1319,7 +1319,7 @@ abstract class AppLocalizations {
   /// No description provided for @evaluationIncomplete.
   ///
   /// In en, this message translates to:
-  /// **'Score every metric and responsibility item from 1 to 10.'**
+  /// **'Rate every area from 1 to 5. Attendance is scored automatically.'**
   String get evaluationIncomplete;
 
   /// No description provided for @back.
@@ -1459,6 +1459,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Message'**
   String get messageHint;
+
+  /// No description provided for @contextPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How are you signing in?'**
+  String get contextPickerTitle;
+
+  /// No description provided for @contextPickerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account can sign in as more than one role. Choose Employee to use this app.'**
+  String get contextPickerSubtitle;
+
+  /// No description provided for @contextSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested'**
+  String get contextSuggested;
+
+  /// No description provided for @switchContext.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch role'**
+  String get switchContext;
+
+  /// No description provided for @switchToEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'Use employee'**
+  String get switchToEmployee;
+
+  /// No description provided for @nonEmployeeContextBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {role}. Employee features like check-in need the Employee role.'**
+  String nonEmployeeContextBanner(String role);
+
+  /// No description provided for @backToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get backToSignIn;
 }
 
 class _AppLocalizationsDelegate

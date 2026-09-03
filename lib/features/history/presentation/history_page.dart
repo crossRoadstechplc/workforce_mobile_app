@@ -100,16 +100,58 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with SingleTickerProv
   }
 }
 
-class _TimesheetDayView extends ConsumerWidget {
+class _TimesheetDayView extends ConsumerStatefulWidget {
   const _TimesheetDayView({required this.data, required this.selectedDay});
   final HistoryState data;
   final DateTime selectedDay;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_TimesheetDayView> createState() => _TimesheetDayViewState();
+}
+
+class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
+  final Set<DateTime> _requestDates = {};
+  bool _pickingDates = false;
+
+  String _dateKey(DateTime day) =>
+      '${day.year.toString().padLeft(4, '0')}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
+
+  bool _canRequest(DateTime day) {
+    final today = normalizeDate(DateTime.now());
+    if (!day.isBefore(today)) return false;
+    final status = widget.data.correctnessForDay(day);
+    return status == null || status == 'REJECTED';
+  }
+
+  Future<void> _submitRequests() async {
+    final dates = (_pickingDates ? _requestDates : {normalizeDate(widget.selectedDay)})
+        .where(_canRequest)
+        .map(_dateKey)
+        .toList();
+    if (dates.isEmpty) return;
+    try {
+      await ref.read(historyControllerProvider.notifier).submitCorrectnessRequests(dates);
+      if (mounted) {
+        setState(() {
+          _pickingDates = false;
+          _requestDates.clear();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Request sent')));
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
-    final selected = data.timesheets.where((e) => isSameCalendarDay(e.workDate, selectedDay)).firstOrNull;
+    final selected = widget.data.timesheets.where((e) => isSameCalendarDay(e.workDate, widget.selectedDay)).firstOrNull;
+    final correctness = widget.data.correctnessForDay(widget.selectedDay);
+    final canRequest = _canRequest(normalizeDate(widget.selectedDay));
 
     return RefreshIndicator(
       onRefresh: () => ref.read(historyControllerProvider.notifier).refresh(),
@@ -117,12 +159,82 @@ class _TimesheetDayView extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            DateFormat('EEEE, MMMM d', locale).format(selectedDay),
+            DateFormat('EEEE, MMMM d', locale).format(widget.selectedDay),
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.appColors.textSecondary),
           ),
           const SizedBox(height: 12),
-          if (selected == null)
+          if (correctness != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: StatusChip(
+                label: correctness,
+                kind: correctness == 'PENDING'
+                    ? StatusKind.warning
+                    : correctness == 'APPROVED'
+                        ? StatusKind.success
+                        : StatusKind.error,
+              ),
+            ),
+          if (canRequest && (correctness == null || correctness == 'REJECTED')) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _submitRequests,
+                    child: const Text('Request correctness'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton(
+                  onPressed: () => setState(() {
+                    _pickingDates = !_pickingDates;
+                    _requestDates
+                      ..clear()
+                      ..add(normalizeDate(widget.selectedDay));
+                  }),
+                  child: Text(_pickingDates ? 'Done' : 'Multi-day'),
+                ),
+              ],
+            ),
+            if (_pickingDates) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: widget.data.timesheets
+                    .where((item) => _canRequest(normalizeDate(item.workDate)))
+                    .map((item) {
+                      final day = normalizeDate(item.workDate);
+                      final selectedChip = _requestDates.contains(day);
+                      return FilterChip(
+                        label: Text(DateFormat('MMM d', locale).format(day)),
+                        selected: selectedChip,
+                        onSelected: (value) => setState(() {
+                          if (value) {
+                            _requestDates.add(day);
+                          } else {
+                            _requestDates.remove(day);
+                          }
+                        }),
+                      );
+                    })
+                    .toList(),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _requestDates.isEmpty ? null : _submitRequests,
+                  child: Text('Submit ${_requestDates.length} day(s)'),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ],
+          if (selected == null && !canRequest)
             _EmptyDay(message: l10n.noTimesheetDay)
+          else if (selected == null)
+            _EmptyDay(message: 'No attendance recorded for this day.')
           else
             FutureBuilder<TimesheetHistoryItem>(
               future: ref.read(historyRepositoryProvider).timesheet(selected.id),
@@ -191,7 +303,13 @@ class _TimesheetCard extends StatelessWidget {
               ),
               StatusChip(
                 label: _statusLabel(context, item),
-                kind: item.isMissingCheckout ? StatusKind.error : item.isLate ? StatusKind.warning : StatusKind.success,
+                kind: item.correctnessStatus == 'PENDING'
+                    ? StatusKind.warning
+                    : item.correctnessStatus == 'REJECTED'
+                        ? StatusKind.error
+                        : item.isLate
+                            ? StatusKind.warning
+                            : StatusKind.success,
               ),
             ],
           ),
@@ -274,8 +392,11 @@ Widget _row(BuildContext context, String label, String value) => Padding(
 
 String _statusLabel(BuildContext context, TimesheetHistoryItem i) {
   final l10n = context.l10n;
-  if (i.isMissingCheckout) return l10n.missingCheckout;
+  if (i.correctnessStatus == 'PENDING') return 'Pending';
+  if (i.correctnessStatus == 'APPROVED') return 'Approved';
+  if (i.correctnessStatus == 'REJECTED') return 'Rejected';
   if (i.isLate) return l10n.late;
+  if (i.actualCheckIn == null) return l10n.dash;
   return l10n.onTime;
 }
 

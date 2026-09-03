@@ -61,7 +61,9 @@ class _SidebarBody extends ConsumerWidget {
     final user = session.user;
     final name = user?.displayName ?? 'Employee';
     final email = user?.email ?? '';
-    final role = user?.roles.isNotEmpty == true ? user!.roles.first : l10n.navProfile;
+    final role = user?.activeContext != null
+        ? user!.contextLabel
+        : (user?.roles.isNotEmpty == true ? user!.roles.first : l10n.navProfile);
     final code = user?.employee?.employeeCode;
     final initial = name.isNotEmpty ? name.substring(0, 1).toUpperCase() : 'E';
     final unread = ref.watch(notificationControllerProvider).value?.unreadCount ?? 0;

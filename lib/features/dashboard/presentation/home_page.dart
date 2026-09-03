@@ -51,8 +51,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       _message(l10n.checkInNeedsInternet);
       return;
     }
-    final office = ref.read(officeContextProvider).value;
-    if (office == null) return;
 
     try {
       final controller = ref.read(attendanceControllerProvider.notifier);
@@ -73,6 +71,8 @@ class _HomePageState extends ConsumerState<HomePage> {
         }
       }
 
+      if (!mounted) return;
+      final office = await controller.latestOfficeContext();
       if (!mounted) return;
       final photoUrl = await _capturePhotoIfRequired(office, AttendancePhotoPurpose.checkIn);
       if (photoUrl == null && office.photoRequired) {
@@ -98,8 +98,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       _message(l10n.checkoutNeedsInternet);
       return;
     }
-    final office = ref.read(officeContextProvider).value;
-    if (office == null) return;
 
     final current = ref.read(attendanceControllerProvider).value?.timesheet;
     final carriedOver = current?.isCarriedOverOpenShift == true;
@@ -122,18 +120,21 @@ class _HomePageState extends ConsumerState<HomePage> {
       return;
     }
 
-    final photoUrl = await _capturePhotoIfRequired(office, AttendancePhotoPurpose.checkOut);
-    if (photoUrl == null && office.photoRequired) {
-      if (mounted) _message(l10n.checkoutCancelled);
-      return;
-    }
-
     try {
-      final result = await ref.read(attendanceControllerProvider.notifier).checkOut(
-            description,
-            photoUrl: photoUrl,
-            location: checkoutLocation,
-          );
+      final controller = ref.read(attendanceControllerProvider.notifier);
+      final office = await controller.latestOfficeContext();
+      if (!mounted) return;
+      final photoUrl = await _capturePhotoIfRequired(office, AttendancePhotoPurpose.checkOut);
+      if (photoUrl == null && office.photoRequired) {
+        if (mounted) _message(l10n.checkoutCancelled);
+        return;
+      }
+
+      final result = await controller.checkOut(
+        description,
+        photoUrl: photoUrl,
+        location: checkoutLocation,
+      );
       if (mounted) _message(_checkOutToast(context, result, carriedOver: carriedOver));
     } catch (error) {
       if (mounted) _message(error.toString());
@@ -197,22 +198,74 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
             ),
           ),
-          data: (office) => _TimeClockBody(
-            office: office,
-            timesheet: value.timesheet,
-            busy: value.loading,
-            zoneStatus: locationPreview.zoneStatus,
-            locating: locationPreview.locating,
-            userLocation: locationPreview.location,
-            now: _now,
-            onRefresh: () => refreshTimeClock(ref),
-            onCheckIn: _checkIn,
-            onCheckOut: _checkOut,
-            onLocationBannerTap: locationPreview.needsLocationAction
-                ? () => ref.read(locationPreviewProvider.notifier).requestAccessAndRefresh()
-                : null,
-          ),
+          data: (office) {
+            if (!office.assigned) {
+              return _UnassignedWorkBody(
+                message: office.message ?? 'No office or schedule has been assigned yet.',
+                onRefresh: () => refreshTimeClock(ref),
+              );
+            }
+            return _TimeClockBody(
+              office: office,
+              timesheet: value.timesheet,
+              busy: value.loading,
+              zoneStatus: locationPreview.zoneStatus,
+              locating: locationPreview.locating,
+              userLocation: locationPreview.location,
+              now: _now,
+              onRefresh: () => refreshTimeClock(ref),
+              onCheckIn: _checkIn,
+              onCheckOut: _checkOut,
+              onLocationBannerTap: locationPreview.needsLocationAction
+                  ? () => ref.read(locationPreviewProvider.notifier).requestAccessAndRefresh()
+                  : null,
+            );
+          },
         ),
+      ),
+    );
+  }
+}
+
+class _UnassignedWorkBody extends StatelessWidget {
+  const _UnassignedWorkBody({required this.message, required this.onRefresh});
+
+  final String message;
+  final Future<void> Function() onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.work_off_outlined, size: 56, color: colors.textSecondary),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Time clock unavailable',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    message,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textSecondary),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -251,13 +304,13 @@ class _TimeClockBody extends StatelessWidget {
     final colors = context.appColors;
     final open = timesheet?.isOpen == true;
     final completed = timesheet != null && !timesheet!.isOpen;
-    final distance = userLocation == null
+    final distance = userLocation == null || office.latitude == null || office.longitude == null
         ? null
         : GeoUtils.distanceMeters(
             fromLat: userLocation!.latitude,
             fromLng: userLocation!.longitude,
-            toLat: office.latitude,
-            toLng: office.longitude,
+            toLat: office.latitude!,
+            toLng: office.longitude!,
           );
     final inside = zoneStatus == LocationZoneStatus.inside;
     final carriedOver = open && timesheet!.isCarriedOverOpenShift;

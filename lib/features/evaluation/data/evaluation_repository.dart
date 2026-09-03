@@ -32,7 +32,10 @@ class EvaluationRepository {
       final r = await _dio.patch<Map<String, dynamic>>(
         '${ApiEndpoints.evaluations}/$id',
         data: {
-          'scores': draft.scores.map((s) => {'itemKey': s.itemKey, 'selfScore': s.selfScore}).toList(),
+          'scores': draft.scores
+              .where((s) => !s.isSystem)
+              .map((s) => {'itemKey': s.itemKey, 'selfScore': s.selfScore})
+              .toList(),
           'goals': draft.goals
               .map(
                 (g) => {
