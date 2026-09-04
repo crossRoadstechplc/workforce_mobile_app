@@ -8,6 +8,7 @@ import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/realtime/socket_service.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../../auth/application/session_controller.dart';
 import '../../notifications/application/notification_controller.dart';
 import '../application/chat_controller.dart';
@@ -158,7 +159,9 @@ class _ChatThreadPageState extends ConsumerState<ChatThreadPage> {
           ],
         ),
       ),
-      body: _loading
+      body: ResponsiveContent(
+        maxWidth: 720,
+        child: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? AppErrorView(message: _error.toString(), onRetry: _load)
@@ -216,6 +219,7 @@ class _ChatThreadPageState extends ConsumerState<ChatThreadPage> {
                     ),
                   ],
                 ),
+      ),
     );
   }
 }

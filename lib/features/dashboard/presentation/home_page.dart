@@ -10,6 +10,7 @@ import '../../../core/location/location_service.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_skeleton.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../../attendance/application/attendance_controller.dart';
 import '../../attendance/application/location_preview_controller.dart';
 import '../../attendance/data/attendance_models.dart';
@@ -176,7 +177,9 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return Scaffold(
       backgroundColor: colors.background,
-      body: attendance.when(
+      body: ResponsiveContent(
+        maxWidth: 960,
+        child: attendance.when(
         loading: () => const Center(child: AttendanceCardSkeleton()),
         error: (error, _) => Center(
           child: Padding(
@@ -222,6 +225,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             );
           },
         ),
+      ),
       ),
     );
   }

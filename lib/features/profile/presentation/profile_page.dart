@@ -5,6 +5,7 @@ import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../../auth/application/session_controller.dart';
 import '../../notifications/application/notification_controller.dart';
 import '../application/profile_controller.dart';
@@ -91,7 +92,8 @@ class ProfilePage extends ConsumerWidget {
     final colors = context.appColors;
 
     return Scaffold(
-      body: profile.when(
+      body: ResponsiveContent(
+        child: profile.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => AppErrorView(
           message: e.toString(),
@@ -157,6 +159,7 @@ class ProfilePage extends ConsumerWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

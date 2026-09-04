@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../application/chat_controller.dart';
 import '../data/chat_models.dart';
 
@@ -24,7 +25,8 @@ class ChatListPage extends ConsumerWidget {
         icon: const Icon(Icons.chat_rounded),
         label: Text(l10n.newChat),
       ),
-      body: async.when(
+      body: ResponsiveContent(
+        child: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => AppErrorView(
           message: e.toString(),
@@ -52,13 +54,14 @@ class ChatListPage extends ConsumerWidget {
               : ListView.separated(
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 88),
                   itemCount: data.items.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 4),
+                  separatorBuilder: (_, _) => const SizedBox(height: 4),
                   itemBuilder: (context, i) => _ConversationTile(
                     item: data.items[i],
                     onTap: () => context.push('/chat/${data.items[i].id}'),
                   ),
                 ),
         ),
+      ),
       ),
     );
   }

@@ -6,6 +6,7 @@ import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../application/history_controller.dart';
 import '../data/history_models.dart';
@@ -45,7 +46,9 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with SingleTickerProv
     final colors = context.appColors;
 
     return Scaffold(
-      body: Column(
+      body: ResponsiveContent(
+        maxWidth: 960,
+        child: Column(
         children: [
           Material(
             color: colors.background,
@@ -95,6 +98,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with SingleTickerProv
             ),
           ),
         ],
+      ),
       ),
     );
   }

@@ -101,7 +101,6 @@ android/key.properties
 
 # Web
 **/web/libraries/
-lib/generated_plugin_registrant.dart
 
 # Exceptions to above rules
 !**/ios/**/default.mode1v3

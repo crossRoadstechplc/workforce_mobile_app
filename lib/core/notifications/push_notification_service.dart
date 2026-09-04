@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../features/notifications/data/notification_repository.dart';
+import '../../firebase_options.dart';
 import '../config/app_config.dart';
 import '../auth/token_storage.dart';
 
@@ -17,17 +18,25 @@ class PushNotificationService {
     if (_initialized) return;
     if (!AppConfig.enableFirebase) return;
     try {
-      if (Firebase.apps.isEmpty) await Firebase.initializeApp();
+      if (Firebase.apps.isEmpty) {
+        try {
+          await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+        } catch (_) {
+          await Firebase.initializeApp();
+        }
+      }
     } catch (_) {
       return;
     }
     _initialized = true;
     await FirebaseMessaging.instance.requestPermission(alert: true, badge: true, sound: true);
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const darwin = DarwinInitializationSettings();
-    await _local.initialize(
-      settings: const InitializationSettings(android: android, iOS: darwin),
-    );
+    if (!kIsWeb) {
+      const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const darwin = DarwinInitializationSettings();
+      await _local.initialize(
+        settings: const InitializationSettings(android: android, iOS: darwin),
+      );
+    }
     await _registerToken();
     FirebaseMessaging.instance.onTokenRefresh.listen((_) => _registerToken());
     FirebaseMessaging.onMessage.listen(_foregroundMessage);
@@ -54,6 +63,7 @@ class PushNotificationService {
   Future<void> _foregroundMessage(RemoteMessage message) async {
     final notification = message.notification;
     if (notification == null) return;
+    if (kIsWeb) return;
     const details = NotificationDetails(
       android: AndroidNotificationDetails('workforce_general', 'Workforce notifications', importance: Importance.high, priority: Priority.high),
       iOS: DarwinNotificationDetails(),

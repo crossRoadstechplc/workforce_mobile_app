@@ -7,6 +7,7 @@ import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/evaluation_controller.dart';
@@ -22,7 +23,8 @@ class EvaluationsListPage extends ConsumerWidget {
     final colors = context.appColors;
 
     return Scaffold(
-      body: async.when(
+      body: ResponsiveContent(
+        child: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => AppErrorView(
           message: e.toString(),
@@ -46,6 +48,7 @@ class EvaluationsListPage extends ConsumerWidget {
                   itemBuilder: (context, i) => _Card(item: items[i]),
                 ),
         ),
+      ),
       ),
     );
   }

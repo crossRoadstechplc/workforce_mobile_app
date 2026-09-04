@@ -19,6 +19,8 @@ Test at minimum:
 - large Android/iOS phone (~430 px)
 - iPhone simulator/device
 - Android physical device with GPS
+- Chrome narrow viewport (<840 — drawer shell)
+- Chrome wide viewport (≥840 — permanent sidebar, centered content ≤960px)
 
 ## Staging build
 
@@ -28,6 +30,18 @@ flutter run \
   --dart-define=API_BASE_URL=https://staging-api.example.com/api/v1 \
   --dart-define=SOCKET_BASE_URL=https://staging-api.example.com \
   --dart-define=ENABLE_FIREBASE=true
+```
+
+## Web local smoke test
+
+Use `localhost` (not `10.0.2.2`) when running in Chrome:
+
+```bash
+flutter run -d chrome \
+  --dart-define=APP_ENV=development \
+  --dart-define=API_BASE_URL=http://localhost:4000/api/v1 \
+  --dart-define=SOCKET_BASE_URL=http://localhost:4000 \
+  --dart-define=ENABLE_FIREBASE=false
 ```
 
 ## Production behavior
@@ -62,6 +76,46 @@ tool/build_release.sh ios
 
 Then validate/archive/upload through Xcode/App Store Connect according to your signing workflow.
 
+## Web release (Firebase Hosting)
+
+1. Set `.firebaserc` project id (`firebase use <project-id>`).
+2. Ensure the backend CORS allowlist includes the Hosting origin (`https://<project>.web.app` and any custom domain).
+3. Build:
+
+```bash
+# PowerShell
+$env:API_BASE_URL="https://api.example.com/api/v1"
+$env:SOCKET_BASE_URL="https://api.example.com"
+$env:ENABLE_FIREBASE="false"   # set true after flutterfire configure for web push
+.\tool\build_release.ps1 web
+```
+
+```bash
+# bash
+export API_BASE_URL=https://api.example.com/api/v1
+export SOCKET_BASE_URL=https://api.example.com
+export ENABLE_FIREBASE=false
+tool/build_release.sh web
+```
+
+Expected artifact: `build/web`
+
+4. Deploy:
+
+```bash
+firebase deploy --only hosting
+```
+
+`firebase.json` rewrites all routes to `/index.html` so `go_router` deep links work after refresh.
+
+5. Post-deploy checks:
+
+- Desktop and phone browser on the Hosting URL
+- Hard-refresh `/home`, `/history`, `/chat/...`
+- Geolocation and camera (HTTPS only)
+
+See `docs/FIREBASE_SETUP.md` for web app / FlutterFire push setup.
+
 ## Release smoke test
 
 Before promotion:
@@ -78,3 +132,5 @@ Before promotion:
 10. Push notification reaches a physical device.
 11. Logout removes the local session/device registration.
 12. Relaunch does not expose another user's data.
+13. (Web) Wide layout shows sidebar; content stays centered.
+14. (Web) Deep link refresh does not 404.

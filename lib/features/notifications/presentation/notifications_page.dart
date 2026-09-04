@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../application/notification_controller.dart';
 import '../data/notification_models.dart';
 
@@ -19,7 +20,8 @@ class NotificationsPage extends ConsumerWidget {
     final colors = context.appColors;
 
     return Scaffold(
-      body: async.when(
+      body: ResponsiveContent(
+        child: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => AppErrorView(
           message: e.toString(),
@@ -63,6 +65,7 @@ class NotificationsPage extends ConsumerWidget {
                   ),
                 ),
         ),
+      ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -89,16 +90,20 @@ class LocationPreviewController extends Notifier<LocationPreviewState> {
   Future<void> requestAccessAndRefresh() async {
     if (state.locating) return;
 
-    if (state.access == LocationAccess.servicesDisabled) {
-      await Geolocator.openLocationSettings();
-      await refreshPreview();
-      return;
-    }
+    // Browser location is managed via the site permission UI — native
+    // settings screens are not available on web.
+    if (!kIsWeb) {
+      if (state.access == LocationAccess.servicesDisabled) {
+        await Geolocator.openLocationSettings();
+        await refreshPreview();
+        return;
+      }
 
-    if (state.access == LocationAccess.permissionDeniedForever) {
-      await openAppSettings();
-      await refreshPreview();
-      return;
+      if (state.access == LocationAccess.permissionDeniedForever) {
+        await openAppSettings();
+        await refreshPreview();
+        return;
+      }
     }
 
     state = LocationPreviewState(

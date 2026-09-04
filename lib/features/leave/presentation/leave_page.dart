@@ -6,6 +6,7 @@ import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../application/leave_controller.dart';
 import '../data/leave_models.dart';
@@ -48,7 +49,8 @@ class LeavePage extends ConsumerWidget {
               icon: const Icon(Icons.add_rounded),
               label: Text(l10n.requestLeave),
             ),
-      body: async.when(
+      body: ResponsiveContent(
+        child: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => AppErrorView(
           message: e.toString(),
@@ -86,6 +88,7 @@ class LeavePage extends ConsumerWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }
