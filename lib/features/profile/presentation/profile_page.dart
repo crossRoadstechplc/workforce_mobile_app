@@ -13,78 +13,6 @@ import '../application/profile_controller.dart';
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
-  Future<void> _changePassword(BuildContext context, WidgetRef ref) async {
-    final l10n = context.l10n;
-    final current = TextEditingController();
-    final next = TextEditingController();
-    final confirm = TextEditingController();
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.changePassword),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: current,
-              obscureText: true,
-              decoration: InputDecoration(labelText: l10n.currentPassword),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: next,
-              obscureText: true,
-              decoration: InputDecoration(labelText: l10n.newPassword),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: confirm,
-              obscureText: true,
-              decoration: InputDecoration(labelText: l10n.confirmPassword),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l10n.update)),
-        ],
-      ),
-    );
-    if (result != true) {
-      current.dispose();
-      next.dispose();
-      confirm.dispose();
-      return;
-    }
-    if (next.text.length < 10 ||
-        next.text != confirm.text ||
-        !RegExp(r'[A-Z]').hasMatch(next.text) ||
-        !RegExp(r'[a-z]').hasMatch(next.text) ||
-        !RegExp(r'[0-9]').hasMatch(next.text)) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.passwordRules)));
-      }
-      current.dispose();
-      next.dispose();
-      confirm.dispose();
-      return;
-    }
-    try {
-      await ref.read(sessionControllerProvider.notifier).changePassword(current.text, next.text);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.passwordChanged)));
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-      }
-    } finally {
-      current.dispose();
-      next.dispose();
-      confirm.dispose();
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileControllerProvider);
@@ -142,12 +70,6 @@ class ProfilePage extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              OutlinedButton.icon(
-                onPressed: () => _changePassword(context, ref),
-                icon: const Icon(Icons.password_rounded),
-                label: Text(l10n.changePassword),
-              ),
-              const SizedBox(height: 10),
               FilledButton.tonalIcon(
                 onPressed: () async {
                   await ref.read(pushNotificationServiceProvider).unregister();

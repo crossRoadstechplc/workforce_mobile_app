@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_client.dart';
@@ -80,8 +81,13 @@ class SessionController extends Notifier<SessionState> {
         user: user,
         availableContexts: contexts,
       );
+    } on DioException catch (error) {
+      final status = error.response?.statusCode;
+      if (status == 401 || status == 403) {
+        await _storage.clear();
+      }
+      state = const SessionState(status: SessionStatus.unauthenticated);
     } catch (_) {
-      await _storage.clear();
       state = const SessionState(status: SessionStatus.unauthenticated);
     }
   }

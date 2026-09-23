@@ -73,6 +73,39 @@ Then follow:
 
 ## Local development
 
+### Easy run from `.env` (Windows)
+
+Edit `workforce_employee_app/.env` (created from `.env.example`), then:
+
+From `workforce-employee-app`:
+
+```powershell
+.\run.ps1 -d chrome
+```
+
+Or from `workforce_employee_app`:
+
+```powershell
+.\tool\run.ps1 -d chrome
+.\tool\run.ps1 -d windows
+.\tool\run.ps1 -d web-server --web-port 5183
+```
+
+The script reads `.env` and passes `--dart-define=...` for you. No need to type dart-defines at runtime.
+
+| Variable | Local default |
+|----------|----------------|
+| `APP_ENV` | `development` |
+| `API_BASE_URL` | `http://127.0.0.1:4000/api/v1` |
+| `SOCKET_BASE_URL` | `http://127.0.0.1:4000` |
+| `ENABLE_FIREBASE` | `false` |
+| `TASK_TRACKER_URL` | `http://127.0.0.1:3001` |
+| `APP_VERSION` | `1.0.0` (must match backend `ANDROID_APP_VERSION` when shipping) |
+
+Android emulator: set hosts in `.env` to `10.0.2.2` instead of `127.0.0.1`.
+
+### Manual dart-define (optional)
+
 Android emulator:
 
 ```bash
@@ -83,13 +116,13 @@ flutter run \
   --dart-define=ENABLE_FIREBASE=false
 ```
 
-iOS simulator:
+iOS simulator / Chrome:
 
 ```bash
 flutter run \
   --dart-define=APP_ENV=development \
-  --dart-define=API_BASE_URL=http://localhost:4000/api/v1 \
-  --dart-define=SOCKET_BASE_URL=http://localhost:4000 \
+  --dart-define=API_BASE_URL=http://127.0.0.1:4000/api/v1 \
+  --dart-define=SOCKET_BASE_URL=http://127.0.0.1:4000 \
   --dart-define=ENABLE_FIREBASE=false
 ```
 

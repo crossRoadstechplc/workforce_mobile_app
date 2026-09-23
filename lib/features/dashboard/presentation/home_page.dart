@@ -31,6 +31,7 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   Timer? _ticker;
   DateTime _now = DateTime.now();
+  bool _attendanceActionInFlight = false;
 
   @override
   void initState() {
@@ -47,20 +48,25 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Future<void> _checkIn() async {
+    if (_attendanceActionInFlight) return;
     final l10n = context.l10n;
     if (ref.read(networkStatusProvider).value == false) {
       _message(l10n.checkInNeedsInternet);
       return;
     }
 
+    setState(() => _attendanceActionInFlight = true);
     try {
       final controller = ref.read(attendanceControllerProvider.notifier);
       final attempt = await controller.prepareCheckIn();
       if (!mounted) return;
-      ref.read(locationPreviewProvider.notifier).applyActionLocation(attempt.location);
       if (!attempt.preview.insideRadius) {
         _message(l10n.outsideRadius(attempt.preview.distanceMeters.round()));
         return;
+      }
+
+      if (attempt.location != null) {
+        ref.read(locationPreviewProvider.notifier).applyActionLocation(attempt.location!);
       }
 
       LateReasonResult? reason;
@@ -90,55 +96,58 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (mounted) _message(_checkInToast(context, DateTime.now(), result));
     } catch (error) {
       if (mounted) _message(error.toString());
+    } finally {
+      if (mounted) setState(() => _attendanceActionInFlight = false);
     }
   }
 
   Future<void> _checkOut() async {
+    if (_attendanceActionInFlight) return;
     final l10n = context.l10n;
     if (ref.read(networkStatusProvider).value == false) {
       _message(l10n.checkoutNeedsInternet);
       return;
     }
 
-    final current = ref.read(attendanceControllerProvider).value?.timesheet;
-    final carriedOver = current?.isCarriedOverOpenShift == true;
-    final description = await showCheckOutSheet(
-      context,
-      carriedOverShift: carriedOver,
-      shiftWorkDate: current?.workDate ?? current?.actualCheckIn,
-    );
-    if (description == null) {
-      if (mounted) _message(l10n.checkoutCancelled);
-      return;
-    }
-    if (!mounted) return;
-
-    AttendanceLocation? checkoutLocation;
+    setState(() => _attendanceActionInFlight = true);
     try {
-      checkoutLocation = (await ref.read(locationServiceProvider).captureForAction()).withFreshCapturedAt();
-    } catch (error) {
-      if (mounted) _message(error.toString());
-      return;
-    }
-
-    try {
-      final controller = ref.read(attendanceControllerProvider.notifier);
-      final office = await controller.latestOfficeContext();
+      final current = ref.read(attendanceControllerProvider).value?.timesheet;
+      final carriedOver = current?.isCarriedOverOpenShift == true;
+      final sheetResult = await showCheckOutSheet(
+        context,
+        carriedOverShift: carriedOver,
+        shiftWorkDate: current?.workDate ?? current?.actualCheckIn,
+      );
+      if (sheetResult == null || sheetResult.cancelled) {
+        if (mounted) _message(l10n.checkoutCancelled);
+        return;
+      }
       if (!mounted) return;
+
+      AttendanceLocation? checkoutLocation;
+      final office = await ref.read(attendanceControllerProvider.notifier).latestOfficeContext();
+      if (!mounted) return;
+      if (office.locationRequired) {
+        checkoutLocation = (await ref.read(locationServiceProvider).captureForAction()).withFreshCapturedAt();
+      }
+
       final photoUrl = await _capturePhotoIfRequired(office, AttendancePhotoPurpose.checkOut);
       if (photoUrl == null && office.photoRequired) {
         if (mounted) _message(l10n.checkoutCancelled);
         return;
       }
 
-      final result = await controller.checkOut(
-        description,
-        photoUrl: photoUrl,
-        location: checkoutLocation,
-      );
+      final description = sheetResult.workDescription.trim();
+      final result = await ref.read(attendanceControllerProvider.notifier).checkOut(
+            workDescription: description.isEmpty ? null : description,
+            photoUrl: photoUrl,
+            location: checkoutLocation,
+          );
       if (mounted) _message(_checkOutToast(context, result, carriedOver: carriedOver));
     } catch (error) {
       if (mounted) _message(error.toString());
+    } finally {
+      if (mounted) setState(() => _attendanceActionInFlight = false);
     }
   }
 
@@ -211,15 +220,16 @@ class _HomePageState extends ConsumerState<HomePage> {
             return _TimeClockBody(
               office: office,
               timesheet: value.timesheet,
-              busy: value.loading,
+              busy: value.loading || _attendanceActionInFlight,
               zoneStatus: locationPreview.zoneStatus,
+              locationAccess: locationPreview.access,
               locating: locationPreview.locating,
               userLocation: locationPreview.location,
               now: _now,
               onRefresh: () => refreshTimeClock(ref),
               onCheckIn: _checkIn,
               onCheckOut: _checkOut,
-              onLocationBannerTap: locationPreview.needsLocationAction
+              onLocationBannerTap: office.locationRequired && locationPreview.needsLocationAction
                   ? () => ref.read(locationPreviewProvider.notifier).requestAccessAndRefresh()
                   : null,
             );
@@ -281,6 +291,7 @@ class _TimeClockBody extends StatelessWidget {
     required this.timesheet,
     required this.busy,
     required this.zoneStatus,
+    required this.locationAccess,
     required this.locating,
     required this.userLocation,
     required this.now,
@@ -294,6 +305,7 @@ class _TimeClockBody extends StatelessWidget {
   final Timesheet? timesheet;
   final bool busy;
   final LocationZoneStatus zoneStatus;
+  final LocationAccess locationAccess;
   final bool locating;
   final AttendanceLocation? userLocation;
   final DateTime now;
@@ -320,8 +332,9 @@ class _TimeClockBody extends StatelessWidget {
     final carriedOver = open && timesheet!.isCarriedOverOpenShift;
     final elapsed = open ? timesheet!.displayElapsedAt(now) : Duration.zero;
     final bottomSafe = MediaQuery.paddingOf(context).bottom;
+    final locationRequired = office.locationRequired;
 
-    final canCheckIn = !open && !completed && inside && !busy;
+    final canCheckIn = !open && !completed && !busy && (!locationRequired || inside);
     final showCheckIn = !open && !completed;
     final showCheckOut = open;
 
@@ -336,11 +349,13 @@ class _TimeClockBody extends StatelessWidget {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: AttendanceMapView(
-                    office: office,
-                    userLocation: userLocation,
-                    insideRadius: inside,
-                  ),
+                  child: locationRequired
+                      ? AttendanceMapView(
+                          office: office,
+                          userLocation: userLocation,
+                          insideRadius: inside,
+                        )
+                      : ColoredBox(color: colors.background),
                 ),
                 Positioned(
                   top: 8,
@@ -357,8 +372,11 @@ class _TimeClockBody extends StatelessWidget {
                     elapsed: elapsed,
                     now: now,
                     zoneStatus: zoneStatus,
+                    locationAccess: locationAccess,
                     locating: locating,
                     distanceMeters: distance,
+                    skipLocation: !locationRequired,
+                    recommendedWorkMinutes: office.scheduledWorkMinutes,
                     onLocationBannerTap: onLocationBannerTap,
                   ),
                     ],
@@ -373,7 +391,7 @@ class _TimeClockBody extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (showCheckIn && zoneStatus == LocationZoneStatus.outside) ...[
+                        if (showCheckIn && locationRequired && zoneStatus == LocationZoneStatus.outside) ...[
                           Text(
                             l10n.moveInsideZone,
                             textAlign: TextAlign.center,
@@ -393,7 +411,7 @@ class _TimeClockBody extends StatelessWidget {
                                       child: CircularProgressIndicator(strokeWidth: 2, color: colors.surface),
                                     )
                                   : const Icon(Icons.login_rounded),
-                              label: Text(busy ? l10n.checkingLocation : l10n.checkIn),
+                              label: Text(busy && locationRequired ? l10n.checkingLocation : l10n.checkIn),
                               style: FilledButton.styleFrom(
                                 backgroundColor: colors.primary,
                                 foregroundColor: colors.surface,
@@ -416,7 +434,7 @@ class _TimeClockBody extends StatelessWidget {
                                       child: CircularProgressIndicator(strokeWidth: 2, color: colors.surface),
                                     )
                                   : const Icon(Icons.logout_rounded),
-                              label: Text(busy ? l10n.checkingLocation : (carriedOver ? l10n.closeShift : l10n.checkOut)),
+                              label: Text(busy && locationRequired ? l10n.checkingLocation : (carriedOver ? l10n.closeShift : l10n.checkOut)),
                               style: FilledButton.styleFrom(
                                 backgroundColor: colors.error,
                                 foregroundColor: Colors.white,

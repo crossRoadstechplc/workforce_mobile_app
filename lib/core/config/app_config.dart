@@ -6,9 +6,11 @@ class AppConfig {
     defaultValue: 'development',
   );
 
+  // Defaults target local workforce-backend on this machine (Chrome/Windows).
+  // Android emulator: use tool/run.ps1 with .env values set to 10.0.2.2
   static const apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:4000/api/v1',
+    defaultValue: 'http://127.0.0.1:4000/api/v1',
   );
 
   /// Ensures REST calls always target `/api/v1`, even when the build flag
@@ -26,7 +28,7 @@ class AppConfig {
 
   static const socketBaseUrl = String.fromEnvironment(
     'SOCKET_BASE_URL',
-    defaultValue: 'http://10.0.2.2:4000',
+    defaultValue: 'http://127.0.0.1:4000',
   );
 
   static const enableFirebase = bool.fromEnvironment(
@@ -34,31 +36,30 @@ class AppConfig {
     defaultValue: false,
   );
 
-  /// When true (default in local development), attendance uses seeded office
-  /// coordinates so Chrome/emulator check-in works against demo data.
-  /// Set `--dart-define=USE_MOCK_ATTENDANCE_LOCATION=false` to use real GPS.
-  static const useMockAttendanceLocation = bool.fromEnvironment(
-    'USE_MOCK_ATTENDANCE_LOCATION',
-    defaultValue: true,
+  static const taskTrackerUrl = String.fromEnvironment(
+    'TASK_TRACKER_URL',
+    defaultValue: 'http://127.0.0.1:3001',
   );
 
-  static const mockAttendanceLatitude = String.fromEnvironment(
-    'MOCK_ATTENDANCE_LAT',
-    defaultValue: '8.9806',
+  /// Baked at build time from `.env` / `--dart-define=APP_VERSION=...`.
+  /// Compared against the backend `GET /api/v1/app/version` payload.
+  static const appVersion = String.fromEnvironment(
+    'APP_VERSION',
+    defaultValue: '1.0.0',
   );
 
-  static const mockAttendanceLongitude = String.fromEnvironment(
-    'MOCK_ATTENDANCE_LNG',
-    defaultValue: '38.7578',
-  );
+  static String get resolvedTaskTrackerUrl {
+    var url = taskTrackerUrl.trim();
+    if (url.endsWith('/')) {
+      url = url.substring(0, url.length - 1);
+    }
+    return url;
+  }
 
   static const connectTimeout = Duration(seconds: 15);
   static const receiveTimeout = Duration(seconds: 20);
 
   static bool get isProduction => environment.toLowerCase() == 'production';
-  static bool get isStaging => environment.toLowerCase() == 'staging';
-  static bool get allowMockAttendanceLocation =>
-      !isProduction && !isStaging && useMockAttendanceLocation;
 
   static void validate() {
     const valid = {'development', 'staging', 'production'};

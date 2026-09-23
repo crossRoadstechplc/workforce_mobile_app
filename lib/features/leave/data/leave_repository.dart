@@ -18,6 +18,10 @@ class LeaveRepository {
     try { final r=await _dio.get<Map<String,dynamic>>(ApiEndpoints.leaveSummary); return LeaveSummary.fromJson(r.data!['data'] as Map<String,dynamic>); }
     on DioException catch(e){throw ApiException.fromDio(e);} }
 
+  Future<AnnualLeaveBalance> balance() async {
+    try { final r=await _dio.get<Map<String,dynamic>>(ApiEndpoints.leaveBalance); return AnnualLeaveBalance.fromJson(r.data!['data'] as Map<String,dynamic>); }
+    on DioException catch(e){throw ApiException.fromDio(e);} }
+
   Future<LeaveRequestItem> create({required String leaveTypeId, required DateTime startDate, required DateTime endDate, required String reason}) async {
     try { final r=await _dio.post<Map<String,dynamic>>(ApiEndpoints.leaveRequests,data:{'leaveTypeId':leaveTypeId,'startDate':_date(startDate),'endDate':_date(endDate),'reason':reason.trim()}); return LeaveRequestItem.fromJson(r.data!['data'] as Map<String,dynamic>); }
     on DioException catch(e){throw ApiException.fromDio(e);} }

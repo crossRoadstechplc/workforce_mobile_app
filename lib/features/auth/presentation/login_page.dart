@@ -1,29 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
-import '../../../core/config/app_config.dart';
 import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../application/session_controller.dart';
 import 'context_picker.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, this.initialLogin});
+
+  /// Prefill from invite handoff (`/login?email=` or deep link).
+  final String? initialLogin;
 
   @override
   ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  static const _demoEmail = 'sara@acme.demo';
-  static const _demoPassword = 'Demo123!';
-
   final _formKey = GlobalKey<FormState>();
-  final _loginController = TextEditingController();
+  late final TextEditingController _loginController;
   final _passwordController = TextEditingController();
   bool _loading = false;
+  bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loginController = TextEditingController(text: widget.initialLogin?.trim() ?? '');
+  }
 
   @override
   void dispose() {
@@ -116,19 +121,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: colors.primary,
-                      child: const Icon(Icons.schedule_rounded, color: Colors.white, size: 32),
+                    Align(
+                      child: Image.asset(
+                        'lib/logo.png',
+                        height: 96,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     Text(
                       l10n.loginTitle,
+                      textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       l10n.loginSubtitle,
+                      textAlign: TextAlign.center,
                       style: TextStyle(color: colors.textSecondary),
                     ),
                     const SizedBox(height: 28),
@@ -144,13 +154,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _passwordController,
-                      obscureText: true,
+                      obscureText: _obscurePassword,
                       onFieldSubmitted: (_) => _submit(),
                       decoration: InputDecoration(
                         labelText: l10n.password,
                         prefixIcon: const Icon(Icons.lock_outline_rounded),
+                        suffixIcon: IconButton(
+                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          ),
+                        ),
                       ),
-                      validator: (value) => (value == null || value.length < 8) ? l10n.passwordMin8 : null,
+                      validator: (value) => (value == null || value.length < 6) ? l10n.passwordMin8 : null,
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
@@ -159,15 +175,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ? const SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                           : Text(l10n.signIn),
                     ),
-                    if (!AppConfig.isProduction) ...[
-                      const SizedBox(height: 20),
-                      _DemoCredentialsBlock(
-                        email: _demoEmail,
-                        password: _demoPassword,
-                        loginController: _loginController,
-                        passwordController: _passwordController,
-                      ),
-                    ],
                     const SizedBox(height: 16),
                     Text(
                       l10n.accountCreatedByAdmin,
@@ -181,91 +188,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _DemoCredentialsBlock extends StatelessWidget {
-  const _DemoCredentialsBlock({
-    required this.email,
-    required this.password,
-    required this.loginController,
-    required this.passwordController,
-  });
-
-  final String email;
-  final String password;
-  final TextEditingController loginController;
-  final TextEditingController passwordController;
-
-  Future<void> _copy(BuildContext context, String value, TextEditingController field) async {
-    await Clipboard.setData(ClipboardData(text: value));
-    field.text = value;
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(context.l10n.copied), behavior: SnackBarBehavior.floating));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final colors = context.appColors;
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(l10n.demoLoginTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          _DemoCredentialRow(label: l10n.demoEmailField, value: email, onCopy: () => _copy(context, email, loginController)),
-          const SizedBox(height: 4),
-          _DemoCredentialRow(label: l10n.demoPasswordField, value: password, onCopy: () => _copy(context, password, passwordController)),
-          const SizedBox(height: 6),
-          Text(l10n.demoLoginNote, style: TextStyle(fontSize: 12, color: colors.textSecondary, height: 1.4)),
-        ],
-      ),
-    );
-  }
-}
-
-class _DemoCredentialRow extends StatelessWidget {
-  const _DemoCredentialRow({required this.label, required this.value, required this.onCopy});
-
-  final String label;
-  final String value;
-  final VoidCallback onCopy;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    return Row(
-      children: [
-        Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: TextStyle(fontSize: 13, color: colors.textPrimary),
-              children: [
-                TextSpan(text: '$label: ', style: const TextStyle(fontWeight: FontWeight.w600)),
-                TextSpan(text: value),
-              ],
-            ),
-          ),
-        ),
-        IconButton(
-          onPressed: onCopy,
-          tooltip: context.l10n.copy,
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-          icon: Icon(Icons.copy_rounded, size: 18, color: colors.primary),
-        ),
-      ],
     );
   }
 }

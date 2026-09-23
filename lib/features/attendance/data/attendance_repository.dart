@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/api/api_endpoints.dart';
 import '../../../core/api/api_exception.dart';
+import '../../../core/device/attendance_channel.dart';
 import '../../../core/location/location_service.dart';
 import 'attendance_models.dart';
 
@@ -43,11 +44,14 @@ class AttendanceRepository {
     }
   }
 
-  Future<CheckInPreview> preview(AttendanceLocation location) async {
+  Future<CheckInPreview> preview([AttendanceLocation? location]) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
         ApiEndpoints.checkInPreview,
-        data: location.toJson(),
+        data: {
+          'clientChannel': attendanceClientChannel(),
+          if (location != null) ...location.toJson(),
+        },
       );
       return CheckInPreview.fromJson(response.data!['data'] as Map<String, dynamic>);
     } on DioException catch (error) {
@@ -56,7 +60,7 @@ class AttendanceRepository {
   }
 
   Future<Timesheet> checkIn({
-    required AttendanceLocation location,
+    AttendanceLocation? location,
     required String idempotencyKey,
     String? lateReasonType,
     String? lateReasonDescription,
@@ -66,7 +70,8 @@ class AttendanceRepository {
       final response = await _dio.post<Map<String, dynamic>>(
         ApiEndpoints.checkIn,
         data: {
-          ...location.toJson(),
+          'clientChannel': attendanceClientChannel(),
+          if (location != null) ...location.toJson(),
           'idempotencyKey': idempotencyKey,
           if (lateReasonType != null) 'lateReasonType': lateReasonType,
           if (lateReasonDescription?.trim().isNotEmpty == true) 'lateReasonDescription': lateReasonDescription!.trim(),
@@ -80,18 +85,20 @@ class AttendanceRepository {
   }
 
   Future<Timesheet> checkOut({
-    required AttendanceLocation location,
+    AttendanceLocation? location,
     required String idempotencyKey,
-    required String workDescription,
+    String? workDescription,
     String? photoUrl,
   }) async {
     try {
+      final trimmed = workDescription?.trim();
       final response = await _dio.post<Map<String, dynamic>>(
         ApiEndpoints.checkOut,
         data: {
-          ...location.toJson(),
+          'clientChannel': attendanceClientChannel(),
+          if (location != null) ...location.toJson(),
           'idempotencyKey': idempotencyKey,
-          'workDescription': workDescription.trim(),
+          if (trimmed != null && trimmed.isNotEmpty) 'workDescription': trimmed,
           if (photoUrl != null) 'photoUrl': photoUrl,
         },
       );

@@ -27,6 +27,7 @@ class ApiEndpoints {
   static const leaveRequests = '/leave-requests';
   static const leaveTypes = '/leave-requests/types';
   static const leaveSummary = '/leave-requests/summary';
+  static const leaveBalance = '/leave-requests/balance';
 
   static const evaluations = '/evaluations';
 
@@ -39,4 +40,8 @@ class ApiEndpoints {
 
   static const chatColleagues = '/chat/colleagues';
   static const chatConversations = '/chat/conversations';
+
+  static const taskTrackerSessionExchange = '/task-tracker/session/exchange';
+
+  static const appVersion = '/app/version';
 }

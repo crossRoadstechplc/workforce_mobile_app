@@ -12,6 +12,7 @@ import '../application/history_controller.dart';
 import '../data/history_models.dart';
 import '../history_date_utils.dart';
 import 'day_strip_picker.dart';
+import 'worksheet_actions.dart';
 
 class HistoryPage extends ConsumerStatefulWidget {
   const HistoryPage({super.key});
@@ -22,6 +23,7 @@ class HistoryPage extends ConsumerStatefulWidget {
 class _HistoryPageState extends ConsumerState<HistoryPage> with SingleTickerProviderStateMixin {
   late final TabController _tab;
   late DateTime _selectedDay;
+  bool _didAutoPickWorksheetDay = false;
 
   @override
   void initState() {
@@ -29,8 +31,41 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with SingleTickerProv
     _tab = TabController(length: 2, vsync: this);
     _selectedDay = normalizeDate(DateTime.now());
     _tab.addListener(() {
-      if (!_tab.indexIsChanging) setState(() {});
+      if (!_tab.indexIsChanging) {
+        setState(() {});
+        if (_tab.index == 1) {
+          _preferWorksheetActionDay();
+        }
+      }
     });
+  }
+
+  void _preferWorksheetActionDay([HistoryState? data]) {
+    final history = data ?? ref.read(historyControllerProvider).value;
+    if (history == null) return;
+
+    final onSelected = history.timesheets.any((e) => isSameCalendarDay(e.workDate, _selectedDay)) ||
+        history.worksheets.any((e) => isSameCalendarDay(e.workDate, _selectedDay));
+    if (onSelected) return;
+
+    final missing = history.timesheets.where((e) => e.canAddWorksheet).toList()
+      ..sort((a, b) => b.workDate.compareTo(a.workDate));
+    if (missing.isNotEmpty) {
+      setState(() => _selectedDay = normalizeDate(missing.first.workDate));
+      return;
+    }
+
+    final withSheet = [...history.worksheets]..sort((a, b) => b.workDate.compareTo(a.workDate));
+    if (withSheet.isNotEmpty) {
+      setState(() => _selectedDay = normalizeDate(withSheet.first.workDate));
+      return;
+    }
+
+    final closed = history.timesheets.where((e) => e.isClosed).toList()
+      ..sort((a, b) => b.workDate.compareTo(a.workDate));
+    if (closed.isNotEmpty) {
+      setState(() => _selectedDay = normalizeDate(closed.first.workDate));
+    }
   }
 
   @override
@@ -67,7 +102,12 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with SingleTickerProv
                 message: e.toString(),
                 onRetry: () => ref.read(historyControllerProvider.notifier).refresh(),
               ),
-              data: (data) => Column(
+              data: (data) {
+                if (_tab.index == 1 && !_didAutoPickWorksheetDay) {
+                  _didAutoPickWorksheetDay = true;
+                  WidgetsBinding.instance.addPostFrameCallback((_) => _preferWorksheetActionDay(data));
+                }
+                return Column(
                 children: [
                   DayStripPicker(
                     monthKeys: data.loadedMonthKeys.toList(),
@@ -82,19 +122,26 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with SingleTickerProv
                     },
                     hasData: _tab.index == 0
                         ? (day) => data.timesheets.any((e) => isSameCalendarDay(e.workDate, day))
-                        : (day) => data.worksheets.any((e) => isSameCalendarDay(e.workDate, day)),
+                        : (day) =>
+                            data.worksheets.any((e) => isSameCalendarDay(e.workDate, day)) ||
+                            data.timesheets.any((e) => isSameCalendarDay(e.workDate, day) && e.hasCheckedIn),
                   ),
                   Expanded(
                     child: TabBarView(
                       controller: _tab,
                       children: [
                         _TimesheetDayView(data: data, selectedDay: _selectedDay),
-                        _WorksheetDayView(data: data, selectedDay: _selectedDay),
+                        _WorksheetDayView(
+                          data: data,
+                          selectedDay: _selectedDay,
+                          onSelectDay: (day) => setState(() => _selectedDay = normalizeDate(day)),
+                        ),
                       ],
                     ),
                   ),
                 ],
-              ),
+              );
+              },
             ),
           ),
         ],
@@ -124,7 +171,16 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
     final today = normalizeDate(DateTime.now());
     if (!day.isBefore(today)) return false;
     final status = widget.data.correctnessForDay(day);
-    return status == null || status == 'REJECTED';
+    if (status != null && status != 'REJECTED') return false;
+    final sheet = widget.data.timesheets.where((e) => isSameCalendarDay(e.workDate, day)).firstOrNull;
+    if (sheet != null &&
+        sheet.actualCheckIn != null &&
+        sheet.actualCheckOut != null &&
+        !sheet.isMissingCheckout &&
+        (sheet.status == 'COMPLETED_ON_TIME' || sheet.status == 'COMPLETED_LATE')) {
+      return false;
+    }
+    return true;
   }
 
   Future<void> _submitRequests() async {
@@ -140,7 +196,7 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
           _pickingDates = false;
           _requestDates.clear();
         });
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Request sent')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.attendanceCorrectionSubmitted)));
       }
     } catch (error) {
       if (mounted) {
@@ -185,7 +241,7 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _submitRequests,
-                    child: const Text('Request correctness'),
+                    child: Text(l10n.requestAttendanceCorrection),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -242,7 +298,8 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
           else
             FutureBuilder<TimesheetHistoryItem>(
               future: ref.read(historyRepositoryProvider).timesheet(selected.id),
-              builder: (context, snap) => snap.hasData ? _TimesheetCard(item: snap.data!) : _TimesheetCard(item: selected),
+              builder: (context, snap) =>
+                  snap.hasData ? _TimesheetCard(item: snap.data!) : _TimesheetCard(item: selected),
             ),
         ],
       ),
@@ -251,15 +308,34 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
 }
 
 class _WorksheetDayView extends ConsumerWidget {
-  const _WorksheetDayView({required this.data, required this.selectedDay});
+  const _WorksheetDayView({
+    required this.data,
+    required this.selectedDay,
+    required this.onSelectDay,
+  });
   final HistoryState data;
   final DateTime selectedDay;
+  final ValueChanged<DateTime> onSelectDay;
+
+  List<TimesheetHistoryItem> get _daysNeedingWorksheet {
+    final worksheetDays = data.worksheets.map((e) => normalizeDate(e.workDate)).toSet();
+    final items = data.timesheets.where((e) {
+      if (!e.canAddWorksheet) return false;
+      if (worksheetDays.contains(normalizeDate(e.workDate))) return false;
+      return true;
+    }).toList()
+      ..sort((a, b) => b.workDate.compareTo(a.workDate));
+    return items;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
-    final selected = data.worksheets.where((e) => isSameCalendarDay(e.workDate, selectedDay)).firstOrNull;
+    final worksheet = data.worksheets.where((e) => isSameCalendarDay(e.workDate, selectedDay)).firstOrNull;
+    final timesheet = data.timesheets.where((e) => isSameCalendarDay(e.workDate, selectedDay)).firstOrNull;
+    final worksheetId = worksheet?.id ?? timesheet?.worksheetId;
+    final needing = _daysNeedingWorksheet;
 
     return RefreshIndicator(
       onRefresh: () => ref.read(historyControllerProvider.notifier).refresh(),
@@ -271,13 +347,161 @@ class _WorksheetDayView extends ConsumerWidget {
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.appColors.textSecondary),
           ),
           const SizedBox(height: 12),
-          if (selected == null)
-            _EmptyDay(message: l10n.noWorksheetDay)
-          else
+          if (timesheet != null) ...[
+            _AttendanceSummaryCard(item: timesheet),
+            const SizedBox(height: 12),
+          ],
+          if (worksheetId != null)
             FutureBuilder<WorksheetHistoryItem>(
-              future: ref.read(historyRepositoryProvider).worksheet(selected.id),
-              builder: (context, snap) => snap.hasData ? _WorksheetCard(item: snap.data!) : _WorksheetCard(item: selected),
-            ),
+              future: ref.read(historyRepositoryProvider).worksheet(worksheetId),
+              builder: (context, snap) {
+                final item = snap.data ??
+                    worksheet ??
+                    WorksheetHistoryItem(
+                      id: worksheetId,
+                      workDate: selectedDay,
+                      status: 'SUBMITTED',
+                      description: '',
+                    );
+                return _WorksheetCard(
+                  item: item,
+                  onEdit: () => editWorksheetItem(
+                    context,
+                    ref,
+                    worksheetId: item.id,
+                    initialDescription: item.description,
+                  ),
+                );
+              },
+            )
+          else if (timesheet != null && timesheet.canAddWorksheet)
+            AppCard(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.tabWorksheet,
+                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.noWorksheetDay,
+                      style: TextStyle(color: context.appColors.textSecondary, height: 1.4),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: () => addWorksheetForTimesheet(context, ref, timesheet),
+                      icon: const Icon(Icons.add),
+                      label: Text(l10n.addWorksheet),
+                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else ...[
+            _EmptyDay(message: l10n.noWorksheetNeedAttendance),
+            if (needing.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.daysNeedingWorksheet,
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.tapDayToAddWorksheet,
+                      style: TextStyle(color: context.appColors.textSecondary, fontSize: 13),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: needing.take(12).map((item) {
+                        return ActionChip(
+                          label: Text(DateFormat('EEE, MMM d', locale).format(item.workDate)),
+                          onPressed: () => onSelectDay(item.workDate),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ] else if (data.worksheets.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.existingWorksheets,
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.tapDayToEditWorksheet,
+                      style: TextStyle(color: context.appColors.textSecondary, fontSize: 13),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: ([...data.worksheets]..sort((a, b) => b.workDate.compareTo(a.workDate)))
+                          .take(12)
+                          .map((item) {
+                        return ActionChip(
+                          label: Text(DateFormat('EEE, MMM d', locale).format(item.workDate)),
+                          onPressed: () => onSelectDay(item.workDate),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AttendanceSummaryCard extends StatelessWidget {
+  const _AttendanceSummaryCard({required this.item});
+  final TimesheetHistoryItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.tabTimesheet,
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                ),
+              ),
+              StatusChip(
+                label: _statusLabel(context, item),
+                kind: item.isLate ? StatusKind.warning : StatusKind.success,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _row(context, l10n.checkInLabel, item.actualCheckIn == null ? l10n.dash : DateFormat('HH:mm', locale).format(item.actualCheckIn!)),
+          _row(context, l10n.checkOutLabel, item.actualCheckOut == null ? l10n.dash : DateFormat('HH:mm', locale).format(item.actualCheckOut!)),
+          _row(context, l10n.worked, formatDurationMinutes(context, item.workedMinutes)),
         ],
       ),
     );
@@ -320,6 +544,7 @@ class _TimesheetCard extends StatelessWidget {
           const SizedBox(height: 16),
           _row(context, l10n.checkInLabel, item.actualCheckIn == null ? l10n.dash : DateFormat('HH:mm', locale).format(item.actualCheckIn!)),
           _row(context, l10n.checkOutLabel, item.actualCheckOut == null ? l10n.dash : DateFormat('HH:mm', locale).format(item.actualCheckOut!)),
+          if (item.checkOutSourceLabel != null) _row(context, 'Closed by', item.checkOutSourceLabel!),
           _row(context, l10n.worked, formatDurationMinutes(context, item.workedMinutes)),
           _row(context, l10n.lateMinutes, l10n.lateMinutesValue(item.lateMinutes)),
           if (item.earlyCheckoutMinutes > 0) _row(context, l10n.earlyCheckout, l10n.earlyCheckoutMinutes(item.earlyCheckoutMinutes)),
@@ -331,13 +556,15 @@ class _TimesheetCard extends StatelessWidget {
 }
 
 class _WorksheetCard extends StatelessWidget {
-  const _WorksheetCard({required this.item});
+  const _WorksheetCard({required this.item, required this.onEdit});
   final WorksheetHistoryItem item;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
+    final isReviewed = item.status.toUpperCase() == 'REVIEWED';
 
     return AppCard(
       child: Column(
@@ -351,7 +578,10 @@ class _WorksheetCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
                 ),
               ),
-              StatusChip(label: l10n.submitted, kind: StatusKind.success),
+              StatusChip(
+                label: isReviewed ? l10n.reviewed : l10n.submitted,
+                kind: isReviewed ? StatusKind.neutral : StatusKind.success,
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -363,6 +593,16 @@ class _WorksheetCard extends StatelessWidget {
               style: TextStyle(color: context.appColors.textSecondary),
             ),
           ],
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: onEdit,
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: Text(l10n.editWorksheet),
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(44)),
+            ),
+          ),
         ],
       ),
     );
@@ -396,9 +636,9 @@ Widget _row(BuildContext context, String label, String value) => Padding(
 
 String _statusLabel(BuildContext context, TimesheetHistoryItem i) {
   final l10n = context.l10n;
-  if (i.correctnessStatus == 'PENDING') return 'Pending';
-  if (i.correctnessStatus == 'APPROVED') return 'Approved';
-  if (i.correctnessStatus == 'REJECTED') return 'Rejected';
+  if (i.correctnessStatus == 'PENDING') return l10n.attendanceCorrectionStatusPending;
+  if (i.correctnessStatus == 'APPROVED') return l10n.attendanceCorrectionStatusApproved;
+  if (i.correctnessStatus == 'REJECTED') return l10n.attendanceCorrectionStatusRejected;
   if (i.isLate) return l10n.late;
   if (i.actualCheckIn == null) return l10n.dash;
   return l10n.onTime;

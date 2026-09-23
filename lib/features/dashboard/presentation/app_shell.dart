@@ -41,6 +41,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     if (location.startsWith('/chat')) return l10n.navChat;
     if (location.startsWith('/evaluations')) return l10n.navPerformance;
     if (location.startsWith('/profile')) return l10n.navProfile;
+    if (location.startsWith('/settings')) return l10n.navSettings;
     if (location.startsWith('/notifications')) return l10n.navNotifications;
     return l10n.navTimeClock;
   }

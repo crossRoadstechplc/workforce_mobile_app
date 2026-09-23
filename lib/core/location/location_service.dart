@@ -1,7 +1,5 @@
 import 'package:geolocator/geolocator.dart';
 
-import '../config/app_config.dart';
-
 class LocationFailure implements Exception {
   const LocationFailure(this.message);
   final String message;
@@ -47,35 +45,8 @@ class AttendanceLocation {
 }
 
 class LocationService {
-  double? _mockLat;
-  double? _mockLng;
-
-  /// When mock GPS is enabled, pin to the employee's office so UI and API stay aligned.
-  void setMockAnchor(double latitude, double longitude) {
-    _mockLat = latitude;
-    _mockLng = longitude;
-  }
-
-  void clearMockAnchor() {
-    _mockLat = null;
-    _mockLng = null;
-  }
-
-  AttendanceLocation _mockLocation() {
-    return AttendanceLocation(
-      latitude: _mockLat ?? double.parse(AppConfig.mockAttendanceLatitude),
-      longitude: _mockLng ?? double.parse(AppConfig.mockAttendanceLongitude),
-      accuracyMeters: 10,
-      capturedAt: DateTime.now().toUtc(),
-    );
-  }
-
   /// Read-only access check — never prompts the user.
   Future<LocationAccess> checkAccess() async {
-    if (AppConfig.allowMockAttendanceLocation) {
-      return LocationAccess.granted;
-    }
-
     if (!await Geolocator.isLocationServiceEnabled()) {
       return LocationAccess.servicesDisabled;
     }
@@ -90,10 +61,6 @@ class LocationService {
 
   /// Prompts for when-in-use location permission (card tap / explicit user action).
   Future<LocationAccess> requestAccess() async {
-    if (AppConfig.allowMockAttendanceLocation) {
-      return LocationAccess.granted;
-    }
-
     if (!await Geolocator.isLocationServiceEnabled()) {
       return LocationAccess.servicesDisabled;
     }
@@ -112,10 +79,6 @@ class LocationService {
 
   /// Map/card preview only — never prompts; uses last-known fix when available.
   Future<AttendanceLocation?> preview() async {
-    if (AppConfig.allowMockAttendanceLocation) {
-      return _mockLocation();
-    }
-
     final access = await checkAccess();
     if (access != LocationAccess.granted) {
       return null;
@@ -151,10 +114,6 @@ class LocationService {
 
   /// Check-in/out — prompts for permission and captures a high-accuracy fix.
   Future<AttendanceLocation> captureForAction() async {
-    if (AppConfig.allowMockAttendanceLocation) {
-      return _mockLocation();
-    }
-
     if (!await Geolocator.isLocationServiceEnabled()) {
       throw const LocationFailure('Turn on Location Services and try again.');
     }

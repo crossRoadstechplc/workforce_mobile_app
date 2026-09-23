@@ -4,15 +4,28 @@ import 'package:intl/intl.dart';
 import '../../../core/localization/l10n_extensions.dart';
 import '../../../core/theme/app_theme_extension.dart';
 
-const _minDescriptionLength = 20;
+/// Result of the checkout sheet.
+/// - [cancelled] true → user aborted checkout
+/// - [cancelled] false + empty [workDescription] → check out without worksheet
+/// - [cancelled] false + non-empty [workDescription] → check out with worksheet
+class CheckOutSheetResult {
+  const CheckOutSheetResult({required this.cancelled, this.workDescription = ''});
 
-Future<String?> showCheckOutSheet(
+  const CheckOutSheetResult.cancelled() : cancelled = true, workDescription = '';
+
+  const CheckOutSheetResult.submit([this.workDescription = '']) : cancelled = false;
+
+  final bool cancelled;
+  final String workDescription;
+}
+
+Future<CheckOutSheetResult?> showCheckOutSheet(
   BuildContext context, {
   bool carriedOverShift = false,
   DateTime? shiftWorkDate,
 }) {
   final colors = context.appColors;
-  return showModalBottomSheet<String>(
+  return showModalBottomSheet<CheckOutSheetResult>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
@@ -40,23 +53,12 @@ class _CheckOutSheetState extends State<_CheckOutSheet> {
   final _controller = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _controller.addListener(_onTextChanged);
-  }
-
-  void _onTextChanged() => setState(() {});
-
-  @override
   void dispose() {
-    _controller.removeListener(_onTextChanged);
     _controller.dispose();
     super.dispose();
   }
 
-  bool get _isValid => _controller.text.trim().length >= _minDescriptionLength;
-
-  int get _trimmedLength => _controller.text.trim().length;
+  String get _trimmed => _controller.text.trim();
 
   String _shiftDateLabel(BuildContext context) {
     final l10n = context.l10n;
@@ -94,7 +96,7 @@ class _CheckOutSheetState extends State<_CheckOutSheet> {
           Text(
             widget.carriedOverShift
                 ? l10n.checkoutCloseShiftHint(_shiftDateLabel(context))
-                : l10n.checkoutDescribeToday,
+                : l10n.checkoutDescribeTodayOptional,
             style: TextStyle(color: colors.textSecondary, fontSize: 14, height: 1.4),
           ),
           const SizedBox(height: 20),
@@ -105,29 +107,24 @@ class _CheckOutSheetState extends State<_CheckOutSheet> {
             maxLength: 5000,
             autofocus: true,
             textCapitalization: TextCapitalization.sentences,
+            onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-              labelText: l10n.workSummary,
+              labelText: l10n.workSummaryOptional,
               hintText: widget.carriedOverShift ? l10n.workSummaryShiftHint : l10n.workSummaryHint,
               alignLabelWithHint: true,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
-            _isValid
-                ? l10n.readyToSubmit
-                : l10n.minChars(_minDescriptionLength, _trimmedLength),
-            style: TextStyle(
-              fontSize: 12,
-              color: _isValid ? colors.success : colors.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
+            l10n.worksheetOptionalHint,
+            style: TextStyle(fontSize: 12, color: colors.textSecondary, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(context, const CheckOutSheetResult.cancelled()),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -138,14 +135,17 @@ class _CheckOutSheetState extends State<_CheckOutSheet> {
               const SizedBox(width: 12),
               Expanded(
                 child: FilledButton(
-                  onPressed: _isValid ? () => Navigator.pop(context, _controller.text.trim()) : null,
+                  onPressed: () => Navigator.pop(context, CheckOutSheetResult.submit(_trimmed)),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size.fromHeight(48),
                     backgroundColor: colors.error,
-                    disabledBackgroundColor: colors.muted,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text(widget.carriedOverShift ? l10n.closeShift : l10n.checkOut),
+                  child: Text(
+                    _trimmed.isEmpty
+                        ? (widget.carriedOverShift ? l10n.skipAndCloseShift : l10n.skipAndCheckOut)
+                        : (widget.carriedOverShift ? l10n.closeShift : l10n.checkOut),
+                  ),
                 ),
               ),
             ],

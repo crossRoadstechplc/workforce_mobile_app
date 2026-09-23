@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Workforce Employee App</string>
+	<string>Work-Force</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -65,6 +65,19 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>workforce.employee.login</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>workforce</string>
+			</array>
+		</dict>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is used when you check in or check out to verify that you are at the approved office.</string>

@@ -62,9 +62,43 @@ Then:
 tool/build_release.sh android
 ```
 
-Expected artifact:
+Expected Play Store artifact:
 
 `build/app/outputs/bundle/release/app-release.aab`
+
+### GitHub APK (employee sideload / in-app update)
+
+Bump `pubspec.yaml` version and `.env` `APP_VERSION` together (example `1.1.0`), then:
+
+```powershell
+$env:APP_VERSION="1.1.0"
+.\tool\build_release.ps1 apk
+```
+
+```bash
+export APP_VERSION=1.1.0
+tool/build_release.sh apk
+```
+
+Artifact: `build/app/outputs/flutter-apk/app-release.apk`
+
+Publish it:
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+gh release create v1.1.0 build/app/outputs/flutter-apk/app-release.apk --title "Work-Force Android 1.1.0"
+```
+
+Then point the API at that release (restart/reload after editing `.env`):
+
+```env
+ANDROID_APP_VERSION=1.1.0
+ANDROID_FORCE_UPDATE=false
+ANDROID_RELEASE_URL=https://github.com/crossRoadstechplc/workforce_mobile_app/releases/download/v1.1.0/app-release.apk
+```
+
+`FORCE=false` shows a dismissible sidebar banner. `FORCE=true` blocks the app with a required-update modal. The installed APK reads `APP_VERSION` from dart-defines and compares it with `GET /api/v1/app/version`.
 
 ## iOS release
 
@@ -107,6 +141,8 @@ firebase deploy --only hosting
 ```
 
 `firebase.json` rewrites all routes to `/index.html` so `go_router` deep links work after refresh.
+
+Invite handoff: the admin portal can open `workforce://login?email=` (custom scheme) or `{EMPLOYEE_WEB_URL}/login?email=`. Native builds register the `workforce` scheme; web uses the query prefill on `/login`.
 
 5. Post-deploy checks:
 

@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../app/router.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/notifications/push_notification_service.dart';
 import '../../../core/realtime/socket_service.dart';
@@ -59,6 +62,10 @@ class NotificationController extends AsyncNotifier<NotificationPageData> {
 
   void _handleEvent(SocketEvent event) {
     if (event.name == 'notification.created') refresh();
+    if (event.name == 'checkin.reminder' || event.name == 'checkout.reminder') {
+      refresh();
+      ref.invalidate(attendanceControllerProvider);
+    }
     if (event.name.startsWith('attendance.')) {
       ref.invalidate(attendanceControllerProvider);
       ref.invalidate(officeContextProvider);
@@ -75,13 +82,38 @@ class NotificationController extends AsyncNotifier<NotificationPageData> {
 final realtimeCoordinatorProvider = NotifierProvider<RealtimeCoordinator, bool>(RealtimeCoordinator.new);
 
 class RealtimeCoordinator extends Notifier<bool> {
+  StreamSubscription<SocketEvent>? _socketSubscription;
+
   @override
   bool build() {
+    ref.onDispose(() => _socketSubscription?.cancel());
     ref.listen(sessionControllerProvider, (previous, next) {
       _sync(previous, next);
     });
     Future.microtask(() => _sync(null, ref.read(sessionControllerProvider)));
     return false;
+  }
+
+  void _listenToSocket(SocketService socket) {
+    _socketSubscription?.cancel();
+    _socketSubscription = socket.events.listen(_handleSocketEvent);
+  }
+
+  void _handleSocketEvent(SocketEvent event) {
+    if (event.name == 'checkin.reminder' || event.name == 'checkout.reminder') {
+      ref.invalidate(attendanceControllerProvider);
+      ref.invalidate(officeContextProvider);
+      return;
+    }
+    if (event.name.startsWith('attendance.')) {
+      ref.invalidate(attendanceControllerProvider);
+      ref.invalidate(officeContextProvider);
+      ref.invalidate(historyControllerProvider);
+      ref.invalidate(leaveControllerProvider);
+    }
+    if (event.name.startsWith('leave.')) {
+      ref.invalidate(leaveControllerProvider);
+    }
   }
 
   Future<void> _sync(SessionState? previous, SessionState next) async {
@@ -97,7 +129,13 @@ class RealtimeCoordinator extends Notifier<bool> {
     if (isAuthed && (!wasAuthed || userChanged)) {
       try {
         await socket.connect();
-        await ref.read(pushNotificationServiceProvider).initialize();
+        _listenToSocket(socket);
+        final push = ref.read(pushNotificationServiceProvider);
+        push.onNavigate = (route) {
+          final context = rootNavigatorKey.currentContext;
+          if (context != null && context.mounted) context.go(route);
+        };
+        await push.initialize();
         state = true;
       } catch (_) {
         state = false;
@@ -106,8 +144,9 @@ class RealtimeCoordinator extends Notifier<bool> {
     }
 
     if (wasAuthed && !isAuthed) {
+      _socketSubscription?.cancel();
+      _socketSubscription = null;
       socket.disconnect();
-      ref.read(locationServiceProvider).clearMockAnchor();
       ref.read(locationPreviewProvider.notifier).refreshPreview();
       _invalidateUserScoped();
       state = false;

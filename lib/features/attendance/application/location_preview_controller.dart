@@ -24,6 +24,7 @@ class LocationPreviewState {
   static const initial = LocationPreviewState();
 
   bool get needsLocationAction =>
+      access == LocationAccess.permissionRequired ||
       access == LocationAccess.permissionDeniedForever ||
       access == LocationAccess.servicesDisabled ||
       (access == LocationAccess.granted &&
@@ -36,8 +37,6 @@ final locationPreviewProvider =
     NotifierProvider<LocationPreviewController, LocationPreviewState>(LocationPreviewController.new);
 
 class LocationPreviewController extends Notifier<LocationPreviewState> {
-  bool _autoPromptAttempted = false;
-
   @override
   LocationPreviewState build() {
     ref.listen(officeContextProvider, (previous, next) {
@@ -45,10 +44,8 @@ class LocationPreviewController extends Notifier<LocationPreviewState> {
     });
     ref.listen(sessionControllerProvider.select((s) => s.user?.id), (previous, next) {
       if (next != null && next != previous) {
-        _autoPromptAttempted = false;
         refreshPreview();
       } else if (next == null) {
-        _autoPromptAttempted = false;
         state = LocationPreviewState.initial;
       }
     });
@@ -64,6 +61,15 @@ class LocationPreviewController extends Notifier<LocationPreviewState> {
       return;
     }
 
+    final office = ref.read(officeContextProvider).asData?.value;
+    if (office != null && office.assigned && !office.locationRequired) {
+      state = const LocationPreviewState(
+        access: LocationAccess.granted,
+        zoneStatus: LocationZoneStatus.inside,
+      );
+      return;
+    }
+
     state = LocationPreviewState(
       access: state.access,
       location: state.location,
@@ -72,12 +78,7 @@ class LocationPreviewController extends Notifier<LocationPreviewState> {
     );
 
     final locationService = ref.read(locationServiceProvider);
-    var access = await locationService.checkAccess();
-
-    if (access == LocationAccess.permissionRequired && !_autoPromptAttempted) {
-      _autoPromptAttempted = true;
-      access = await locationService.requestAccess();
-    }
+    final access = await locationService.checkAccess();
 
     if (access != LocationAccess.granted) {
       state = LocationPreviewState(access: access);
@@ -89,6 +90,15 @@ class LocationPreviewController extends Notifier<LocationPreviewState> {
 
   Future<void> requestAccessAndRefresh() async {
     if (state.locating) return;
+
+    final office = ref.read(officeContextProvider).asData?.value;
+    if (office != null && office.assigned && !office.locationRequired) {
+      state = const LocationPreviewState(
+        access: LocationAccess.granted,
+        zoneStatus: LocationZoneStatus.inside,
+      );
+      return;
+    }
 
     // Browser location is managed via the site permission UI — native
     // settings screens are not available on web.

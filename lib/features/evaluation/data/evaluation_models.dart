@@ -9,6 +9,7 @@ class EvaluationSummary {
     required this.number,
     required this.status,
     required this.cycleName,
+    required this.cycleStatus,
     required this.periodStart,
     required this.periodEnd,
     this.selfDueAt,
@@ -21,6 +22,7 @@ class EvaluationSummary {
   final String number;
   final String status;
   final String cycleName;
+  final String cycleStatus;
   final DateTime periodStart;
   final DateTime periodEnd;
   final DateTime? selfDueAt;
@@ -28,8 +30,10 @@ class EvaluationSummary {
   final double? overallEvaluator;
   final int? ratingMax;
 
-  bool get needsSelfScore => status == 'OPEN' || status == 'SELF_DRAFT';
+  bool get isCycleClosed => cycleStatus == 'CLOSED';
+  bool get needsSelfScore => !isCycleClosed && (status == 'OPEN' || status == 'SELF_DRAFT');
   bool get resultsVisible => status == 'EVALUATOR_SUBMITTED' || status == 'FINALIZED';
+  bool get isReadOnly => isCycleClosed || !needsSelfScore;
   bool get isFiveScale => ratingMax == 5;
 
   factory EvaluationSummary.fromJson(Map<String, dynamic> json) {
@@ -40,6 +44,7 @@ class EvaluationSummary {
       number: json['number']?.toString() ?? '',
       status: json['status']?.toString() ?? 'OPEN',
       cycleName: cycle['name']?.toString() ?? 'Evaluation',
+      cycleStatus: cycle['status']?.toString() ?? 'OPEN',
       periodStart: DateTime.tryParse(cycle['periodStart']?.toString() ?? '') ?? DateTime.now(),
       periodEnd: DateTime.tryParse(cycle['periodEnd']?.toString() ?? '') ?? DateTime.now(),
       selfDueAt: cycle['selfDueAt'] == null ? null : DateTime.tryParse(cycle['selfDueAt'].toString()),
@@ -56,6 +61,7 @@ class EvaluationDetail {
     required this.number,
     required this.status,
     required this.cycleName,
+    required this.cycleStatus,
     required this.periodStart,
     required this.periodEnd,
     required this.employeeName,
@@ -77,6 +83,7 @@ class EvaluationDetail {
   final String number;
   final String status;
   final String cycleName;
+  final String cycleStatus;
   final DateTime periodStart;
   final DateTime periodEnd;
   final String employeeName;
@@ -93,8 +100,10 @@ class EvaluationDetail {
   final String? overallSelfBandLabel;
   final int? ratingMax;
 
-  bool get needsSelfScore => status == 'OPEN' || status == 'SELF_DRAFT';
+  bool get isCycleClosed => cycleStatus == 'CLOSED';
+  bool get needsSelfScore => !isCycleClosed && (status == 'OPEN' || status == 'SELF_DRAFT');
   bool get resultsVisible => status == 'EVALUATOR_SUBMITTED' || status == 'FINALIZED';
+  bool get isReadOnly => isCycleClosed || !needsSelfScore;
   bool get isFiveScale => ratingMax == 5 || scores.any((s) => s.isSystem);
 
   factory EvaluationDetail.fromJson(Map<String, dynamic> json) {
@@ -107,6 +116,7 @@ class EvaluationDetail {
       number: json['number']?.toString() ?? '',
       status: json['status']?.toString() ?? 'OPEN',
       cycleName: cycle['name']?.toString() ?? 'Evaluation',
+      cycleStatus: cycle['status']?.toString() ?? 'OPEN',
       periodStart: DateTime.tryParse(cycle['periodStart']?.toString() ?? '') ?? DateTime.now(),
       periodEnd: DateTime.tryParse(cycle['periodEnd']?.toString() ?? '') ?? DateTime.now(),
       employeeName: employee['name']?.toString() ?? '',

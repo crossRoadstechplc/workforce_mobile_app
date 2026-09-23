@@ -67,6 +67,29 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
                   ],
                 ),
               ),
+              if (draft.isCycleClosed) ...[
+                const SizedBox(height: 12),
+                Material(
+                  color: context.appColors.warningBg,
+                  borderRadius: BorderRadius.circular(14),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.lock_outline_rounded, color: context.appColors.warning, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            l10n.evaluationCycleClosedBanner,
+                            style: TextStyle(fontWeight: FontWeight.w600, color: context.appColors.warning, height: 1.35),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               ...draft.scores.map((s) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
@@ -91,9 +114,11 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      liveTotal == null
-                          ? (draft.overallSelf == null ? '' : l10n.evaluationSelfAverage(draft.overallSelf!.toStringAsFixed(0)))
-                          : '${l10n.evaluationSelfAverage('$liveTotal / 50')}${draft.overallSelfBandLabel == null ? '' : ''}',
+                      draft.resultsVisible && draft.overallEvaluator != null
+                          ? l10n.evaluationEvaluatorTotal('${draft.overallEvaluator!.toStringAsFixed(0)} / 50')
+                          : liveTotal == null
+                              ? (draft.overallSelf == null ? '' : l10n.evaluationSelfAverage('${draft.overallSelf!.toStringAsFixed(0)} / 50'))
+                              : l10n.evaluationSelfAverage('$liveTotal / 50'),
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -145,7 +170,7 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
           const SizedBox(height: 12),
           _emojiRow(
             selected: selected,
-            enabled: draft.needsSelfScore && !system,
+            enabled: !draft.isReadOnly && draft.needsSelfScore && !system,
             onSelect: (n) => setState(() => s.selfScore = n),
           ),
           if (draft.resultsVisible && !system && s.evaluatorScore != null) ...[
@@ -243,6 +268,7 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
         'status': d.status,
         'cycle': {
           'name': d.cycleName,
+          'status': d.cycleStatus,
           'periodStart': d.periodStart.toIso8601String(),
           'periodEnd': d.periodEnd.toIso8601String(),
         },

@@ -1,3 +1,4 @@
+import '../../../core/device/attendance_channel.dart';
 import '../../history/history_date_utils.dart';
 
 class CheckInPreview {
@@ -36,6 +37,8 @@ class OfficeContext {
     this.maximumAccuracyMeters,
     this.timezone,
     this.photoRequired = false,
+    this.desktopSkipLocationEnabled = true,
+    this.scheduledWorkMinutes = 0,
     this.reason,
     this.message,
   });
@@ -50,8 +53,12 @@ class OfficeContext {
   final int? maximumAccuracyMeters;
   final String? timezone;
   final bool photoRequired;
+  final bool desktopSkipLocationEnabled;
+  final int scheduledWorkMinutes;
   final String? reason;
   final String? message;
+
+  bool get locationRequired => isMobileAttendanceChannel || !desktopSkipLocationEnabled;
 
   factory OfficeContext.fromJson(Map<String, dynamic> json) {
     final assigned = json['assigned'] as bool? ?? true;
@@ -61,6 +68,8 @@ class OfficeContext {
         reason: json['reason'] as String?,
         message: json['message'] as String? ?? 'Work assignment is not complete yet.',
         photoRequired: json['photoRequired'] as bool? ?? false,
+        desktopSkipLocationEnabled: json['desktopSkipLocationEnabled'] as bool? ?? true,
+        scheduledWorkMinutes: 0,
       );
     }
     return OfficeContext(
@@ -74,6 +83,8 @@ class OfficeContext {
       maximumAccuracyMeters: (json['maximumAccuracyMeters'] as num?)?.toInt() ?? 100,
       timezone: json['timezone'] as String? ?? 'UTC',
       photoRequired: json['photoRequired'] as bool? ?? false,
+      desktopSkipLocationEnabled: json['desktopSkipLocationEnabled'] as bool? ?? true,
+      scheduledWorkMinutes: (json['scheduledWorkMinutes'] as num?)?.toInt() ?? 0,
     );
   }
 }
@@ -94,6 +105,7 @@ class Timesheet {
     this.isOpen = false,
     this.isMissingCheckout = false,
     this.isCarriedOverOpenShift = false,
+    this.checkOutSource,
   });
 
   final String id;
@@ -110,6 +122,16 @@ class Timesheet {
   final bool isOpen;
   final bool isMissingCheckout;
   final bool isCarriedOverOpenShift;
+  final String? checkOutSource;
+
+  String? get checkOutSourceLabel {
+    return switch (checkOutSource) {
+      'EMPLOYEE' => 'You checked out',
+      'SYSTEM' => 'Automatic checkout',
+      'ADMIN' => 'Corrected by admin',
+      _ => null,
+    };
+  }
 
   Duration displayElapsedAt(DateTime now) {
     if (!isOpen) return Duration.zero;
@@ -134,5 +156,6 @@ class Timesheet {
         isOpen: json['isOpen'] as bool? ?? false,
         isMissingCheckout: json['isMissingCheckout'] as bool? ?? false,
         isCarriedOverOpenShift: json['isCarriedOverOpenShift'] as bool? ?? false,
+        checkOutSource: json['checkOutSource']?.toString(),
       );
 }

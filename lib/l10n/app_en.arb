@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "Workforce",
+  "appTitle": "Work-Force",
   "greetingHi": "Hi, {name}",
   "@greetingHi": {
     "placeholders": {
@@ -11,6 +11,7 @@
   "navHistory": "History",
   "navLeave": "Leave",
   "navProfile": "Profile",
+  "navSettings": "Settings",
   "navMeetings": "Meetings",
   "navPerformance": "Performance",
   "navNotifications": "Notifications",
@@ -20,18 +21,23 @@
   "drawerSectionAccount": "Account",
   "openMenu": "Menu",
   "employeeWorkspace": "Employee workspace",
-  "loginTitle": "Employee sign in",
-  "loginSubtitle": "Use your work email or employee code.",
+  "loginTitle": "Work-Force",
+  "loginSubtitle": "Employee sign in · use your work email or employee code.",
   "emailOrCode": "Email or employee code",
   "password": "Password",
   "signIn": "Sign in",
   "signingIn": "Signing in...",
-  "demoLoginHint": "Demo: sara@acme.demo / Demo123!",
   "historyTitle": "History",
   "tabTimesheet": "Timesheet",
   "tabWorksheet": "Worksheet",
   "noTimesheetDay": "No timesheet for this day.",
   "noWorksheetDay": "No worksheet for this day.",
+  "noWorksheetNeedAttendance": "No attendance for this day. Check in first, then you can add a worksheet.",
+  "worksheetAfterCheckout": "Check in first, then you can add a worksheet for this day.",
+  "daysNeedingWorksheet": "Days needing a worksheet",
+  "tapDayToAddWorksheet": "Tap a day below to open it and add a worksheet.",
+  "existingWorksheets": "Your worksheets",
+  "tapDayToEditWorksheet": "Tap a day below to open and edit that worksheet.",
   "checkIn": "Check in",
   "checkOut": "Check out",
   "closeShift": "Close shift",
@@ -40,6 +46,13 @@
   "outsideAuthorized": "Outside authorized area",
   "locatingLocation": "Getting your location...",
   "locationUnavailable": "Location unavailable",
+  "locationTapToAllow": "Tap to allow location",
+  "locationPermissionHint": "Location is required for check-in. Tap here and allow when your browser or device asks.",
+  "locationPermissionWebHint": "If no prompt appears, allow location for this site in browser settings (lock icon → Site settings → Location), then tap here again.",
+  "locationPermissionBlockedHint": "Location is blocked. Tap to open settings and allow access.",
+  "locationServicesOffHint": "Location services are off. Tap to open settings and turn them on.",
+  "companyPcLocation": "Company PC",
+  "locationNotRequired": "Location is not required on this device",
   "readyToCheckIn": "Ready to check in",
   "readyToCheckOut": "Ready to check out",
   "shiftInProgress": "Shift in progress",
@@ -49,6 +62,14 @@
   "checkedInLate": "Checked in · Late",
   "openShiftPending": "Open shift pending checkout",
   "attendanceCompleted": "Attendance completed",
+  "timeClockWorked": "Worked {duration}",
+  "@timeClockWorked": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+  "timeClockScheduled": "Recommended {duration}",
+  "@timeClockScheduled": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
   "done": "Done",
   "openShiftFrom": "Open shift from {date}. Check out below to start today.",
   "@openShiftFrom": {
@@ -120,6 +141,7 @@
   "finishWorkday": "Check out",
   "closeOpenShift": "Close open shift",
   "checkoutDescribeToday": "Describe what you worked on today before checking out.",
+  "checkoutDescribeTodayOptional": "Optionally describe what you worked on today. You can skip and check out without a worksheet.",
   "checkoutCloseShiftHint": "This closes your shift from {date}. You can check in for today afterward.",
   "@checkoutCloseShiftHint": {
     "placeholders": {
@@ -127,8 +149,12 @@
     }
   },
   "workSummary": "Work summary",
+  "workSummaryOptional": "Work summary (optional)",
   "workSummaryHint": "e.g. Completed client onboarding and team standup...",
   "workSummaryShiftHint": "Summarize tasks completed during that shift...",
+  "worksheetOptionalHint": "Leave blank to check out without a worksheet. You can add it later from History.",
+  "skipAndCheckOut": "Skip & check out",
+  "skipAndCloseShift": "Skip & close",
   "readyToSubmit": "Ready to submit",
   "minChars": "Minimum {min} characters · {current}/{min}",
   "@minChars": {
@@ -137,6 +163,11 @@
       "current": { "type": "int" }
     }
   },
+  "addWorksheet": "Add worksheet",
+  "editWorksheet": "Edit worksheet",
+  "saveWorksheet": "Save",
+  "worksheetSaved": "Worksheet saved.",
+  "reviewed": "Reviewed",
   "cancel": "Cancel",
   "lateCheckInTitle": "You are {minutes} minute(s) late",
   "@lateCheckInTitle": {
@@ -157,7 +188,7 @@
   "update": "Update",
   "signOut": "Sign out",
   "passwordChanged": "Password changed successfully.",
-  "passwordRules": "Passwords must match, be 10+ characters, and include upper/lowercase letters and a number.",
+  "passwordRules": "Passwords must match and be at least 6 characters.",
   "accountId": "Account ID",
   "role": "Role",
   "access": "Access",
@@ -209,7 +240,78 @@
   "leaveHistory": "Leave history",
   "noLeaveRequests": "No leave requests yet.",
   "requestLeave": "Request leave",
+  "requestAttendanceCorrection": "Request attendance correction",
+  "leaveVsCorrectionHint": "Use leave when you were absent. Use attendance correction when you worked but check-in or check-out is missing or wrong. Corrections do not use your leave balance.",
+  "attendanceCorrectionHistory": "Attendance corrections",
+  "noAttendanceCorrections": "No correction requests yet.",
+  "attendanceCorrectionSubmitted": "Correction request submitted.",
+  "attendanceCorrectionTitle": "Attendance correction",
+  "attendanceCorrectionHint": "Ask your admin to mark selected days as worked (full scheduled shift). Only use this if you were at work—not for days you were on leave.",
+  "attendanceCorrectionNoteLabel": "Note (optional)",
+  "attendanceCorrectionNoteHint": "e.g. Forgot to check in at the office",
+  "attendanceCorrectionDatesLabel": "Dates",
+  "attendanceCorrectionAddDate": "Add date",
+  "attendanceCorrectionPickDate": "Add at least one past working day.",
+  "attendanceCorrectionSubmit": "Submit correction",
+  "attendanceCorrectionDateBlocked": "That date already has a pending or approved correction, or you were on leave.",
+  "attendanceCorrectionStatusPending": "Pending",
+  "attendanceCorrectionStatusApproved": "Approved",
+  "attendanceCorrectionStatusRejected": "Rejected",
   "leaveRequestSubmitted": "Leave request submitted.",
+  "annualLeaveTitle": "Annual leave",
+  "annualLeaveDaysAvailable": "days available",
+  "annualLeaveThisYear": "This year {days}",
+  "@annualLeaveThisYear": {
+    "placeholders": { "days": { "type": "String" } }
+  },
+  "annualLeaveCarried": "Carried {days}",
+  "@annualLeaveCarried": {
+    "placeholders": { "days": { "type": "String" } }
+  },
+  "annualLeaveUsed": "Used {days}",
+  "@annualLeaveUsed": {
+    "placeholders": { "days": { "type": "String" } }
+  },
+  "annualLeavePendingDays": "Pending {days}",
+  "@annualLeavePendingDays": {
+    "placeholders": { "days": { "type": "String" } }
+  },
+  "annualLeaveServiceYears": "{years} years of service",
+  "@annualLeaveServiceYears": {
+    "placeholders": { "years": { "type": "String" } }
+  },
+  "annualLeaveNextGrant": "Next grant {days} days on {date}",
+  "@annualLeaveNextGrant": {
+    "placeholders": {
+      "days": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+  "annualLeaveProRata": "Pro-rata: {days} of 16 days ({months} months of service)",
+  "@annualLeaveProRata": {
+    "placeholders": {
+      "days": { "type": "String" },
+      "months": { "type": "String" }
+    }
+  },
+  "annualLeaveExpires": "{days} days expire on {date}",
+  "@annualLeaveExpires": {
+    "placeholders": {
+      "days": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+  "annualLeaveBreakdown": "Leave years",
+  "annualLeaveAvailableHint": "{days} annual leave days remaining. Oldest carried days are used first.",
+  "@annualLeaveAvailableHint": {
+    "placeholders": { "days": { "type": "String" } }
+  },
+  "leaveTypeLabel": "Leave type",
+  "leaveStartDate": "Start date",
+  "leaveEndDate": "End date",
+  "leaveReason": "Reason",
+  "leaveReasonHint": "Briefly explain your leave request",
+  "leavePastDatesHint": "Past dates are allowed for missing attendance days. Days are counted from your work schedule (half days count as 0.5).",
   "cancelRequest": "Cancel request",
   "adminNote": "Admin: {note}",
   "@adminNote": {
@@ -219,17 +321,9 @@
   },
   "notificationsTooltip": "Notifications",
   "accountCreatedByAdmin": "Your account is created by your administrator.",
-  "demoLoginTitle": "Demo login",
-  "demoEmailLabel": "Email: sara@acme.demo",
-  "demoPasswordLabel": "Password: Demo123!",
-  "demoEmailField": "Email",
-  "demoPasswordField": "Password",
-  "copy": "Copy",
-  "copied": "Copied",
   "refresh": "Refresh",
-  "demoLoginNote": "Use Demo123! for seeded employees. ChangeMe123! is only for bootstrap super admin in admin portal.",
   "enterEmailOrCode": "Enter your email or employee code",
-  "passwordMin8": "Password must contain at least 8 characters",
+  "passwordMin8": "Password must be at least 6 characters",
   "thatDay": "that day",
   "reasonTraffic": "Traffic",
   "reasonTransportation": "Transportation",
@@ -273,6 +367,8 @@
   "dash": "—",
   "readAll": "Read all",
   "noNotificationsYet": "No notifications yet.",
+  "notificationTapToOpen": "Tap to open",
+  "notificationNoLinkedScreen": "No linked screen for this alert. Try Leave or History from the menu.",
   "photoCaptureTitleCheckIn": "Verify check-in",
   "photoCaptureTitleCheckOut": "Verify checkout",
   "photoCaptureHint": "Position your face inside the circle",
@@ -302,6 +398,12 @@
   "evaluationStatusWaiting": "With reviewer",
   "evaluationStatusScored": "Scored",
   "evaluationStatusFinal": "Final",
+  "evaluationStatusClosed": "Closed",
+  "evaluationCycleClosedBanner": "This evaluation cycle is closed. Your results are shown below.",
+  "evaluationEvaluatorTotal": "Evaluator total: {value}",
+  "@evaluationEvaluatorTotal": {
+    "placeholders": { "value": { "type": "String" } }
+  },
   "evaluationStepInfo": "Employee information",
   "evaluationStepMetrics": "Metrics",
   "evaluationStepRoles": "Roles & responsibilities",
@@ -364,5 +466,30 @@
       "role": { "type": "String" }
     }
   },
-  "backToSignIn": "Back to sign in"
+  "backToSignIn": "Back to sign in",
+  "updateRequiredTitle": "Update required",
+  "updateRequiredBody": "This version is no longer supported. Please update the app to continue.",
+  "updateAvailableTitle": "Update available",
+  "updateAvailableBody": "A newer version is ready. You can update now or later from the menu.",
+  "updateNow": "Update now",
+  "updateLater": "Later",
+  "updateOpenFailed": "Could not open the download page.",
+  "currentVersion": "Current version: {version}",
+  "@currentVersion": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  },
+  "latestVersion": "Latest version: {version}",
+  "@latestVersion": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  },
+  "appVersionLabel": "Work-Force v{version}",
+  "@appVersionLabel": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  }
 }

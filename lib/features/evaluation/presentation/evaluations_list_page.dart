@@ -71,13 +71,15 @@ class _Card extends StatelessWidget {
             Row(
               children: [
                 Expanded(child: Text(item.cycleName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16))),
-                StatusChip(label: _label(l10n, item.status), kind: _kind(item.status)),
+                StatusChip(label: _label(l10n, item), kind: _kind(item)),
               ],
             ),
             const SizedBox(height: 8),
             Text('${fmt.format(item.periodStart)} – ${fmt.format(item.periodEnd)}'),
-            if (item.selfDueAt != null) Text(l10n.evaluationDue(fmt.format(item.selfDueAt!))),
+            if (item.selfDueAt != null && !item.isCycleClosed) Text(l10n.evaluationDue(fmt.format(item.selfDueAt!))),
             if (item.overallSelf != null) Text(l10n.evaluationSelfAverage('${item.overallSelf!.toStringAsFixed(0)} / 50')),
+            if (item.resultsVisible && item.overallEvaluator != null)
+              Text(l10n.evaluationEvaluatorTotal('${item.overallEvaluator!.toStringAsFixed(0)} / 50')),
           ],
         ),
       ),
@@ -85,18 +87,20 @@ class _Card extends StatelessWidget {
   }
 }
 
-String _label(AppLocalizations l10n, String status) {
-  return switch (status) {
+String _label(AppLocalizations l10n, EvaluationSummary item) {
+  if (item.isCycleClosed && !item.resultsVisible) return l10n.evaluationStatusClosed;
+  return switch (item.status) {
     'OPEN' || 'SELF_DRAFT' => l10n.evaluationStatusOpen,
     'SELF_SUBMITTED' || 'EVALUATOR_DRAFT' => l10n.evaluationStatusWaiting,
     'EVALUATOR_SUBMITTED' => l10n.evaluationStatusScored,
     'FINALIZED' => l10n.evaluationStatusFinal,
-    _ => status,
+    _ => item.status,
   };
 }
 
-StatusKind _kind(String status) {
-  return switch (status) {
+StatusKind _kind(EvaluationSummary item) {
+  if (item.isCycleClosed && !item.resultsVisible) return StatusKind.neutral;
+  return switch (item.status) {
     'OPEN' || 'SELF_DRAFT' => StatusKind.warning,
     'SELF_SUBMITTED' || 'EVALUATOR_DRAFT' => StatusKind.neutral,
     'EVALUATOR_SUBMITTED' || 'FINALIZED' => StatusKind.success,

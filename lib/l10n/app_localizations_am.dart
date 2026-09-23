@@ -29,6 +29,9 @@ class AppLocalizationsAm extends AppLocalizations {
   String get navProfile => 'መገለጫ';
 
   @override
+  String get navSettings => 'ቅንብሮች';
+
+  @override
   String get navMeetings => 'ስብሰባዎች';
 
   @override
@@ -74,9 +77,6 @@ class AppLocalizationsAm extends AppLocalizations {
   String get signingIn => 'በመግባት ላይ...';
 
   @override
-  String get demoLoginHint => 'ሙከራ: sara@acme.demo / Demo123!';
-
-  @override
   String get historyTitle => 'ታሪክ';
 
   @override
@@ -90,6 +90,25 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get noWorksheetDay => 'በዚህ ቀን የስራ ሉህ አልተገኘም።';
+
+  @override
+  String get noWorksheetNeedAttendance =>
+      'በዚህ ቀን መገኘት የለም። መጀመሪያ ይግቡ፣ ከዚያ የስራ ሉህ ማከል ይችላሉ።';
+
+  @override
+  String get worksheetAfterCheckout => 'መጀመሪያ ይግቡ፣ ከዚያ ለዚህ ቀን የስራ ሉህ ማከል ይችላሉ።';
+
+  @override
+  String get daysNeedingWorksheet => 'የስራ ሉህ የሚያስፈልጋቸው ቀናት';
+
+  @override
+  String get tapDayToAddWorksheet => 'የስራ ሉህ ለማከል ከታች ቀን ይንኩ።';
+
+  @override
+  String get existingWorksheets => 'የእርስዎ የስራ ሉሆች';
+
+  @override
+  String get tapDayToEditWorksheet => 'ለማርትዕ ከታች ቀን ይንኩ።';
 
   @override
   String get checkIn => 'ግባ';
@@ -114,6 +133,31 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get locationUnavailable => 'ቦታ አልተገኘም';
+
+  @override
+  String get locationTapToAllow => 'ቦታ ለመፍቀድ ይንኩ';
+
+  @override
+  String get locationPermissionHint =>
+      'ለመግባት ቦታ ያስፈልጋል። እዚህ ይንኩ እና ብራውዘር ወይም መሣሪያ ሲጠይቅ ይፍቀዱ።';
+
+  @override
+  String get locationPermissionWebHint =>
+      'መጠይቅ ካልመጣ ከሆነ፣ በብራውዘር ቅንብሮች ለዚህ ጣቢያ ቦታ ይፍቀዱ (🔒 → Site settings → Location)፣ ከዚያ እንደገና ይንኩ።';
+
+  @override
+  String get locationPermissionBlockedHint =>
+      'ቦታ ታግዷል። ቅንብሮችን ለመክፈት እና ለመፍቀድ ይንኩ።';
+
+  @override
+  String get locationServicesOffHint =>
+      'የቦታ አገልግሎት ጠፍቷል። ቅንብሮችን ለመክፈት እና ለማብራት ይንኩ።';
+
+  @override
+  String get companyPcLocation => 'የኩባንያ ኮምፖተር';
+
+  @override
+  String get locationNotRequired => 'በዚህ መሣሪያ ቦታ አያስፈልግም';
 
   @override
   String get readyToCheckIn => 'ለመግባት ዝግጁ';
@@ -141,6 +185,16 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get attendanceCompleted => 'ተጠናቀቀ';
+
+  @override
+  String timeClockWorked(String duration) {
+    return 'የሰራ $duration';
+  }
+
+  @override
+  String timeClockScheduled(String duration) {
+    return 'የሚመከር $duration';
+  }
 
   @override
   String get done => 'ተጠናቀቀ';
@@ -234,6 +288,10 @@ class AppLocalizationsAm extends AppLocalizations {
   String get checkoutDescribeToday => 'መውጣት ከመጀመርዎ ዛሬ ስራዎን ይግለጹ።';
 
   @override
+  String get checkoutDescribeTodayOptional =>
+      'ከፈለጉ ዛሬ ስራዎን ይግለጹ። ያለ የስራ ሉህ መውጣት ይችላሉ።';
+
+  @override
   String checkoutCloseShiftHint(String date) {
     return 'ይህ ከ $date ሰዓት ይዘጋል። ከዚያ ዛሬ መግባት ይችላሉ።';
   }
@@ -242,10 +300,23 @@ class AppLocalizationsAm extends AppLocalizations {
   String get workSummary => 'የስራ ማጠቃለያ';
 
   @override
+  String get workSummaryOptional => 'የስራ ማጠቃለያ (አማራጭ)';
+
+  @override
   String get workSummaryHint => 'ለምሳሌ: ደንበኛ መመዝገብ እና የቡድን ስብሰባ...';
 
   @override
   String get workSummaryShiftHint => 'በዚያ ሰዓት የተከናወነ ስራ ይግለጹ...';
+
+  @override
+  String get worksheetOptionalHint =>
+      'ባዶ ይተዉት ያለ የስራ ሉህ ለመውጣት። በኋላ ከታሪክ ማከል ይችላሉ።';
+
+  @override
+  String get skipAndCheckOut => 'ዝለል እና ውጣ';
+
+  @override
+  String get skipAndCloseShift => 'ዝለል እና ዝጋ';
 
   @override
   String get readyToSubmit => 'ለመላክ ዝግጁ';
@@ -254,6 +325,21 @@ class AppLocalizationsAm extends AppLocalizations {
   String minChars(int min, int current) {
     return 'ቢያንስ $min ቁምፊ · $current/$min';
   }
+
+  @override
+  String get addWorksheet => 'የስራ ሉህ ጨምር';
+
+  @override
+  String get editWorksheet => 'የስራ ሉህ አርትዕ';
+
+  @override
+  String get saveWorksheet => 'አስቀምጥ';
+
+  @override
+  String get worksheetSaved => 'የስራ ሉህ ተቀመጠ።';
+
+  @override
+  String get reviewed => 'ተገምግሟል';
 
   @override
   String get cancel => 'ሰርዝ';
@@ -303,8 +389,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get passwordChanged => 'የይለፍ ቃል በተሳካ ሁኔታ ተቀይረ።';
 
   @override
-  String get passwordRules =>
-      'የይለፍ ቃሎች መዛመድ፣ 10+ ቁምፊ፣ ትልቅ/ትንሽ እና ቁጥር መያዝ አለባቸው።';
+  String get passwordRules => 'የይለፍ ቃሎች መዛመድ አለባቸው እና ቢያንስ 6 ቁምፊ መሆን አለባቸው።';
 
   @override
   String get accountId => 'መለያ ID';
@@ -436,7 +521,134 @@ class AppLocalizationsAm extends AppLocalizations {
   String get requestLeave => 'ፍቃድ ጠይቅ';
 
   @override
+  String get requestAttendanceCorrection => 'የመገኘት ማስተካከል ጠይቅ';
+
+  @override
+  String get leaveVsCorrectionHint =>
+      'ከስራ ሲወጡ ፍቃድ ይጠቀሙ። በስራ ላይ ሲሆኑ ግን መግቢያ/መውጫ ካልተመዘገበ ማስተካከል ይጠቀሙ። ማስተካከል የፍቃድ ቀን አይቀንስም።';
+
+  @override
+  String get attendanceCorrectionHistory => 'የመገኘት ማስተካከሎች';
+
+  @override
+  String get noAttendanceCorrections => 'ገና የማስተካከል ጥያቄ የለም።';
+
+  @override
+  String get attendanceCorrectionSubmitted => 'የማስተካከል ጥያቄ ተላከ።';
+
+  @override
+  String get attendanceCorrectionTitle => 'የመገኘት ማስተካከል';
+
+  @override
+  String get attendanceCorrectionHint =>
+      'በስራ ላይ ከሆኑ ቀኖችን አስተዳዳሪ እንዲያስተካክል ይጠይቁ። በፍቃድ ላይ ከሆኑ ቀኖች ላይ አይጠቀሙ።';
+
+  @override
+  String get attendanceCorrectionNoteLabel => 'ማስታወሻ (አማራጭ)';
+
+  @override
+  String get attendanceCorrectionNoteHint => 'ምሳ. መግቢያ ላይ ስህተት';
+
+  @override
+  String get attendanceCorrectionDatesLabel => 'ቀኖች';
+
+  @override
+  String get attendanceCorrectionAddDate => 'ቀን ጨምር';
+
+  @override
+  String get attendanceCorrectionPickDate => 'ያለፈውን ቢያንስ አንድ ቀን ይምረጡ።';
+
+  @override
+  String get attendanceCorrectionSubmit => 'ማስተካከል ላክ';
+
+  @override
+  String get attendanceCorrectionDateBlocked =>
+      'ቀኑ ቀድሞ በመጠባበቅ/ተፈቅዷል ወይም በፍቃድ ላይ ነበር።';
+
+  @override
+  String get attendanceCorrectionStatusPending => 'በመጠባበቅ';
+
+  @override
+  String get attendanceCorrectionStatusApproved => 'ተፈቅዷል';
+
+  @override
+  String get attendanceCorrectionStatusRejected => 'ተቀባይነት አላገኘም';
+
+  @override
   String get leaveRequestSubmitted => 'የፍቃድ ጥያቄ ተላከ።';
+
+  @override
+  String get annualLeaveTitle => 'ዓመታዊ ፍቃድ';
+
+  @override
+  String get annualLeaveDaysAvailable => 'ቀናት ይቀራሉ';
+
+  @override
+  String annualLeaveThisYear(String days) {
+    return 'የዚህ ዓመት $days';
+  }
+
+  @override
+  String annualLeaveCarried(String days) {
+    return 'ተሸጋገረ $days';
+  }
+
+  @override
+  String annualLeaveUsed(String days) {
+    return 'ተጠቅመዋል $days';
+  }
+
+  @override
+  String annualLeavePendingDays(String days) {
+    return 'በመጠባበቅ $days';
+  }
+
+  @override
+  String annualLeaveServiceYears(String years) {
+    return '$years ዓመት አገልግሎት';
+  }
+
+  @override
+  String annualLeaveNextGrant(String days, String date) {
+    return 'ቀጣይ $days ቀን በ $date';
+  }
+
+  @override
+  String annualLeaveProRata(String days, String months) {
+    return 'በመጠን: $days ከ 16 ቀን ($months ወር አገልግሎት)';
+  }
+
+  @override
+  String annualLeaveExpires(String days, String date) {
+    return '$days ቀን በ $date ያልቃሉ';
+  }
+
+  @override
+  String get annualLeaveBreakdown => 'የፍቃድ ዓመታት';
+
+  @override
+  String annualLeaveAvailableHint(String days) {
+    return '$days የዓመታዊ ፍቃድ ቀናት ይቀራሉ። የቆዩ የተሸጋገሩ ቀናት መጀመሪያ ይቀነሳሉ።';
+  }
+
+  @override
+  String get leaveTypeLabel => 'የፍቃድ አይነት';
+
+  @override
+  String get leaveStartDate => 'መጀመሪያ ቀን';
+
+  @override
+  String get leaveEndDate => 'መጨረሻ ቀን';
+
+  @override
+  String get leaveReason => 'ምክንያት';
+
+  @override
+  String get leaveReasonHint => 'የፍቃድ ጥያቄዎን በአጭሩ ያብራሩ';
+
+  @override
+  String get leavePastDatesHint =>
+      'ያለፉ ቀናት ለጎደሉ የመገኘት ቀናት ይፈቀዳሉ። ቀናት ከስራ መርሃ ግብር ይቆጠራሉ (ግማሽ ቀን = 0.5)።';
 
   @override
   String get cancelRequest => 'ጥያቄ ሰርዝ';
@@ -453,38 +665,13 @@ class AppLocalizationsAm extends AppLocalizations {
   String get accountCreatedByAdmin => 'መለያዎ በአስተዳዳሪዎ ተፈጥረ።';
 
   @override
-  String get demoLoginTitle => 'ሙከራ መግቢያ';
-
-  @override
-  String get demoEmailLabel => 'ኢሜይል: sara@acme.demo';
-
-  @override
-  String get demoPasswordLabel => 'የይለፍ ቃል: Demo123!';
-
-  @override
-  String get demoEmailField => 'ኢሜይል';
-
-  @override
-  String get demoPasswordField => 'የይለፍ ቃል';
-
-  @override
-  String get copy => 'ቅዳ';
-
-  @override
-  String get copied => 'ተቀድቷል';
-
-  @override
   String get refresh => 'አድስ';
-
-  @override
-  String get demoLoginNote =>
-      'ለተዘጋጁ ሰራተኞች Demo123! ይጠቀሙ። ChangeMe123! ለአስተዳዳሪ ፖርታል ብቻ።';
 
   @override
   String get enterEmailOrCode => 'ኢሜይል ወይም የሰራተኛ ኮድ ያስገቡ';
 
   @override
-  String get passwordMin8 => 'የይለፍ ቃል ቢያንስ 8 ቁምፊ መያዝ አለበት';
+  String get passwordMin8 => 'የይለፍ ቃል ቢያንስ 6 ቁምፊ መሆን አለበት';
 
   @override
   String get thatDay => 'በዚያ ቀን';
@@ -540,6 +727,13 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get noNotificationsYet => 'ገና ማሳወቂያ አልተገኘም።';
+
+  @override
+  String get notificationTapToOpen => 'ለመክፈት ይጫኑ';
+
+  @override
+  String get notificationNoLinkedScreen =>
+      'ለዚህ ማሳወቂያ ተያያዥ ገጽ የለም። ከሜኑ Leave ወይም History ይሞክሩ።';
 
   @override
   String get photoCaptureTitleCheckIn => 'መግባት ያረጋግጡ';
@@ -608,6 +802,18 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get evaluationStatusFinal => 'የተጠናቀቀ';
+
+  @override
+  String get evaluationStatusClosed => 'ተዘግቷል';
+
+  @override
+  String get evaluationCycleClosedBanner =>
+      'ይህ የግምገማ ዑደት ተዘግቷል። ውጤቶችዎ ከዚህ በታች ይታያሉ።';
+
+  @override
+  String evaluationEvaluatorTotal(String value) {
+    return 'የግምገማ አጠቃላይ: $value';
+  }
 
   @override
   String get evaluationStepInfo => 'የሰራተኛ መረጃ';
@@ -773,4 +979,42 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get backToSignIn => 'ወደ መግቢያ ተመለስ';
+
+  @override
+  String get updateRequiredTitle => 'ማዘመን ያስፈልጋል';
+
+  @override
+  String get updateRequiredBody =>
+      'ይህ ስሪት አሁን አይደገፍም። መቀጠል ከፈለጉ መተግበሪያውን ያዘምኑ።';
+
+  @override
+  String get updateAvailableTitle => 'አዲስ ስሪት አለ';
+
+  @override
+  String get updateAvailableBody =>
+      'አዲስ ስሪት ዝግጁ ነው። አሁን ማዘመን ወይም በኋላ ከምናሌው ማዘመን ይችላሉ።';
+
+  @override
+  String get updateNow => 'አሁን አዘምን';
+
+  @override
+  String get updateLater => 'በኋላ';
+
+  @override
+  String get updateOpenFailed => 'የማውረጃ ገጹን መክፈት አልተቻለም።';
+
+  @override
+  String currentVersion(String version) {
+    return 'የአሁኑ ስሪት: $version';
+  }
+
+  @override
+  String latestVersion(String version) {
+    return 'አዲሱ ስሪት: $version';
+  }
+
+  @override
+  String appVersionLabel(String version) {
+    return 'Work-Force v$version';
+  }
 }

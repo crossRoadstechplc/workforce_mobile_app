@@ -28,10 +28,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
   }
 
   String? _validateNew(String? value) {
-    if (value == null || value.length < 10) return 'Use at least 10 characters';
-    if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Add an uppercase letter';
-    if (!RegExp(r'[a-z]').hasMatch(value)) return 'Add a lowercase letter';
-    if (!RegExp(r'[0-9]').hasMatch(value)) return 'Add a number';
+    if (value == null || value.length < 6) return 'Use at least 6 characters';
     return null;
   }
 
@@ -85,7 +82,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 8),
-                    const Text('This is required before you can access attendance and leave features.'),
+                    const Text('This is required before you can access attendance and leave features. Use at least 6 characters.'),
                     const SizedBox(height: 24),
                     TextFormField(
                       controller: _current,
@@ -95,7 +92,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                         obscure: _obscureCurrent,
                         onToggle: () => setState(() => _obscureCurrent = !_obscureCurrent),
                       ),
-                      validator: (v) => (v?.length ?? 0) < 8 ? 'Enter your temporary password' : null,
+                      validator: (v) => (v?.length ?? 0) < 6 ? 'Enter your temporary password' : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

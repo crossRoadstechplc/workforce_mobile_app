@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Workforce'**
+  /// **'Work-Force'**
   String get appTitle;
 
   /// No description provided for @greetingHi.
@@ -133,6 +133,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile'**
   String get navProfile;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get navSettings;
 
   /// No description provided for @navMeetings.
   ///
@@ -191,13 +197,13 @@ abstract class AppLocalizations {
   /// No description provided for @loginTitle.
   ///
   /// In en, this message translates to:
-  /// **'Employee sign in'**
+  /// **'Work-Force'**
   String get loginTitle;
 
   /// No description provided for @loginSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Use your work email or employee code.'**
+  /// **'Employee sign in · use your work email or employee code.'**
   String get loginSubtitle;
 
   /// No description provided for @emailOrCode.
@@ -223,12 +229,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signing in...'**
   String get signingIn;
-
-  /// No description provided for @demoLoginHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Demo: sara@acme.demo / Demo123!'**
-  String get demoLoginHint;
 
   /// No description provided for @historyTitle.
   ///
@@ -259,6 +259,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No worksheet for this day.'**
   String get noWorksheetDay;
+
+  /// No description provided for @noWorksheetNeedAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'No attendance for this day. Check in first, then you can add a worksheet.'**
+  String get noWorksheetNeedAttendance;
+
+  /// No description provided for @worksheetAfterCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in first, then you can add a worksheet for this day.'**
+  String get worksheetAfterCheckout;
+
+  /// No description provided for @daysNeedingWorksheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Days needing a worksheet'**
+  String get daysNeedingWorksheet;
+
+  /// No description provided for @tapDayToAddWorksheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a day below to open it and add a worksheet.'**
+  String get tapDayToAddWorksheet;
+
+  /// No description provided for @existingWorksheets.
+  ///
+  /// In en, this message translates to:
+  /// **'Your worksheets'**
+  String get existingWorksheets;
+
+  /// No description provided for @tapDayToEditWorksheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a day below to open and edit that worksheet.'**
+  String get tapDayToEditWorksheet;
 
   /// No description provided for @checkIn.
   ///
@@ -307,6 +343,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location unavailable'**
   String get locationUnavailable;
+
+  /// No description provided for @locationTapToAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to allow location'**
+  String get locationTapToAllow;
+
+  /// No description provided for @locationPermissionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is required for check-in. Tap here and allow when your browser or device asks.'**
+  String get locationPermissionHint;
+
+  /// No description provided for @locationPermissionWebHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If no prompt appears, allow location for this site in browser settings (lock icon → Site settings → Location), then tap here again.'**
+  String get locationPermissionWebHint;
+
+  /// No description provided for @locationPermissionBlockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is blocked. Tap to open settings and allow access.'**
+  String get locationPermissionBlockedHint;
+
+  /// No description provided for @locationServicesOffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are off. Tap to open settings and turn them on.'**
+  String get locationServicesOffHint;
+
+  /// No description provided for @companyPcLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Company PC'**
+  String get companyPcLocation;
+
+  /// No description provided for @locationNotRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is not required on this device'**
+  String get locationNotRequired;
 
   /// No description provided for @readyToCheckIn.
   ///
@@ -361,6 +439,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Attendance completed'**
   String get attendanceCompleted;
+
+  /// No description provided for @timeClockWorked.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked {duration}'**
+  String timeClockWorked(String duration);
+
+  /// No description provided for @timeClockScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended {duration}'**
+  String timeClockScheduled(String duration);
 
   /// No description provided for @done.
   ///
@@ -506,6 +596,12 @@ abstract class AppLocalizations {
   /// **'Describe what you worked on today before checking out.'**
   String get checkoutDescribeToday;
 
+  /// No description provided for @checkoutDescribeTodayOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optionally describe what you worked on today. You can skip and check out without a worksheet.'**
+  String get checkoutDescribeTodayOptional;
+
   /// No description provided for @checkoutCloseShiftHint.
   ///
   /// In en, this message translates to:
@@ -517,6 +613,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Work summary'**
   String get workSummary;
+
+  /// No description provided for @workSummaryOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Work summary (optional)'**
+  String get workSummaryOptional;
 
   /// No description provided for @workSummaryHint.
   ///
@@ -530,6 +632,24 @@ abstract class AppLocalizations {
   /// **'Summarize tasks completed during that shift...'**
   String get workSummaryShiftHint;
 
+  /// No description provided for @worksheetOptionalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank to check out without a worksheet. You can add it later from History.'**
+  String get worksheetOptionalHint;
+
+  /// No description provided for @skipAndCheckOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip & check out'**
+  String get skipAndCheckOut;
+
+  /// No description provided for @skipAndCloseShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip & close'**
+  String get skipAndCloseShift;
+
   /// No description provided for @readyToSubmit.
   ///
   /// In en, this message translates to:
@@ -541,6 +661,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Minimum {min} characters · {current}/{min}'**
   String minChars(int min, int current);
+
+  /// No description provided for @addWorksheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add worksheet'**
+  String get addWorksheet;
+
+  /// No description provided for @editWorksheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit worksheet'**
+  String get editWorksheet;
+
+  /// No description provided for @saveWorksheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveWorksheet;
+
+  /// No description provided for @worksheetSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Worksheet saved.'**
+  String get worksheetSaved;
+
+  /// No description provided for @reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed'**
+  String get reviewed;
 
   /// No description provided for @cancel.
   ///
@@ -635,7 +785,7 @@ abstract class AppLocalizations {
   /// No description provided for @passwordRules.
   ///
   /// In en, this message translates to:
-  /// **'Passwords must match, be 10+ characters, and include upper/lowercase letters and a number.'**
+  /// **'Passwords must match and be at least 6 characters.'**
   String get passwordRules;
 
   /// No description provided for @accountId.
@@ -884,11 +1034,221 @@ abstract class AppLocalizations {
   /// **'Request leave'**
   String get requestLeave;
 
+  /// No description provided for @requestAttendanceCorrection.
+  ///
+  /// In en, this message translates to:
+  /// **'Request attendance correction'**
+  String get requestAttendanceCorrection;
+
+  /// No description provided for @leaveVsCorrectionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use leave when you were absent. Use attendance correction when you worked but check-in or check-out is missing or wrong. Corrections do not use your leave balance.'**
+  String get leaveVsCorrectionHint;
+
+  /// No description provided for @attendanceCorrectionHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance corrections'**
+  String get attendanceCorrectionHistory;
+
+  /// No description provided for @noAttendanceCorrections.
+  ///
+  /// In en, this message translates to:
+  /// **'No correction requests yet.'**
+  String get noAttendanceCorrections;
+
+  /// No description provided for @attendanceCorrectionSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Correction request submitted.'**
+  String get attendanceCorrectionSubmitted;
+
+  /// No description provided for @attendanceCorrectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance correction'**
+  String get attendanceCorrectionTitle;
+
+  /// No description provided for @attendanceCorrectionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your admin to mark selected days as worked (full scheduled shift). Only use this if you were at work—not for days you were on leave.'**
+  String get attendanceCorrectionHint;
+
+  /// No description provided for @attendanceCorrectionNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get attendanceCorrectionNoteLabel;
+
+  /// No description provided for @attendanceCorrectionNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Forgot to check in at the office'**
+  String get attendanceCorrectionNoteHint;
+
+  /// No description provided for @attendanceCorrectionDatesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get attendanceCorrectionDatesLabel;
+
+  /// No description provided for @attendanceCorrectionAddDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add date'**
+  String get attendanceCorrectionAddDate;
+
+  /// No description provided for @attendanceCorrectionPickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one past working day.'**
+  String get attendanceCorrectionPickDate;
+
+  /// No description provided for @attendanceCorrectionSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit correction'**
+  String get attendanceCorrectionSubmit;
+
+  /// No description provided for @attendanceCorrectionDateBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'That date already has a pending or approved correction, or you were on leave.'**
+  String get attendanceCorrectionDateBlocked;
+
+  /// No description provided for @attendanceCorrectionStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get attendanceCorrectionStatusPending;
+
+  /// No description provided for @attendanceCorrectionStatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get attendanceCorrectionStatusApproved;
+
+  /// No description provided for @attendanceCorrectionStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get attendanceCorrectionStatusRejected;
+
   /// No description provided for @leaveRequestSubmitted.
   ///
   /// In en, this message translates to:
   /// **'Leave request submitted.'**
   String get leaveRequestSubmitted;
+
+  /// No description provided for @annualLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual leave'**
+  String get annualLeaveTitle;
+
+  /// No description provided for @annualLeaveDaysAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'days available'**
+  String get annualLeaveDaysAvailable;
+
+  /// No description provided for @annualLeaveThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year {days}'**
+  String annualLeaveThisYear(String days);
+
+  /// No description provided for @annualLeaveCarried.
+  ///
+  /// In en, this message translates to:
+  /// **'Carried {days}'**
+  String annualLeaveCarried(String days);
+
+  /// No description provided for @annualLeaveUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Used {days}'**
+  String annualLeaveUsed(String days);
+
+  /// No description provided for @annualLeavePendingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending {days}'**
+  String annualLeavePendingDays(String days);
+
+  /// No description provided for @annualLeaveServiceYears.
+  ///
+  /// In en, this message translates to:
+  /// **'{years} years of service'**
+  String annualLeaveServiceYears(String years);
+
+  /// No description provided for @annualLeaveNextGrant.
+  ///
+  /// In en, this message translates to:
+  /// **'Next grant {days} days on {date}'**
+  String annualLeaveNextGrant(String days, String date);
+
+  /// No description provided for @annualLeaveProRata.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro-rata: {days} of 16 days ({months} months of service)'**
+  String annualLeaveProRata(String days, String months);
+
+  /// No description provided for @annualLeaveExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days expire on {date}'**
+  String annualLeaveExpires(String days, String date);
+
+  /// No description provided for @annualLeaveBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave years'**
+  String get annualLeaveBreakdown;
+
+  /// No description provided for @annualLeaveAvailableHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} annual leave days remaining. Oldest carried days are used first.'**
+  String annualLeaveAvailableHint(String days);
+
+  /// No description provided for @leaveTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave type'**
+  String get leaveTypeLabel;
+
+  /// No description provided for @leaveStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get leaveStartDate;
+
+  /// No description provided for @leaveEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'End date'**
+  String get leaveEndDate;
+
+  /// No description provided for @leaveReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get leaveReason;
+
+  /// No description provided for @leaveReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Briefly explain your leave request'**
+  String get leaveReasonHint;
+
+  /// No description provided for @leavePastDatesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Past dates are allowed for missing attendance days. Days are counted from your work schedule (half days count as 0.5).'**
+  String get leavePastDatesHint;
 
   /// No description provided for @cancelRequest.
   ///
@@ -914,59 +1274,11 @@ abstract class AppLocalizations {
   /// **'Your account is created by your administrator.'**
   String get accountCreatedByAdmin;
 
-  /// No description provided for @demoLoginTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Demo login'**
-  String get demoLoginTitle;
-
-  /// No description provided for @demoEmailLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Email: sara@acme.demo'**
-  String get demoEmailLabel;
-
-  /// No description provided for @demoPasswordLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Password: Demo123!'**
-  String get demoPasswordLabel;
-
-  /// No description provided for @demoEmailField.
-  ///
-  /// In en, this message translates to:
-  /// **'Email'**
-  String get demoEmailField;
-
-  /// No description provided for @demoPasswordField.
-  ///
-  /// In en, this message translates to:
-  /// **'Password'**
-  String get demoPasswordField;
-
-  /// No description provided for @copy.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy'**
-  String get copy;
-
-  /// No description provided for @copied.
-  ///
-  /// In en, this message translates to:
-  /// **'Copied'**
-  String get copied;
-
   /// No description provided for @refresh.
   ///
   /// In en, this message translates to:
   /// **'Refresh'**
   String get refresh;
-
-  /// No description provided for @demoLoginNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Use Demo123! for seeded employees. ChangeMe123! is only for bootstrap super admin in admin portal.'**
-  String get demoLoginNote;
 
   /// No description provided for @enterEmailOrCode.
   ///
@@ -977,7 +1289,7 @@ abstract class AppLocalizations {
   /// No description provided for @passwordMin8.
   ///
   /// In en, this message translates to:
-  /// **'Password must contain at least 8 characters'**
+  /// **'Password must be at least 6 characters'**
   String get passwordMin8;
 
   /// No description provided for @thatDay.
@@ -1069,6 +1381,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No notifications yet.'**
   String get noNotificationsYet;
+
+  /// No description provided for @notificationTapToOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open'**
+  String get notificationTapToOpen;
+
+  /// No description provided for @notificationNoLinkedScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked screen for this alert. Try Leave or History from the menu.'**
+  String get notificationNoLinkedScreen;
 
   /// No description provided for @photoCaptureTitleCheckIn.
   ///
@@ -1189,6 +1513,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Final'**
   String get evaluationStatusFinal;
+
+  /// No description provided for @evaluationStatusClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get evaluationStatusClosed;
+
+  /// No description provided for @evaluationCycleClosedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'This evaluation cycle is closed. Your results are shown below.'**
+  String get evaluationCycleClosedBanner;
+
+  /// No description provided for @evaluationEvaluatorTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluator total: {value}'**
+  String evaluationEvaluatorTotal(String value);
 
   /// No description provided for @evaluationStepInfo.
   ///
@@ -1501,6 +1843,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to sign in'**
   String get backToSignIn;
+
+  /// No description provided for @updateRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update required'**
+  String get updateRequiredTitle;
+
+  /// No description provided for @updateRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This version is no longer supported. Please update the app to continue.'**
+  String get updateRequiredBody;
+
+  /// No description provided for @updateAvailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available'**
+  String get updateAvailableTitle;
+
+  /// No description provided for @updateAvailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A newer version is ready. You can update now or later from the menu.'**
+  String get updateAvailableBody;
+
+  /// No description provided for @updateNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Update now'**
+  String get updateNow;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
+
+  /// No description provided for @updateOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the download page.'**
+  String get updateOpenFailed;
+
+  /// No description provided for @currentVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Current version: {version}'**
+  String currentVersion(String version);
+
+  /// No description provided for @latestVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest version: {version}'**
+  String latestVersion(String version);
+
+  /// No description provided for @appVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Work-Force v{version}'**
+  String appVersionLabel(String version);
 }
 
 class _AppLocalizationsDelegate

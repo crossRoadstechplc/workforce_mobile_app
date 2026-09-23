@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Workforce';
+  String get appTitle => 'Work-Force';
 
   @override
   String greetingHi(String name) {
@@ -27,6 +27,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navProfile => 'Profile';
+
+  @override
+  String get navSettings => 'Settings';
 
   @override
   String get navMeetings => 'Meetings';
@@ -56,10 +59,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get employeeWorkspace => 'Employee workspace';
 
   @override
-  String get loginTitle => 'Employee sign in';
+  String get loginTitle => 'Work-Force';
 
   @override
-  String get loginSubtitle => 'Use your work email or employee code.';
+  String get loginSubtitle =>
+      'Employee sign in · use your work email or employee code.';
 
   @override
   String get emailOrCode => 'Email or employee code';
@@ -72,9 +76,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signingIn => 'Signing in...';
-
-  @override
-  String get demoLoginHint => 'Demo: sara@acme.demo / Demo123!';
 
   @override
   String get historyTitle => 'History';
@@ -90,6 +91,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noWorksheetDay => 'No worksheet for this day.';
+
+  @override
+  String get noWorksheetNeedAttendance =>
+      'No attendance for this day. Check in first, then you can add a worksheet.';
+
+  @override
+  String get worksheetAfterCheckout =>
+      'Check in first, then you can add a worksheet for this day.';
+
+  @override
+  String get daysNeedingWorksheet => 'Days needing a worksheet';
+
+  @override
+  String get tapDayToAddWorksheet =>
+      'Tap a day below to open it and add a worksheet.';
+
+  @override
+  String get existingWorksheets => 'Your worksheets';
+
+  @override
+  String get tapDayToEditWorksheet =>
+      'Tap a day below to open and edit that worksheet.';
 
   @override
   String get checkIn => 'Check in';
@@ -114,6 +137,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationUnavailable => 'Location unavailable';
+
+  @override
+  String get locationTapToAllow => 'Tap to allow location';
+
+  @override
+  String get locationPermissionHint =>
+      'Location is required for check-in. Tap here and allow when your browser or device asks.';
+
+  @override
+  String get locationPermissionWebHint =>
+      'If no prompt appears, allow location for this site in browser settings (lock icon → Site settings → Location), then tap here again.';
+
+  @override
+  String get locationPermissionBlockedHint =>
+      'Location is blocked. Tap to open settings and allow access.';
+
+  @override
+  String get locationServicesOffHint =>
+      'Location services are off. Tap to open settings and turn them on.';
+
+  @override
+  String get companyPcLocation => 'Company PC';
+
+  @override
+  String get locationNotRequired => 'Location is not required on this device';
 
   @override
   String get readyToCheckIn => 'Ready to check in';
@@ -141,6 +189,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get attendanceCompleted => 'Attendance completed';
+
+  @override
+  String timeClockWorked(String duration) {
+    return 'Worked $duration';
+  }
+
+  @override
+  String timeClockScheduled(String duration) {
+    return 'Recommended $duration';
+  }
 
   @override
   String get done => 'Done';
@@ -238,12 +296,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Describe what you worked on today before checking out.';
 
   @override
+  String get checkoutDescribeTodayOptional =>
+      'Optionally describe what you worked on today. You can skip and check out without a worksheet.';
+
+  @override
   String checkoutCloseShiftHint(String date) {
     return 'This closes your shift from $date. You can check in for today afterward.';
   }
 
   @override
   String get workSummary => 'Work summary';
+
+  @override
+  String get workSummaryOptional => 'Work summary (optional)';
 
   @override
   String get workSummaryHint =>
@@ -254,12 +319,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'Summarize tasks completed during that shift...';
 
   @override
+  String get worksheetOptionalHint =>
+      'Leave blank to check out without a worksheet. You can add it later from History.';
+
+  @override
+  String get skipAndCheckOut => 'Skip & check out';
+
+  @override
+  String get skipAndCloseShift => 'Skip & close';
+
+  @override
   String get readyToSubmit => 'Ready to submit';
 
   @override
   String minChars(int min, int current) {
     return 'Minimum $min characters · $current/$min';
   }
+
+  @override
+  String get addWorksheet => 'Add worksheet';
+
+  @override
+  String get editWorksheet => 'Edit worksheet';
+
+  @override
+  String get saveWorksheet => 'Save';
+
+  @override
+  String get worksheetSaved => 'Worksheet saved.';
+
+  @override
+  String get reviewed => 'Reviewed';
 
   @override
   String get cancel => 'Cancel';
@@ -311,7 +401,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordRules =>
-      'Passwords must match, be 10+ characters, and include upper/lowercase letters and a number.';
+      'Passwords must match and be at least 6 characters.';
 
   @override
   String get accountId => 'Account ID';
@@ -444,7 +534,136 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestLeave => 'Request leave';
 
   @override
+  String get requestAttendanceCorrection => 'Request attendance correction';
+
+  @override
+  String get leaveVsCorrectionHint =>
+      'Use leave when you were absent. Use attendance correction when you worked but check-in or check-out is missing or wrong. Corrections do not use your leave balance.';
+
+  @override
+  String get attendanceCorrectionHistory => 'Attendance corrections';
+
+  @override
+  String get noAttendanceCorrections => 'No correction requests yet.';
+
+  @override
+  String get attendanceCorrectionSubmitted => 'Correction request submitted.';
+
+  @override
+  String get attendanceCorrectionTitle => 'Attendance correction';
+
+  @override
+  String get attendanceCorrectionHint =>
+      'Ask your admin to mark selected days as worked (full scheduled shift). Only use this if you were at work—not for days you were on leave.';
+
+  @override
+  String get attendanceCorrectionNoteLabel => 'Note (optional)';
+
+  @override
+  String get attendanceCorrectionNoteHint =>
+      'e.g. Forgot to check in at the office';
+
+  @override
+  String get attendanceCorrectionDatesLabel => 'Dates';
+
+  @override
+  String get attendanceCorrectionAddDate => 'Add date';
+
+  @override
+  String get attendanceCorrectionPickDate =>
+      'Add at least one past working day.';
+
+  @override
+  String get attendanceCorrectionSubmit => 'Submit correction';
+
+  @override
+  String get attendanceCorrectionDateBlocked =>
+      'That date already has a pending or approved correction, or you were on leave.';
+
+  @override
+  String get attendanceCorrectionStatusPending => 'Pending';
+
+  @override
+  String get attendanceCorrectionStatusApproved => 'Approved';
+
+  @override
+  String get attendanceCorrectionStatusRejected => 'Rejected';
+
+  @override
   String get leaveRequestSubmitted => 'Leave request submitted.';
+
+  @override
+  String get annualLeaveTitle => 'Annual leave';
+
+  @override
+  String get annualLeaveDaysAvailable => 'days available';
+
+  @override
+  String annualLeaveThisYear(String days) {
+    return 'This year $days';
+  }
+
+  @override
+  String annualLeaveCarried(String days) {
+    return 'Carried $days';
+  }
+
+  @override
+  String annualLeaveUsed(String days) {
+    return 'Used $days';
+  }
+
+  @override
+  String annualLeavePendingDays(String days) {
+    return 'Pending $days';
+  }
+
+  @override
+  String annualLeaveServiceYears(String years) {
+    return '$years years of service';
+  }
+
+  @override
+  String annualLeaveNextGrant(String days, String date) {
+    return 'Next grant $days days on $date';
+  }
+
+  @override
+  String annualLeaveProRata(String days, String months) {
+    return 'Pro-rata: $days of 16 days ($months months of service)';
+  }
+
+  @override
+  String annualLeaveExpires(String days, String date) {
+    return '$days days expire on $date';
+  }
+
+  @override
+  String get annualLeaveBreakdown => 'Leave years';
+
+  @override
+  String annualLeaveAvailableHint(String days) {
+    return '$days annual leave days remaining. Oldest carried days are used first.';
+  }
+
+  @override
+  String get leaveTypeLabel => 'Leave type';
+
+  @override
+  String get leaveStartDate => 'Start date';
+
+  @override
+  String get leaveEndDate => 'End date';
+
+  @override
+  String get leaveReason => 'Reason';
+
+  @override
+  String get leaveReasonHint => 'Briefly explain your leave request';
+
+  @override
+  String get leavePastDatesHint =>
+      'Past dates are allowed for missing attendance days. Days are counted from your work schedule (half days count as 0.5).';
 
   @override
   String get cancelRequest => 'Cancel request';
@@ -462,38 +681,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your account is created by your administrator.';
 
   @override
-  String get demoLoginTitle => 'Demo login';
-
-  @override
-  String get demoEmailLabel => 'Email: sara@acme.demo';
-
-  @override
-  String get demoPasswordLabel => 'Password: Demo123!';
-
-  @override
-  String get demoEmailField => 'Email';
-
-  @override
-  String get demoPasswordField => 'Password';
-
-  @override
-  String get copy => 'Copy';
-
-  @override
-  String get copied => 'Copied';
-
-  @override
   String get refresh => 'Refresh';
-
-  @override
-  String get demoLoginNote =>
-      'Use Demo123! for seeded employees. ChangeMe123! is only for bootstrap super admin in admin portal.';
 
   @override
   String get enterEmailOrCode => 'Enter your email or employee code';
 
   @override
-  String get passwordMin8 => 'Password must contain at least 8 characters';
+  String get passwordMin8 => 'Password must be at least 6 characters';
 
   @override
   String get thatDay => 'that day';
@@ -549,6 +743,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noNotificationsYet => 'No notifications yet.';
+
+  @override
+  String get notificationTapToOpen => 'Tap to open';
+
+  @override
+  String get notificationNoLinkedScreen =>
+      'No linked screen for this alert. Try Leave or History from the menu.';
 
   @override
   String get photoCaptureTitleCheckIn => 'Verify check-in';
@@ -617,6 +818,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get evaluationStatusFinal => 'Final';
+
+  @override
+  String get evaluationStatusClosed => 'Closed';
+
+  @override
+  String get evaluationCycleClosedBanner =>
+      'This evaluation cycle is closed. Your results are shown below.';
+
+  @override
+  String evaluationEvaluatorTotal(String value) {
+    return 'Evaluator total: $value';
+  }
 
   @override
   String get evaluationStepInfo => 'Employee information';
@@ -783,4 +996,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backToSignIn => 'Back to sign in';
+
+  @override
+  String get updateRequiredTitle => 'Update required';
+
+  @override
+  String get updateRequiredBody =>
+      'This version is no longer supported. Please update the app to continue.';
+
+  @override
+  String get updateAvailableTitle => 'Update available';
+
+  @override
+  String get updateAvailableBody =>
+      'A newer version is ready. You can update now or later from the menu.';
+
+  @override
+  String get updateNow => 'Update now';
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get updateOpenFailed => 'Could not open the download page.';
+
+  @override
+  String currentVersion(String version) {
+    return 'Current version: $version';
+  }
+
+  @override
+  String latestVersion(String version) {
+    return 'Latest version: $version';
+  }
+
+  @override
+  String appVersionLabel(String version) {
+    return 'Work-Force v$version';
+  }
 }

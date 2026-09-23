@@ -39,6 +39,39 @@ class HistoryRepository {
     } on DioException catch (error) { throw ApiException.fromDio(error); }
   }
 
+  Future<WorksheetHistoryItem> createWorksheet({
+    required String timesheetId,
+    required String workDescription,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.worksheets,
+        data: {
+          'timesheetId': timesheetId,
+          'workDescription': workDescription.trim(),
+        },
+      );
+      return WorksheetHistoryItem.fromJson(response.data!['data'] as Map<String, dynamic>);
+    } on DioException catch (error) {
+      throw ApiException.fromDio(error);
+    }
+  }
+
+  Future<WorksheetHistoryItem> updateWorksheet({
+    required String worksheetId,
+    required String workDescription,
+  }) async {
+    try {
+      final response = await _dio.patch<Map<String, dynamic>>(
+        '${ApiEndpoints.worksheets}/$worksheetId',
+        data: {'workDescription': workDescription.trim()},
+      );
+      return WorksheetHistoryItem.fromJson(response.data!['data'] as Map<String, dynamic>);
+    } on DioException catch (error) {
+      throw ApiException.fromDio(error);
+    }
+  }
+
   Future<void> submitCorrectnessRequests(List<String> dates, {String? note}) async {
     try {
       await _dio.post<Map<String, dynamic>>(
@@ -52,4 +85,23 @@ class HistoryRepository {
       throw ApiException.fromDio(error);
     }
   }
+
+  Future<List<Map<String, dynamic>>> listCorrectnessRequests({DateTime? from, DateTime? to}) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        ApiEndpoints.attendanceCorrectnessRequests,
+        queryParameters: {
+          if (from != null) 'from': _dateKey(from),
+          if (to != null) 'to': _dateKey(to),
+        },
+      );
+      final items = response.data?['data'] as List<dynamic>? ?? const [];
+      return items.map((e) => e as Map<String, dynamic>).toList();
+    } on DioException catch (error) {
+      throw ApiException.fromDio(error);
+    }
+  }
 }
+
+String _dateKey(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';

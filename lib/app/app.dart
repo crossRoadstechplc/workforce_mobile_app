@@ -6,6 +6,7 @@ import '../core/localization/locale_controller.dart';
 import '../core/theme/app_theme.dart';
 import '../core/theme/theme_mode_controller.dart';
 import '../core/widgets/offline_banner.dart';
+import '../features/app_update/presentation/app_update_gate.dart';
 import '../features/notifications/application/notification_controller.dart';
 import '../l10n/app_localizations.dart';
 import 'router.dart';
@@ -21,7 +22,7 @@ class WorkforceEmployeeApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeControllerProvider);
 
     return MaterialApp.router(
-      title: 'Workforce',
+      title: 'Work-Force',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(locale),
       darkTheme: AppTheme.dark(locale),
@@ -35,11 +36,13 @@ class WorkforceEmployeeApp extends ConsumerWidget {
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: router,
-      builder: (context, child) => OfflineBanner(
-        child: MediaQuery.withClampedTextScaling(
-          minScaleFactor: 0.9,
-          maxScaleFactor: 1.5,
-          child: child ?? const SizedBox.shrink(),
+      builder: (context, child) => AppUpdateGate(
+        child: OfflineBanner(
+          child: MediaQuery.withClampedTextScaling(
+            minScaleFactor: 0.9,
+            maxScaleFactor: 1.5,
+            child: child ?? const SizedBox.shrink(),
+          ),
         ),
       ),
     );

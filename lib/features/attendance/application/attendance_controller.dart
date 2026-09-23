@@ -27,9 +27,6 @@ final officeContextProvider = FutureProvider<OfficeContext>((ref) async {
     throw StateError('Not authenticated');
   }
   final office = await ref.watch(attendanceRepositoryProvider).officeContext();
-  if (office.assigned && office.latitude != null && office.longitude != null) {
-    ref.read(locationServiceProvider).setMockAnchor(office.latitude!, office.longitude!);
-  }
   return office;
 });
 
@@ -54,6 +51,12 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     final currentState = state.value ?? const AttendanceState();
     state = AsyncData(AttendanceState(timesheet: currentState.timesheet, loading: true));
     try {
+      final office = await _repository.officeContext();
+      if (!office.locationRequired) {
+        final preview = await _repository.preview();
+        state = AsyncData(AttendanceState(timesheet: currentState.timesheet));
+        return CheckInAttempt(preview: preview);
+      }
       final location = (await _locationService.captureForAction()).withFreshCapturedAt();
       final preview = await _repository.preview(location);
       state = AsyncData(AttendanceState(timesheet: currentState.timesheet));
@@ -73,10 +76,13 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     final currentState = state.value ?? const AttendanceState();
     state = AsyncData(AttendanceState(timesheet: currentState.timesheet, loading: true));
     try {
-      final age = DateTime.now().toUtc().difference(attempt.location.capturedAt);
-      final location = age.inMinutes >= 4
-          ? (await _locationService.captureForAction()).withFreshCapturedAt()
-          : attempt.location.withFreshCapturedAt();
+      AttendanceLocation? location = attempt.location;
+      if (location != null) {
+        final age = DateTime.now().toUtc().difference(location.capturedAt);
+        location = age.inMinutes >= 4
+            ? (await _locationService.captureForAction()).withFreshCapturedAt()
+            : location.withFreshCapturedAt();
+      }
       final result = await _repository.checkIn(
         location: location,
         idempotencyKey: _uuid.v4(),
@@ -84,7 +90,8 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
         lateReasonDescription: lateReasonDescription,
         photoUrl: photoUrl,
       );
-      state = AsyncData(AttendanceState(timesheet: result));
+      final current = await _repository.current();
+      state = AsyncData(AttendanceState(timesheet: current));
       return result;
     } catch (error) {
       state = AsyncData(AttendanceState(timesheet: currentState.timesheet, error: error.toString()));
@@ -92,24 +99,31 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     }
   }
 
-  Future<Timesheet> checkOut(
-    String workDescription, {
+  Future<Timesheet> checkOut({
+    String? workDescription,
     String? photoUrl,
     AttendanceLocation? location,
   }) async {
     final currentState = state.value ?? const AttendanceState();
     state = AsyncData(AttendanceState(timesheet: currentState.timesheet, loading: true));
     try {
-      final fix = location != null
-          ? location.withFreshCapturedAt()
-          : (await _locationService.captureForAction()).withFreshCapturedAt();
+      final office = await _repository.officeContext();
+      final AttendanceLocation? fix;
+      if (office.locationRequired) {
+        fix = location != null
+            ? location.withFreshCapturedAt()
+            : (await _locationService.captureForAction()).withFreshCapturedAt();
+      } else {
+        fix = null;
+      }
       final result = await _repository.checkOut(
         location: fix,
         idempotencyKey: _uuid.v4(),
         workDescription: workDescription,
         photoUrl: photoUrl,
       );
-      state = AsyncData(AttendanceState(timesheet: result));
+      final current = await _repository.current();
+      state = AsyncData(AttendanceState(timesheet: current));
       return result;
     } catch (error) {
       state = AsyncData(AttendanceState(timesheet: currentState.timesheet, error: error.toString()));
@@ -118,11 +132,7 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
   }
 
   Future<OfficeContext> latestOfficeContext() async {
-    final office = await _repository.officeContext();
-    if (office.assigned && office.latitude != null && office.longitude != null) {
-      ref.read(locationServiceProvider).setMockAnchor(office.latitude!, office.longitude!);
-    }
-    return office;
+    return _repository.officeContext();
   }
 
   Future<void> refresh() async {
@@ -141,7 +151,7 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
 }
 
 class CheckInAttempt {
-  const CheckInAttempt({required this.location, required this.preview});
-  final AttendanceLocation location;
+  const CheckInAttempt({this.location, required this.preview});
+  final AttendanceLocation? location;
   final CheckInPreview preview;
 }

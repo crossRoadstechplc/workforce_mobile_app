@@ -9,6 +9,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../application/notification_controller.dart';
 import '../data/notification_models.dart';
+import '../notification_navigation.dart';
 
 class NotificationsPage extends ConsumerWidget {
   const NotificationsPage({super.key});
@@ -49,17 +50,21 @@ class NotificationsPage extends ConsumerWidget {
                   separatorBuilder: (context, index) => const SizedBox(height: 8),
                   itemBuilder: (context, i) => _Tile(
                     item: data.items[i],
-                    onTap: () {
+                    onTap: () async {
                       final item = data.items[i];
-                      ref.read(notificationControllerProvider.notifier).markRead(item.id);
-                      if (item.relatedEntityType == 'Evaluation' && item.relatedEntityId != null) {
-                        context.push('/evaluations/${item.relatedEntityId}');
+                      await ref.read(notificationControllerProvider.notifier).markRead(item.id);
+                      if (!context.mounted) return;
+                      final route = notificationRoute(item);
+                      if (route == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.notificationNoLinkedScreen)),
+                        );
+                        return;
                       }
-                      if (item.relatedEntityType == 'MeetingBooking') {
-                        context.go('/meetings');
-                      }
-                      if (item.relatedEntityType == 'ChatConversation' && item.relatedEntityId != null) {
-                        context.push('/chat/${item.relatedEntityId}');
+                      if (route.startsWith('/evaluations/') || route.startsWith('/chat/')) {
+                        context.push(route);
+                      } else {
+                        context.go(route);
                       }
                     },
                   ),
@@ -75,18 +80,19 @@ class _Tile extends StatelessWidget {
   const _Tile({required this.item, required this.onTap});
 
   final AppNotification item;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
 
     return Material(
       color: item.isRead ? colors.surface : colors.primary.withValues(alpha: 0.06),
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
-        onTap: onTap,
+        onTap: () => onTap(),
         borderRadius: BorderRadius.circular(14),
         child: Padding(
           padding: const EdgeInsets.all(14),
@@ -122,9 +128,18 @@ class _Tile extends StatelessWidget {
                       item.message,
                       style: TextStyle(color: colors.textSecondary, height: 1.4),
                     ),
+                    if (notificationIsActionable(item)) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        l10n.notificationTapToOpen,
+                        style: TextStyle(fontSize: 12, color: colors.primary, fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ],
                 ),
               ),
+              if (notificationIsActionable(item))
+                Icon(Icons.chevron_right_rounded, color: colors.textSecondary),
               if (!item.isRead)
                 Padding(
                   padding: const EdgeInsets.only(left: 8, top: 4),

@@ -10,6 +10,7 @@ class AppPreferences {
 
   static const _localeKey = 'app_locale';
   static const _themeKey = 'app_theme';
+  static const _dismissedUpdatePrefix = 'dismissed_app_update_';
 
   final SharedPreferences _prefs;
 
@@ -25,4 +26,12 @@ class AppPreferences {
   String? get themeMode => _prefs.getString(_themeKey);
 
   Future<void> setThemeMode(String mode) => _prefs.setString(_themeKey, mode);
+
+  bool isUpdateDismissed(String remoteVersion) {
+    return _prefs.getBool('$_dismissedUpdatePrefix$remoteVersion') ?? false;
+  }
+
+  Future<void> setUpdateDismissed(String remoteVersion) {
+    return _prefs.setBool('$_dismissedUpdatePrefix$remoteVersion', true);
+  }
 }

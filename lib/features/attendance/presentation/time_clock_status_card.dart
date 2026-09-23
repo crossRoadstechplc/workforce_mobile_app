@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -16,10 +17,13 @@ class TimeClockStatusCard extends StatelessWidget {
     required this.now,
     required this.zoneStatus,
     required this.distanceMeters,
+    this.locationAccess = LocationAccess.granted,
     this.locating = false,
+    this.skipLocation = false,
     this.unreadNotifications = 0,
     this.onOpenNotifications,
     this.onLocationBannerTap,
+    this.recommendedWorkMinutes = 0,
   });
 
   final OfficeContext office;
@@ -28,10 +32,13 @@ class TimeClockStatusCard extends StatelessWidget {
   final DateTime now;
   final LocationZoneStatus zoneStatus;
   final double? distanceMeters;
+  final LocationAccess locationAccess;
   final bool locating;
+  final bool skipLocation;
   final int unreadNotifications;
   final VoidCallback? onOpenNotifications;
   final VoidCallback? onLocationBannerTap;
+  final int recommendedWorkMinutes;
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +101,16 @@ class TimeClockStatusCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             _StatusLine(open: open, completed: completed, carriedOver: carriedOver, timesheet: timesheet),
+            if (timesheet != null || recommendedWorkMinutes > 0) ...[
+              const SizedBox(height: 8),
+              _WorkedSummary(
+                timesheet: timesheet,
+                open: open,
+                elapsed: elapsed,
+                l10n: l10n,
+                recommendedWorkMinutes: recommendedWorkMinutes,
+              ),
+            ],
             if (carriedOver) ...[
               const SizedBox(height: 8),
               Text(
@@ -105,8 +122,10 @@ class TimeClockStatusCard extends StatelessWidget {
             _LocationBanner(
               officeName: office.name ?? '',
               zoneStatus: zoneStatus,
+              locationAccess: locationAccess,
               locating: locating,
               distanceMeters: distanceMeters,
+              skipLocation: skipLocation,
               detail: _locationDetail(l10n, locale, open: open, completed: completed, carriedOver: carriedOver),
               onTap: onLocationBannerTap,
             ),
@@ -123,7 +142,7 @@ class TimeClockStatusCard extends StatelessWidget {
     required bool carriedOver,
   }) {
     if (carriedOver) return l10n.openShiftPending;
-    if (open) return l10n.shiftInProgress;
+    if (open) return l10n.readyToCheckOut;
     if (completed) return l10n.shiftComplete;
     return l10n.readyToCheckIn;
   }
@@ -166,34 +185,72 @@ class _LocationBanner extends StatelessWidget {
   const _LocationBanner({
     required this.officeName,
     required this.zoneStatus,
+    required this.locationAccess,
     required this.locating,
     required this.distanceMeters,
     this.detail,
+    this.skipLocation = false,
     this.onTap,
   });
 
   final String officeName;
   final LocationZoneStatus zoneStatus;
+  final LocationAccess locationAccess;
   final bool locating;
   final double? distanceMeters;
   final String? detail;
+  final bool skipLocation;
   final VoidCallback? onTap;
+
+  String? _permissionHint(AppLocalizations l10n) {
+    if (skipLocation) return null;
+    return switch (locationAccess) {
+      LocationAccess.permissionRequired => kIsWeb
+          ? '${l10n.locationPermissionHint}\n${l10n.locationPermissionWebHint}'
+          : l10n.locationPermissionHint,
+      LocationAccess.permissionDeniedForever =>
+        kIsWeb ? l10n.locationPermissionWebHint : l10n.locationPermissionBlockedHint,
+      LocationAccess.servicesDisabled => l10n.locationServicesOffHint,
+      _ => null,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final l10n = context.l10n;
+    final permissionHint = _permissionHint(l10n);
+    final needsPermission = permissionHint != null;
 
-    final (Color tone, Color bg, IconData icon, String label) = switch (zoneStatus) {
-      LocationZoneStatus.inside => (colors.success, colors.successBg, Icons.verified_rounded, l10n.authorizedLocation),
-      LocationZoneStatus.outside => (colors.warning, colors.warningBg, Icons.location_off_rounded, l10n.outsideAuthorized),
-      LocationZoneStatus.unknown => (
-          colors.textSecondary,
-          colors.muted,
-          locating ? Icons.my_location_rounded : Icons.location_disabled_rounded,
-          locating ? l10n.locatingLocation : l10n.locationUnavailable,
-        ),
-    };
+    final (Color tone, Color bg, IconData icon, String label) = skipLocation
+        ? (colors.success, colors.successBg, Icons.desktop_windows_rounded, l10n.companyPcLocation)
+        : needsPermission
+            ? (
+                colors.primary,
+                colors.primary.withValues(alpha: 0.12),
+                Icons.location_searching_rounded,
+                l10n.locationTapToAllow,
+              )
+            : switch (zoneStatus) {
+                LocationZoneStatus.inside => (
+                    colors.success,
+                    colors.successBg,
+                    Icons.verified_rounded,
+                    l10n.authorizedLocation,
+                  ),
+                LocationZoneStatus.outside => (
+                    colors.warning,
+                    colors.warningBg,
+                    Icons.location_off_rounded,
+                    l10n.outsideAuthorized,
+                  ),
+                LocationZoneStatus.unknown => (
+                    colors.textSecondary,
+                    colors.muted,
+                    locating ? Icons.my_location_rounded : Icons.location_disabled_rounded,
+                    locating ? l10n.locatingLocation : l10n.locationUnavailable,
+                  ),
+              };
 
     return Material(
       color: Colors.transparent,
@@ -205,6 +262,7 @@ class _LocationBanner extends StatelessWidget {
           decoration: BoxDecoration(
             color: bg,
             borderRadius: BorderRadius.circular(14),
+            border: needsPermission ? Border.all(color: tone.withValues(alpha: 0.35)) : null,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,23 +281,118 @@ class _LocationBanner extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.textPrimary),
                     ),
-                    if (zoneStatus == LocationZoneStatus.outside && distanceMeters != null)
+                    if (permissionHint != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          permissionHint,
+                          style: TextStyle(fontSize: 12, color: colors.textSecondary, height: 1.35),
+                        ),
+                      )
+                    else if (!skipLocation && zoneStatus == LocationZoneStatus.outside && distanceMeters != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(l10n.metersAway(distanceMeters!.round()), style: TextStyle(fontSize: 12, color: tone)),
+                      )
+                    else if (skipLocation)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          detail ?? l10n.locationNotRequired,
+                          style: TextStyle(fontSize: 12, color: colors.textSecondary),
+                        ),
                       )
                     else if (detail != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(detail!, style: TextStyle(fontSize: 12, color: colors.textSecondary)),
+                      )
+                    else if (!skipLocation &&
+                        zoneStatus == LocationZoneStatus.unknown &&
+                        !locating &&
+                        onTap != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          l10n.locationTapToAllow,
+                          style: TextStyle(fontSize: 12, color: colors.textSecondary, height: 1.35),
+                        ),
                       ),
                   ],
                 ),
               ),
+              if (onTap != null) Icon(Icons.chevron_right_rounded, size: 20, color: tone),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _WorkedSummary extends StatelessWidget {
+  const _WorkedSummary({
+    required this.timesheet,
+    required this.open,
+    required this.elapsed,
+    required this.l10n,
+    required this.recommendedWorkMinutes,
+  });
+  final Timesheet? timesheet;
+  final bool open;
+  final Duration elapsed;
+  final AppLocalizations l10n;
+  final int recommendedWorkMinutes;
+
+  int get _scheduledMinutes {
+    final start = timesheet?.scheduledCheckIn;
+    final end = timesheet?.scheduledCheckOut;
+    if (start != null && end != null) {
+      return end.difference(start).inMinutes.clamp(0, 24 * 60);
+    }
+    return recommendedWorkMinutes;
+  }
+
+  String _fmtMinutes(int minutes) {
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+    if (h > 0 && m > 0) return '${h}h ${m}m';
+    if (h > 0) return '${h}h';
+    return '${m}m';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final worked = timesheet == null ? 0 : (open ? elapsed.inMinutes : timesheet!.workedMinutes);
+    final scheduled = _scheduledMinutes;
+    if (scheduled <= 0 && worked <= 0) return const SizedBox.shrink();
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      children: [
+        if (timesheet != null) _Chip(label: l10n.timeClockWorked(_fmtMinutes(worked)), colors: colors),
+        if (scheduled > 0) _Chip(label: l10n.timeClockScheduled(_fmtMinutes(scheduled)), colors: colors),
+      ],
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  const _Chip({required this.label, required this.colors});
+  final String label;
+  final AppColorsExtension colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: colors.muted,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colors.textSecondary)),
     );
   }
 }

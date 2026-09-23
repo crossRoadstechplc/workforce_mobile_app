@@ -29,7 +29,9 @@ class TimesheetHistoryItem {
     this.isLate = false,
     this.isMissingCheckout = false,
     this.hasWorksheet = false,
+    this.worksheetId,
     this.correctnessStatus,
+    this.checkOutSource,
   });
 
   final String id;
@@ -44,7 +46,18 @@ class TimesheetHistoryItem {
   final bool isLate;
   final bool isMissingCheckout;
   final bool hasWorksheet;
+  final String? worksheetId;
   final String? correctnessStatus;
+  final String? checkOutSource;
+
+  String? get checkOutSourceLabel {
+    return switch (checkOutSource) {
+      'EMPLOYEE' => 'You checked out',
+      'SYSTEM' => 'Automatic checkout',
+      'ADMIN' => 'Corrected by admin',
+      _ => null,
+    };
+  }
 
   factory TimesheetHistoryItem.fromJson(Map<String, dynamic> json) => TimesheetHistoryItem(
         id: json['id'] as String,
@@ -59,8 +72,24 @@ class TimesheetHistoryItem {
         isLate: json['isLate'] as bool? ?? ((json['lateMinutes'] as num?)?.toInt() ?? 0) > 0,
         isMissingCheckout: json['isMissingCheckout'] as bool? ?? false,
         hasWorksheet: json['worksheet'] != null,
+        worksheetId: (json['worksheet'] is Map<String, dynamic>)
+            ? (json['worksheet'] as Map<String, dynamic>)['id']?.toString()
+            : null,
         correctnessStatus: json['correctnessStatus'] as String?,
+        checkOutSource: json['checkOutSource']?.toString(),
       );
+
+  bool get isClosed {
+    final s = status.toUpperCase();
+    return actualCheckOut != null ||
+        s.startsWith('COMPLETED') ||
+        s == 'MISSING_CHECKOUT';
+  }
+
+  bool get hasCheckedIn => actualCheckIn != null;
+
+  bool get canAddWorksheet =>
+      hasCheckedIn && !hasWorksheet && (worksheetId == null || worksheetId!.isEmpty);
 }
 
 class WorksheetHistoryItem {

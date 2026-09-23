@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,9 +15,11 @@ import '../features/evaluation/presentation/evaluations_list_page.dart';
 import '../features/evaluation/presentation/evaluation_form_page.dart';
 import '../features/notifications/presentation/notifications_page.dart';
 import '../features/profile/presentation/profile_page.dart';
+import '../features/settings/presentation/settings_page.dart';
 import '../features/chat/presentation/chat_list_page.dart';
 import '../features/chat/presentation/chat_thread_page.dart';
 import '../features/chat/presentation/new_chat_page.dart';
+import 'deep_links.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -31,16 +33,21 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.listen<SessionState>(sessionControllerProvider, (_, __) => refresh.ping());
   ref.onDispose(refresh.dispose);
 
-  return GoRouter(
+  final router = GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: '/splash',
     refreshListenable: refresh,
     redirect: (context, state) {
       final session = ref.read(sessionControllerProvider);
       final path = state.uri.path;
+      final loginQuery = state.uri.queryParameters['email'] ?? state.uri.queryParameters['login'];
+      final loginTarget = loginQuery == null || loginQuery.isEmpty
+          ? '/login'
+          : '/login?email=${Uri.encodeQueryComponent(loginQuery)}';
       return switch (session.status) {
-        SessionStatus.checking => path == '/splash' ? null : '/splash',
-        SessionStatus.unauthenticated => path == '/login' ? null : '/login',
+        // Keep /login reachable during bootstrap so invite deep links are not dropped.
+        SessionStatus.checking => path == '/splash' || path == '/login' ? null : '/splash',
+        SessionStatus.unauthenticated => path == '/login' ? null : loginTarget,
         SessionStatus.selectContext => path == '/login' ? null : '/login',
         SessionStatus.mustChangePassword =>
           path == '/change-password' ? null : '/change-password',
@@ -52,7 +59,13 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/splash', builder: (_, __) => const SplashPage()),
-      GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+      GoRoute(
+        path: '/login',
+        builder: (_, state) {
+          final email = state.uri.queryParameters['email'] ?? state.uri.queryParameters['login'];
+          return LoginPage(initialLogin: email);
+        },
+      ),
       GoRoute(path: '/change-password', builder: (_, __) => const ChangePasswordPage()),
       ShellRoute(
         navigatorKey: shellNavigatorKey,
@@ -84,9 +97,26 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (_, state) => EvaluationFormPage(id: state.pathParameters['id']!),
           ),
           GoRoute(path: '/profile', builder: (_, __) => const ProfilePage()),
+          GoRoute(path: '/settings', builder: (_, __) => const SettingsPage()),
           GoRoute(path: '/notifications', builder: (_, __) => const NotificationsPage()),
         ],
       ),
     ],
   );
+
+  if (employeeDeepLinksSupported) {
+    final appLinks = AppLinks();
+    void open(Uri uri) {
+      final location = employeeDeepLinkLocation(uri);
+      if (location != null) router.go(location);
+    }
+
+    appLinks.getInitialLink().then((uri) {
+      if (uri != null) open(uri);
+    });
+    final sub = appLinks.uriLinkStream.listen(open);
+    ref.onDispose(sub.cancel);
+  }
+
+  return router;
 });
