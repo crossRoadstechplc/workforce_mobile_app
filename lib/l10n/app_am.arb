@@ -280,8 +280,27 @@
   "pickRoom": "ክፍል ይምረጡ",
   "confirmCancelMeeting": "ይህን ቦታ ማስያዝ ይሰረዝ?",
   "newChat": "አዲስ ውይይት",
+  "newGroupChat": "አዲስ ቡድን",
+  "createGroup": "ፍጠር",
+  "groupName": "የቡድን ስም",
+  "groupNameHint": "ለምሳሌ የስራ ቡድን",
+  "groupNameRequired": "የቡድን ስም ያስገቡ።",
+  "groupMembersRequired": "ቢያንስ አንድ ባልደረባ ይጋብዙ።",
+  "groupSelectedCount": "{count} ተመርጠዋል",
+  "@groupSelectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "chatTabPersonal": "ግል",
+  "chatTabGroup": "ቡድን",
+  "chatTabAdmin": "አስተዳዳሪ",
   "noChatsYet": "እስካሁን ውይይት የለም።",
   "noChatsHint": "ከስራ ባልደረባ ጋር የግል ውይይት ይጀምሩ።",
+  "noGroupChatsYet": "እስካሁን የቡድን ውይይት የለም።",
+  "noGroupChatsHint": "ቡድን ይፍጠሩ እና ባልደረቦችን ይጋብዙ።",
+  "noAdminChatsYet": "እስካሁን ከአስተዳዳሪ ውይይት የለም።",
+  "noAdminChatsHint": "አስተዳዳሪ ሲልክልዎት እዚህ ይታያል።",
   "searchColleagues": "ባልደረቦችን ፈልግ",
   "noColleaguesFound": "ባልደረባ አልተገኘም።",
   "noMessagesYet": "መልእክት የለም",

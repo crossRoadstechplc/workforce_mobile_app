@@ -936,10 +936,54 @@ class AppLocalizationsAm extends AppLocalizations {
   String get newChat => 'አዲስ ውይይት';
 
   @override
+  String get newGroupChat => 'አዲስ ቡድን';
+
+  @override
+  String get createGroup => 'ፍጠር';
+
+  @override
+  String get groupName => 'የቡድን ስም';
+
+  @override
+  String get groupNameHint => 'ለምሳሌ የስራ ቡድን';
+
+  @override
+  String get groupNameRequired => 'የቡድን ስም ያስገቡ።';
+
+  @override
+  String get groupMembersRequired => 'ቢያንስ አንድ ባልደረባ ይጋብዙ።';
+
+  @override
+  String groupSelectedCount(int count) {
+    return '$count ተመርጠዋል';
+  }
+
+  @override
+  String get chatTabPersonal => 'ግል';
+
+  @override
+  String get chatTabGroup => 'ቡድን';
+
+  @override
+  String get chatTabAdmin => 'አስተዳዳሪ';
+
+  @override
   String get noChatsYet => 'እስካሁን ውይይት የለም።';
 
   @override
   String get noChatsHint => 'ከስራ ባልደረባ ጋር የግል ውይይት ይጀምሩ።';
+
+  @override
+  String get noGroupChatsYet => 'እስካሁን የቡድን ውይይት የለም።';
+
+  @override
+  String get noGroupChatsHint => 'ቡድን ይፍጠሩ እና ባልደረቦችን ይጋብዙ።';
+
+  @override
+  String get noAdminChatsYet => 'እስካሁን ከአስተዳዳሪ ውይይት የለም።';
+
+  @override
+  String get noAdminChatsHint => 'አስተዳዳሪ ሲልክልዎት እዚህ ይታያል።';
 
   @override
   String get searchColleagues => 'ባልደረቦችን ፈልግ';

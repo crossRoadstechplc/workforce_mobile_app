@@ -25,11 +25,15 @@ class ChatRepository {
     }
   }
 
-  Future<ChatListData> conversations() async {
+  Future<ChatListData> conversations({String? type}) async {
     try {
       final r = await _dio.get<Map<String, dynamic>>(
         ApiEndpoints.chatConversations,
-        queryParameters: {'page': 1, 'pageSize': 50},
+        queryParameters: {
+          'page': 1,
+          'pageSize': 100,
+          if (type != null) 'type': type,
+        },
       );
       final data = r.data?['data'] as Map<String, dynamic>? ?? const {};
       final list = data['items'] as List<dynamic>? ?? const [];
@@ -47,6 +51,36 @@ class ChatRepository {
       final r = await _dio.post<Map<String, dynamic>>(
         ApiEndpoints.chatConversations,
         data: {'userId': userId},
+      );
+      return ChatConversation.fromJson(r.data!['data'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<ChatConversation> createGroup({
+    required String name,
+    required List<String> memberUserIds,
+  }) async {
+    try {
+      final r = await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.chatGroups,
+        data: {
+          'name': name,
+          'memberUserIds': memberUserIds,
+        },
+      );
+      return ChatConversation.fromJson(r.data!['data'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<ChatConversation> addGroupMembers(String conversationId, List<String> memberUserIds) async {
+    try {
+      final r = await _dio.post<Map<String, dynamic>>(
+        '${ApiEndpoints.chatGroups}/$conversationId/members',
+        data: {'memberUserIds': memberUserIds},
       );
       return ChatConversation.fromJson(r.data!['data'] as Map<String, dynamic>);
     } on DioException catch (e) {

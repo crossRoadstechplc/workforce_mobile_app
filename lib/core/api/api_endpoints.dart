@@ -40,6 +40,7 @@ class ApiEndpoints {
 
   static const chatColleagues = '/chat/colleagues';
   static const chatConversations = '/chat/conversations';
+  static const chatGroups = '/chat/groups';
 
   static const taskTrackerSessionExchange = '/task-tracker/session/exchange';
 

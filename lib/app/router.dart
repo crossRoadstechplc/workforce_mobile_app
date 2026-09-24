@@ -19,6 +19,7 @@ import '../features/settings/presentation/settings_page.dart';
 import '../features/chat/presentation/chat_list_page.dart';
 import '../features/chat/presentation/chat_thread_page.dart';
 import '../features/chat/presentation/new_chat_page.dart';
+import '../features/chat/presentation/new_group_chat_page.dart';
 import 'deep_links.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -83,6 +84,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'new',
                 parentNavigatorKey: rootNavigatorKey,
                 builder: (_, __) => const NewChatPage(),
+              ),
+              GoRoute(
+                path: 'new-group',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, __) => const NewGroupChatPage(),
               ),
               GoRoute(
                 path: ':id',

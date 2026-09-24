@@ -448,8 +448,27 @@
   "pickRoom": "Select a room",
   "confirmCancelMeeting": "Cancel this booking?",
   "newChat": "New chat",
+  "newGroupChat": "New group",
+  "createGroup": "Create",
+  "groupName": "Group name",
+  "groupNameHint": "e.g. Ops team",
+  "groupNameRequired": "Enter a group name.",
+  "groupMembersRequired": "Invite at least one colleague.",
+  "groupSelectedCount": "{count} selected",
+  "@groupSelectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "chatTabPersonal": "Personal",
+  "chatTabGroup": "Group",
+  "chatTabAdmin": "Admin",
   "noChatsYet": "No conversations yet.",
   "noChatsHint": "Start a private chat with a colleague.",
+  "noGroupChatsYet": "No group chats yet.",
+  "noGroupChatsHint": "Create a group and invite colleagues.",
+  "noAdminChatsYet": "No admin chats yet.",
+  "noAdminChatsHint": "When an administrator messages you, it will show here.",
   "searchColleagues": "Search colleagues",
   "noColleaguesFound": "No colleagues found.",
   "noMessagesYet": "No messages yet",

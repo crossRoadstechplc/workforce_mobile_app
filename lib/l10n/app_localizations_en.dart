@@ -953,10 +953,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newChat => 'New chat';
 
   @override
+  String get newGroupChat => 'New group';
+
+  @override
+  String get createGroup => 'Create';
+
+  @override
+  String get groupName => 'Group name';
+
+  @override
+  String get groupNameHint => 'e.g. Ops team';
+
+  @override
+  String get groupNameRequired => 'Enter a group name.';
+
+  @override
+  String get groupMembersRequired => 'Invite at least one colleague.';
+
+  @override
+  String groupSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get chatTabPersonal => 'Personal';
+
+  @override
+  String get chatTabGroup => 'Group';
+
+  @override
+  String get chatTabAdmin => 'Admin';
+
+  @override
   String get noChatsYet => 'No conversations yet.';
 
   @override
   String get noChatsHint => 'Start a private chat with a colleague.';
+
+  @override
+  String get noGroupChatsYet => 'No group chats yet.';
+
+  @override
+  String get noGroupChatsHint => 'Create a group and invite colleagues.';
+
+  @override
+  String get noAdminChatsYet => 'No admin chats yet.';
+
+  @override
+  String get noAdminChatsHint =>
+      'When an administrator messages you, it will show here.';
 
   @override
   String get searchColleagues => 'Search colleagues';

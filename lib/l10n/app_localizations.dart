@@ -1760,6 +1760,66 @@ abstract class AppLocalizations {
   /// **'New chat'**
   String get newChat;
 
+  /// No description provided for @newGroupChat.
+  ///
+  /// In en, this message translates to:
+  /// **'New group'**
+  String get newGroupChat;
+
+  /// No description provided for @createGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get createGroup;
+
+  /// No description provided for @groupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name'**
+  String get groupName;
+
+  /// No description provided for @groupNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Ops team'**
+  String get groupNameHint;
+
+  /// No description provided for @groupNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a group name.'**
+  String get groupNameRequired;
+
+  /// No description provided for @groupMembersRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite at least one colleague.'**
+  String get groupMembersRequired;
+
+  /// No description provided for @groupSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String groupSelectedCount(int count);
+
+  /// No description provided for @chatTabPersonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal'**
+  String get chatTabPersonal;
+
+  /// No description provided for @chatTabGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get chatTabGroup;
+
+  /// No description provided for @chatTabAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get chatTabAdmin;
+
   /// No description provided for @noChatsYet.
   ///
   /// In en, this message translates to:
@@ -1771,6 +1831,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start a private chat with a colleague.'**
   String get noChatsHint;
+
+  /// No description provided for @noGroupChatsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No group chats yet.'**
+  String get noGroupChatsYet;
+
+  /// No description provided for @noGroupChatsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a group and invite colleagues.'**
+  String get noGroupChatsHint;
+
+  /// No description provided for @noAdminChatsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No admin chats yet.'**
+  String get noAdminChatsYet;
+
+  /// No description provided for @noAdminChatsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When an administrator messages you, it will show here.'**
+  String get noAdminChatsHint;
 
   /// No description provided for @searchColleagues.
   ///

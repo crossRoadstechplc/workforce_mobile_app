@@ -31,6 +31,8 @@ class ChatListController extends AsyncNotifier<ChatListData> {
   }
 
   void _handleEvent(SocketEvent event) {
-    if (event.name == 'chat.message.created') refresh();
+    if (event.name == 'chat.message.created' || event.name == 'chat.conversation.updated') {
+      refresh();
+    }
   }
 }
