@@ -22,6 +22,14 @@ String? notificationRoute(AppNotification item) {
     return '/leave';
   }
 
+  if (type == 'HOLIDAY_ANNOUNCED' || entity == 'OrganizationHoliday') {
+    return '/home';
+  }
+
+  if (type == 'BIRTHDAY_WISH') {
+    return '/home';
+  }
+
   if (entity == 'AttendanceCorrectnessRequest' || type.contains('ATTENDANCE_CORRECTNESS')) {
     return '/leave';
   }

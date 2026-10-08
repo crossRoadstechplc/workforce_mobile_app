@@ -84,7 +84,7 @@ class _LateReasonSheetState extends State<_LateReasonSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              l10n.lateCheckInTitle(widget.lateMinutes),
+              l10n.lateCheckInTitle(formatDurationMinutes(context, widget.lateMinutes)),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),

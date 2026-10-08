@@ -8,6 +8,7 @@ import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/status_chip.dart';
+import '../../leave/presentation/attendance_correction_sheet.dart';
 import '../application/history_controller.dart';
 import '../data/history_models.dart';
 import '../history_date_utils.dart';
@@ -121,10 +122,13 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with SingleTickerProv
                       ref.read(historyControllerProvider.notifier).prefetchEarlier(month);
                     },
                     hasData: _tab.index == 0
-                        ? (day) => data.timesheets.any((e) => isSameCalendarDay(e.workDate, day))
+                        ? (day) =>
+                            data.timesheets.any((e) => isSameCalendarDay(e.workDate, day)) ||
+                            data.holidayForDay(day) != null
                         : (day) =>
                             data.worksheets.any((e) => isSameCalendarDay(e.workDate, day)) ||
-                            data.timesheets.any((e) => isSameCalendarDay(e.workDate, day) && e.hasCheckedIn),
+                            data.timesheets.any((e) => isSameCalendarDay(e.workDate, day) && e.hasCheckedIn) ||
+                            data.holidayForDay(day) != null,
                   ),
                   Expanded(
                     child: TabBarView(
@@ -170,6 +174,7 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
   bool _canRequest(DateTime day) {
     final today = normalizeDate(DateTime.now());
     if (!day.isBefore(today)) return false;
+    if (widget.data.holidayForDay(day) != null) return false;
     final status = widget.data.correctnessForDay(day);
     if (status != null && status != 'REJECTED') return false;
     final sheet = widget.data.timesheets.where((e) => isSameCalendarDay(e.workDate, day)).firstOrNull;
@@ -184,13 +189,30 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
   }
 
   Future<void> _submitRequests() async {
-    final dates = (_pickingDates ? _requestDates : {normalizeDate(widget.selectedDay)})
-        .where(_canRequest)
-        .map(_dateKey)
-        .toList();
-    if (dates.isEmpty) return;
+    final initialDates = (_pickingDates ? _requestDates : {normalizeDate(widget.selectedDay)}).where(_canRequest).map(_dateKey).toList()
+      ..sort();
+    if (initialDates.isEmpty) return;
+    final blocked = <String>{};
+    for (final item in widget.data.timesheets) {
+      final status = item.correctnessStatus;
+      if (status == 'PENDING' || status == 'APPROVED') {
+        blocked.add(_dateKey(item.workDate));
+      }
+    }
+    for (final entry in widget.data.correctnessByDate.entries) {
+      if (entry.value == 'PENDING' || entry.value == 'APPROVED') blocked.add(entry.key);
+    }
+    final draft = await showAttendanceCorrectionSheet(
+      context,
+      blockedDateKeys: blocked.difference(initialDates.toSet()),
+      initialDates: initialDates,
+    );
+    if (draft == null) return;
     try {
-      await ref.read(historyControllerProvider.notifier).submitCorrectnessRequests(dates);
+      await ref.read(historyControllerProvider.notifier).submitCorrectnessRequests(
+            days: draft.days.map((d) => d.toJson()).toList(),
+            note: draft.note,
+          );
       if (mounted) {
         setState(() {
           _pickingDates = false;
@@ -210,6 +232,7 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
     final selected = widget.data.timesheets.where((e) => isSameCalendarDay(e.workDate, widget.selectedDay)).firstOrNull;
+    final holiday = widget.data.holidayForDay(widget.selectedDay);
     final correctness = widget.data.correctnessForDay(widget.selectedDay);
     final canRequest = _canRequest(normalizeDate(widget.selectedDay));
 
@@ -223,6 +246,29 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.appColors.textSecondary),
           ),
           const SizedBox(height: 12),
+          if (holiday != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const StatusChip(label: 'Holiday', kind: StatusKind.neutral),
+                    const SizedBox(height: 8),
+                    Text(holiday.nameEn, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                    if (holiday.nameAm != null && holiday.nameAm!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(holiday.nameAm!, style: TextStyle(color: context.appColors.textSecondary)),
+                    ],
+                    const SizedBox(height: 8),
+                    Text(
+                      'No work on this day.',
+                      style: TextStyle(color: context.appColors.textSecondary, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           if (correctness != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -235,7 +281,7 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
                         : StatusKind.error,
               ),
             ),
-          if (canRequest && (correctness == null || correctness == 'REJECTED')) ...[
+          if (canRequest && holiday == null && (correctness == null || correctness == 'REJECTED')) ...[
             Row(
               children: [
                 Expanded(
@@ -291,7 +337,9 @@ class _TimesheetDayViewState extends ConsumerState<_TimesheetDayView> {
               const SizedBox(height: 12),
             ],
           ],
-          if (selected == null && !canRequest)
+          if (selected == null && holiday != null)
+            const SizedBox.shrink()
+          else if (selected == null && !canRequest)
             _EmptyDay(message: l10n.noTimesheetDay)
           else if (selected == null)
             _EmptyDay(message: 'No attendance recorded for this day.')
@@ -546,9 +594,9 @@ class _TimesheetCard extends StatelessWidget {
           _row(context, l10n.checkOutLabel, item.actualCheckOut == null ? l10n.dash : DateFormat('HH:mm', locale).format(item.actualCheckOut!)),
           if (item.checkOutSourceLabel != null) _row(context, 'Closed by', item.checkOutSourceLabel!),
           _row(context, l10n.worked, formatDurationMinutes(context, item.workedMinutes)),
-          _row(context, l10n.lateMinutes, l10n.lateMinutesValue(item.lateMinutes)),
-          if (item.earlyCheckoutMinutes > 0) _row(context, l10n.earlyCheckout, l10n.earlyCheckoutMinutes(item.earlyCheckoutMinutes)),
-          if (item.overtimeMinutes > 0) _row(context, l10n.overtime, l10n.overtimeMinutes(item.overtimeMinutes)),
+          _row(context, l10n.lateMinutes, formatDurationMinutes(context, item.lateMinutes)),
+          if (item.earlyCheckoutMinutes > 0) _row(context, l10n.earlyCheckout, formatDurationMinutes(context, item.earlyCheckoutMinutes)),
+          if (item.overtimeMinutes > 0) _row(context, l10n.overtime, formatDurationMinutes(context, item.overtimeMinutes)),
         ],
       ),
     );

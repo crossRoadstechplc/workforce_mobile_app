@@ -133,6 +133,9 @@ class Timesheet {
     };
   }
 
+  /// Same-day re-entry after an employee checkout (first check-in kept).
+  bool get canReCheckIn => !isOpen && checkOutSource == 'EMPLOYEE';
+
   Duration displayElapsedAt(DateTime now) {
     if (!isOpen) return Duration.zero;
     final raw = now.difference(actualCheckIn);

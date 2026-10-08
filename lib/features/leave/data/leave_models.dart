@@ -8,6 +8,61 @@ String formatLeaveDays(double value) {
   return value.toStringAsFixed(value.abs() < 10 ? 2 : 1);
 }
 
+enum LeaveDaySession {
+  full,
+  morning,
+  afternoon;
+
+  String get apiValue => switch (this) {
+        LeaveDaySession.full => 'FULL',
+        LeaveDaySession.morning => 'MORNING',
+        LeaveDaySession.afternoon => 'AFTERNOON',
+      };
+
+  double get dayMultiplier => this == LeaveDaySession.full ? 1 : 0.5;
+
+  static LeaveDaySession fromApi(Object? value) {
+    switch (value?.toString().toUpperCase()) {
+      case 'MORNING':
+        return LeaveDaySession.morning;
+      case 'AFTERNOON':
+        return LeaveDaySession.afternoon;
+      default:
+        return LeaveDaySession.full;
+    }
+  }
+}
+
+class LeaveDayDraft {
+  const LeaveDayDraft({required this.date, required this.session});
+  final DateTime date;
+  final LeaveDaySession session;
+
+  Map<String, dynamic> toJson() => {
+        'date':
+            '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
+        'session': session.apiValue,
+      };
+}
+
+class LeaveRequestDay {
+  const LeaveRequestDay({
+    required this.date,
+    required this.session,
+    required this.dayFraction,
+  });
+
+  final DateTime date;
+  final LeaveDaySession session;
+  final double dayFraction;
+
+  factory LeaveRequestDay.fromJson(Map<String, dynamic> json) => LeaveRequestDay(
+        date: DateTime.parse(json['date'] as String).toLocal(),
+        session: LeaveDaySession.fromApi(json['session']),
+        dayFraction: parseLeaveDays(json['dayFraction']),
+      );
+}
+
 class LeaveType {
   const LeaveType({required this.id, required this.name, this.description, this.code, this.tracksBalance = false});
   final String id;
@@ -36,6 +91,7 @@ class LeaveRequestItem {
     required this.status,
     this.requestedAt,
     this.decisionReason,
+    this.days = const [],
   });
   final String id;
   final String leaveTypeName;
@@ -46,6 +102,7 @@ class LeaveRequestItem {
   final String status;
   final DateTime? requestedAt;
   final String? decisionReason;
+  final List<LeaveRequestDay> days;
 
   factory LeaveRequestItem.fromJson(Map<String, dynamic> json) {
     final decisions = json['decisions'] as List<dynamic>? ?? const [];
@@ -60,6 +117,9 @@ class LeaveRequestItem {
       status: json['status']?.toString() ?? 'PENDING',
       requestedAt: json['requestedAt'] == null ? null : DateTime.parse(json['requestedAt'] as String).toLocal(),
       decisionReason: latestDecision?['decisionReason']?.toString(),
+      days: (json['days'] as List<dynamic>? ?? const [])
+          .map((e) => LeaveRequestDay.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }

@@ -7,5 +7,14 @@ extension L10nX on BuildContext {
 }
 
 String formatDurationMinutes(BuildContext context, int minutes) {
-  return '${minutes ~/ 60}h ${minutes % 60}m';
+  final total = minutes.abs();
+  if (total <= 0) return '0m';
+  final days = total ~/ 1440;
+  final hours = (total % 1440) ~/ 60;
+  final mins = total % 60;
+  final parts = <String>[];
+  if (days > 0) parts.add('${days}d');
+  if (hours > 0) parts.add('${hours}h');
+  if (mins > 0 || parts.isEmpty) parts.add('${mins}m');
+  return parts.join(' ');
 }

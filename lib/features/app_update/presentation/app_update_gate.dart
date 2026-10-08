@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../notifications/application/notification_controller.dart';
 import '../application/app_update_controller.dart';
 import 'force_update_overlay.dart';
 
@@ -30,6 +33,7 @@ class _AppUpdateGateState extends ConsumerState<AppUpdateGate> with WidgetsBindi
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       ref.read(appUpdateControllerProvider.notifier).refresh();
+      unawaited(ref.read(realtimeCoordinatorProvider.notifier).onAppResumed());
     }
   }
 

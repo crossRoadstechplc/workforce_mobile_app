@@ -440,6 +440,18 @@ abstract class AppLocalizations {
   /// **'Attendance completed'**
   String get attendanceCompleted;
 
+  /// No description provided for @checkedOutCanReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked out · You can check in again'**
+  String get checkedOutCanReturn;
+
+  /// No description provided for @readyToCheckInAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to check in again'**
+  String get readyToCheckInAgain;
+
   /// No description provided for @timeClockWorked.
   ///
   /// In en, this message translates to:
@@ -545,13 +557,13 @@ abstract class AppLocalizations {
   /// No description provided for @checkInLate.
   ///
   /// In en, this message translates to:
-  /// **'Checked in {minutes} min late. Thanks for sharing your reason — have a good {dayPart}.'**
-  String checkInLate(int minutes, String dayPart);
+  /// **'Checked in {duration} late. Thanks for sharing your reason — have a good {dayPart}.'**
+  String checkInLate(String duration, String dayPart);
 
   /// No description provided for @checkoutSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Checked out successfully — you worked {worked}.'**
+  /// **'Checked out successfully — you worked {worked}. You can check in again if you return.'**
   String checkoutSuccess(String worked);
 
   /// No description provided for @previousShiftClosed.
@@ -701,8 +713,8 @@ abstract class AppLocalizations {
   /// No description provided for @lateCheckInTitle.
   ///
   /// In en, this message translates to:
-  /// **'You are {minutes} minute(s) late'**
-  String lateCheckInTitle(int minutes);
+  /// **'You are {duration} late'**
+  String lateCheckInTitle(String duration);
 
   /// No description provided for @lateCheckInSubtitle.
   ///
@@ -1247,8 +1259,44 @@ abstract class AppLocalizations {
   /// No description provided for @leavePastDatesHint.
   ///
   /// In en, this message translates to:
-  /// **'Past dates are allowed for missing attendance days. Days are counted from your work schedule (half days count as 0.5).'**
+  /// **'Past dates are allowed for missing attendance days. Choose full or half day for each date. Non-working days are skipped automatically.'**
   String get leavePastDatesHint;
+
+  /// No description provided for @leaveDaySessionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Each day'**
+  String get leaveDaySessionsTitle;
+
+  /// No description provided for @leaveDaySessionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Full day is selected by default. Change any day to half day morning or afternoon.'**
+  String get leaveDaySessionsHint;
+
+  /// No description provided for @leaveSessionFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full day'**
+  String get leaveSessionFull;
+
+  /// No description provided for @leaveSessionMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Half · Morning'**
+  String get leaveSessionMorning;
+
+  /// No description provided for @leaveSessionAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Half · Afternoon'**
+  String get leaveSessionAfternoon;
+
+  /// No description provided for @leaveEstimatedDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated total: {days} day(s)'**
+  String leaveEstimatedDays(String days);
 
   /// No description provided for @cancelRequest.
   ///
@@ -1349,20 +1397,20 @@ abstract class AppLocalizations {
   /// No description provided for @lateMinutesValue.
   ///
   /// In en, this message translates to:
-  /// **'{minutes} min'**
-  String lateMinutesValue(int minutes);
+  /// **'{duration}'**
+  String lateMinutesValue(String duration);
 
   /// No description provided for @earlyCheckoutMinutes.
   ///
   /// In en, this message translates to:
-  /// **'{minutes} min'**
-  String earlyCheckoutMinutes(int minutes);
+  /// **'{duration}'**
+  String earlyCheckoutMinutes(String duration);
 
   /// No description provided for @overtimeMinutes.
   ///
   /// In en, this message translates to:
-  /// **'{minutes} min'**
-  String overtimeMinutes(int minutes);
+  /// **'{duration}'**
+  String overtimeMinutes(String duration);
 
   /// No description provided for @dash.
   ///
@@ -1489,6 +1537,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Complete your {name} review'**
   String evaluationDueCard(String name);
+
+  /// No description provided for @birthdayBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Happy Birthday!'**
+  String get birthdayBannerTitle;
+
+  /// No description provided for @birthdayBannerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishing you a wonderful day — from {org}'**
+  String birthdayBannerMessage(String org);
 
   /// No description provided for @evaluationStatusOpen.
   ///

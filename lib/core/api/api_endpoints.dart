@@ -29,6 +29,8 @@ class ApiEndpoints {
   static const leaveSummary = '/leave-requests/summary';
   static const leaveBalance = '/leave-requests/balance';
 
+  static const myHolidays = '/holidays/me';
+
   static const evaluations = '/evaluations';
 
   static const meetingRooms = '/meetings/rooms';

@@ -72,12 +72,17 @@ class HistoryRepository {
     }
   }
 
-  Future<void> submitCorrectnessRequests(List<String> dates, {String? note}) async {
+  Future<void> submitCorrectnessRequests({
+    List<String> dates = const [],
+    List<Map<String, dynamic>> days = const [],
+    String? note,
+  }) async {
     try {
       await _dio.post<Map<String, dynamic>>(
         ApiEndpoints.attendanceCorrectnessRequests,
         data: {
-          'dates': dates,
+          if (days.isNotEmpty) 'days': days,
+          if (days.isEmpty && dates.isNotEmpty) 'dates': dates,
           if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
         },
       );
@@ -97,6 +102,22 @@ class HistoryRepository {
       );
       final items = response.data?['data'] as List<dynamic>? ?? const [];
       return items.map((e) => e as Map<String, dynamic>).toList();
+    } on DioException catch (error) {
+      throw ApiException.fromDio(error);
+    }
+  }
+
+  Future<List<HolidayHistoryItem>> myHolidays({required DateTime from, required DateTime to}) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        ApiEndpoints.myHolidays,
+        queryParameters: {
+          'from': _dateKey(from),
+          'to': _dateKey(to),
+        },
+      );
+      final items = response.data?['data'] as List<dynamic>? ?? const [];
+      return items.map((e) => HolidayHistoryItem.fromJson(e as Map<String, dynamic>)).toList();
     } on DioException catch (error) {
       throw ApiException.fromDio(error);
     }

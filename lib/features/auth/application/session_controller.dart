@@ -52,18 +52,22 @@ class SessionState {
 final sessionControllerProvider = NotifierProvider<SessionController, SessionState>(SessionController.new);
 
 class SessionController extends Notifier<SessionState> {
-  late final AuthRepository _repository;
-  late final TokenStorage _storage;
+  AuthRepository get _repository => ref.read(authRepositoryProvider);
+  TokenStorage get _storage => ref.read(tokenStorageProvider);
 
   @override
   SessionState build() {
-    _repository = ref.read(authRepositoryProvider);
-    _storage = ref.read(tokenStorageProvider);
+    final clearedSub = _storage.onSessionCleared.listen((_) {
+      if (state.status != SessionStatus.unauthenticated) {
+        state = const SessionState(status: SessionStatus.unauthenticated);
+      }
+    });
+    ref.onDispose(clearedSub.cancel);
     Future.microtask(_restore);
     return const SessionState(status: SessionStatus.checking);
   }
 
-  Future<void> _restore() async {
+  Future<void> _restore({int attempt = 0}) async {
     final access = await _storage.readAccessToken();
     final refresh = await _storage.readRefreshToken();
     if (access == null || refresh == null) {
@@ -83,14 +87,45 @@ class SessionController extends Notifier<SessionState> {
       );
     } on DioException catch (error) {
       final status = error.response?.statusCode;
-      if (status == 401 || status == 403) {
-        await _storage.clear();
+      // Only a 401 from the backend means the token itself is actually
+      // invalid/expired. A 403 can mean plenty of other things (role not
+      // allowed on this endpoint, device not permitted, etc.) and must not
+      // log the user out of an otherwise-valid session.
+      if (status == 401) {
+        await _storage.clear(notify: false);
+        state = const SessionState(status: SessionStatus.unauthenticated);
+        return;
       }
-      state = const SessionState(status: SessionStatus.unauthenticated);
+      state = const SessionState(status: SessionStatus.checking);
+      await _retryRestore(attempt);
     } catch (_) {
-      state = const SessionState(status: SessionStatus.unauthenticated);
+      state = const SessionState(status: SessionStatus.checking);
+      await _retryRestore(attempt);
     }
   }
+
+  Future<void> _retryRestore(int attempt) async {
+    // Keep tokens on transient failures; only auth errors clear the session.
+    if (attempt < 4) {
+      await Future<void>.delayed(Duration(milliseconds: 700 * (attempt + 1)));
+      if (!ref.mounted) return;
+      if (state.status != SessionStatus.checking && state.status != SessionStatus.authenticated) {
+        return;
+      }
+      return _restore(attempt: attempt + 1);
+    }
+
+    state = const SessionState(status: SessionStatus.checking);
+    Future<void>.delayed(const Duration(seconds: 8), () {
+      if (!ref.mounted) return;
+      if (state.status == SessionStatus.checking) {
+        _restore();
+      }
+    });
+  }
+
+  /// Public retry for splash / offline recovery.
+  Future<void> retryRestore() => _restore();
 
   Future<List<LoginContext>> _loadAvailableContexts() async {
     try {
@@ -223,7 +258,7 @@ class SessionController extends Notifier<SessionState> {
   Future<void> logout() async {
     final refresh = await _storage.readRefreshToken();
     if (refresh != null) await _repository.logout(refresh);
-    await _storage.clear();
+    await _storage.clear(notify: false);
     state = const SessionState(status: SessionStatus.unauthenticated);
   }
 }

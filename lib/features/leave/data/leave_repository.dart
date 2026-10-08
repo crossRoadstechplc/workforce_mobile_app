@@ -22,9 +22,29 @@ class LeaveRepository {
     try { final r=await _dio.get<Map<String,dynamic>>(ApiEndpoints.leaveBalance); return AnnualLeaveBalance.fromJson(r.data!['data'] as Map<String,dynamic>); }
     on DioException catch(e){throw ApiException.fromDio(e);} }
 
-  Future<LeaveRequestItem> create({required String leaveTypeId, required DateTime startDate, required DateTime endDate, required String reason}) async {
-    try { final r=await _dio.post<Map<String,dynamic>>(ApiEndpoints.leaveRequests,data:{'leaveTypeId':leaveTypeId,'startDate':_date(startDate),'endDate':_date(endDate),'reason':reason.trim()}); return LeaveRequestItem.fromJson(r.data!['data'] as Map<String,dynamic>); }
-    on DioException catch(e){throw ApiException.fromDio(e);} }
+  Future<LeaveRequestItem> create({
+    required String leaveTypeId,
+    required DateTime startDate,
+    required DateTime endDate,
+    required String reason,
+    List<LeaveDayDraft> days = const [],
+  }) async {
+    try {
+      final r = await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.leaveRequests,
+        data: {
+          'leaveTypeId': leaveTypeId,
+          'startDate': _date(startDate),
+          'endDate': _date(endDate),
+          'reason': reason.trim(),
+          if (days.isNotEmpty) 'days': days.map((d) => d.toJson()).toList(),
+        },
+      );
+      return LeaveRequestItem.fromJson(r.data!['data'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
 
   Future<void> cancel(String id,{String? reason}) async {
     try { await _dio.post<Map<String,dynamic>>('${ApiEndpoints.leaveRequests}/$id/cancel',data:{if(reason?.trim().isNotEmpty==true)'reason':reason!.trim()}); }

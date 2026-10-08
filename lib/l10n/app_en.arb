@@ -62,6 +62,8 @@
   "checkedInLate": "Checked in · Late",
   "openShiftPending": "Open shift pending checkout",
   "attendanceCompleted": "Attendance completed",
+  "checkedOutCanReturn": "Checked out · You can check in again",
+  "readyToCheckInAgain": "Ready to check in again",
   "timeClockWorked": "Worked {duration}",
   "@timeClockWorked": {
     "placeholders": { "duration": { "type": "String" } }
@@ -116,14 +118,14 @@
   "checkInSuccessMorning": "Good morning! Check-in successful. Have a productive day.",
   "checkInSuccessAfternoon": "Good afternoon! Check-in successful. Keep up the good work.",
   "checkInSuccessEvening": "Good evening! Check-in successful. Thanks for starting your shift.",
-  "checkInLate": "Checked in {minutes} min late. Thanks for sharing your reason — have a good {dayPart}.",
+  "checkInLate": "Checked in {duration} late. Thanks for sharing your reason — have a good {dayPart}.",
   "@checkInLate": {
     "placeholders": {
-      "minutes": { "type": "int" },
+      "duration": { "type": "String" },
       "dayPart": { "type": "String" }
     }
   },
-  "checkoutSuccess": "Checked out successfully — you worked {worked}.",
+  "checkoutSuccess": "Checked out successfully — you worked {worked}. You can check in again if you return.",
   "@checkoutSuccess": {
     "placeholders": {
       "worked": { "type": "String" }
@@ -169,10 +171,10 @@
   "worksheetSaved": "Worksheet saved.",
   "reviewed": "Reviewed",
   "cancel": "Cancel",
-  "lateCheckInTitle": "You are {minutes} minute(s) late",
+  "lateCheckInTitle": "You are {duration} late",
   "@lateCheckInTitle": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "duration": { "type": "String" }
     }
   },
   "lateCheckInSubtitle": "You can still check in any time today. Select a reason to continue.",
@@ -246,7 +248,7 @@
   "noAttendanceCorrections": "No correction requests yet.",
   "attendanceCorrectionSubmitted": "Correction request submitted.",
   "attendanceCorrectionTitle": "Attendance correction",
-  "attendanceCorrectionHint": "Ask your admin to mark selected days as worked (full scheduled shift). Only use this if you were at work—not for days you were on leave.",
+  "attendanceCorrectionHint": "Ask your admin to mark selected days as worked. Choose full day, half morning, or half afternoon for each date. Only use this if you were at work—not for leave.",
   "attendanceCorrectionNoteLabel": "Note (optional)",
   "attendanceCorrectionNoteHint": "e.g. Forgot to check in at the office",
   "attendanceCorrectionDatesLabel": "Dates",
@@ -311,7 +313,16 @@
   "leaveEndDate": "End date",
   "leaveReason": "Reason",
   "leaveReasonHint": "Briefly explain your leave request",
-  "leavePastDatesHint": "Past dates are allowed for missing attendance days. Days are counted from your work schedule (half days count as 0.5).",
+  "leavePastDatesHint": "Past dates are allowed for missing attendance days. Choose full or half day for each date. Non-working days are skipped automatically.",
+  "leaveDaySessionsTitle": "Each day",
+  "leaveDaySessionsHint": "Full day is selected by default. Change any day to half day morning or afternoon.",
+  "leaveSessionFull": "Full day",
+  "leaveSessionMorning": "Half · Morning",
+  "leaveSessionAfternoon": "Half · Afternoon",
+  "leaveEstimatedDays": "Estimated total: {days} day(s)",
+  "@leaveEstimatedDays": {
+    "placeholders": { "days": { "type": "String" } }
+  },
   "cancelRequest": "Cancel request",
   "adminNote": "Admin: {note}",
   "@adminNote": {
@@ -346,22 +357,22 @@
       "days": { "type": "String" }
     }
   },
-  "lateMinutesValue": "{minutes} min",
+  "lateMinutesValue": "{duration}",
   "@lateMinutesValue": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "duration": { "type": "String" }
     }
   },
-  "earlyCheckoutMinutes": "{minutes} min",
+  "earlyCheckoutMinutes": "{duration}",
   "@earlyCheckoutMinutes": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "duration": { "type": "String" }
     }
   },
-  "overtimeMinutes": "{minutes} min",
+  "overtimeMinutes": "{duration}",
   "@overtimeMinutes": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "duration": { "type": "String" }
     }
   },
   "dash": "—",
@@ -393,6 +404,11 @@
   "evaluationDueCard": "Complete your {name} review",
   "@evaluationDueCard": {
     "placeholders": { "name": { "type": "String" } }
+  },
+  "birthdayBannerTitle": "Happy Birthday!",
+  "birthdayBannerMessage": "Wishing you a wonderful day — from {org}",
+  "@birthdayBannerMessage": {
+    "placeholders": { "org": { "type": "String" } }
   },
   "evaluationStatusOpen": "Action needed",
   "evaluationStatusWaiting": "With reviewer",

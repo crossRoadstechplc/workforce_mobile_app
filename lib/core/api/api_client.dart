@@ -1,9 +1,8 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../auth/token_refresher.dart';
 import '../auth/token_storage.dart';
 import '../config/app_config.dart';
 import 'api_endpoints.dart';
@@ -17,8 +16,13 @@ final tokenStorageProvider = Provider<TokenStorage>((ref) {
   return TokenStorage(ref.watch(secureStorageProvider));
 });
 
+final tokenRefresherProvider = Provider<TokenRefresher>((ref) {
+  return TokenRefresher(ref.watch(tokenStorageProvider));
+});
+
 final dioProvider = Provider<Dio>((ref) {
   final tokenStorage = ref.watch(tokenStorageProvider);
+  final tokenRefresher = ref.watch(tokenRefresherProvider);
   final dio = Dio(
     BaseOptions(
       baseUrl: AppConfig.resolvedApiBaseUrl,
@@ -28,17 +32,17 @@ final dioProvider = Provider<Dio>((ref) {
     ),
   );
 
-  dio.interceptors.add(_AuthInterceptor(dio, tokenStorage));
+  dio.interceptors.add(_AuthInterceptor(dio, tokenStorage, tokenRefresher));
   dio.interceptors.add(SafeRetryInterceptor(dio));
   return dio;
 });
 
 class _AuthInterceptor extends Interceptor {
-  _AuthInterceptor(this._dio, this._storage);
+  _AuthInterceptor(this._dio, this._storage, this._refresher);
 
   final Dio _dio;
   final TokenStorage _storage;
-  Completer<void>? _refreshCompleter;
+  final TokenRefresher _refresher;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
@@ -62,7 +66,7 @@ class _AuthInterceptor extends Interceptor {
     }
 
     try {
-      await _refreshOnce();
+      await _refresher.refresh();
       final accessToken = await _storage.readAccessToken();
       final response = await _dio.fetch<dynamic>(
         request.copyWith(
@@ -71,35 +75,20 @@ class _AuthInterceptor extends Interceptor {
         ),
       );
       handler.resolve(response);
-    } catch (_) {
-      await _storage.clear();
+    } catch (refreshError) {
+      // Only clear the session when the backend explicitly rejected the
+      // refresh token (401/403). Network blips/timeouts while refreshing
+      // must not log the user out - just surface the original error and
+      // let the next request try again.
+      if (refreshError is DioException) {
+        final refreshStatus = refreshError.response?.statusCode;
+        if (refreshStatus == 401 || refreshStatus == 403) {
+          await _storage.clear();
+        }
+      } else {
+        await _storage.clear();
+      }
       handler.next(err);
-    }
-  }
-
-  Future<void> _refreshOnce() async {
-    if (_refreshCompleter != null) return _refreshCompleter!.future;
-    final completer = Completer<void>();
-    _refreshCompleter = completer;
-    try {
-      final refreshToken = await _storage.readRefreshToken();
-      if (refreshToken == null) throw StateError('No refresh token');
-      final bareDio = Dio(BaseOptions(baseUrl: AppConfig.resolvedApiBaseUrl));
-      final response = await bareDio.post<Map<String, dynamic>>(
-        ApiEndpoints.refresh,
-        data: {'refreshToken': refreshToken, 'deviceId': await _storage.readOrCreateDeviceId()},
-      );
-      final data = response.data!;
-      await _storage.writeTokens(
-        accessToken: data['accessToken'] as String,
-        refreshToken: data['refreshToken'] as String,
-      );
-      completer.complete();
-    } catch (error, stack) {
-      completer.completeError(error, stack);
-      rethrow;
-    } finally {
-      _refreshCompleter = null;
     }
   }
 }

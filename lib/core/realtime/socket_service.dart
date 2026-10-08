@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../auth/token_storage.dart';
 import '../config/app_config.dart';
@@ -39,8 +38,10 @@ class SocketService {
     'meeting.cancelled',
     'meeting.rescheduled',
     'chat.message.created',
+    'chat.conversation.updated',
   ];
 
+  /// Connect (or reconnect) using the latest access token from storage.
   Future<void> connect() async {
     final token = await _storage.readAccessToken();
     if (token == null || token.isEmpty) return;
@@ -48,7 +49,7 @@ class SocketService {
     final socket = io.io(
       AppConfig.socketBaseUrl,
       io.OptionBuilder()
-          .setTransports(kIsWeb ? ['polling', 'websocket'] : ['websocket'])
+          .setTransports(['polling', 'websocket'])
           .disableAutoConnect()
           .setAuth({'token': token})
           .enableReconnection()
@@ -59,6 +60,18 @@ class SocketService {
       socket.on(name, (data) => _events.add(SocketEvent(name, data)));
     }
     socket.connect();
+  }
+
+  /// Re-read the access token and reconnect when the socket is down or auth may be stale.
+  Future<void> ensureConnected() async {
+    final token = await _storage.readAccessToken();
+    if (token == null || token.isEmpty) {
+      disconnect();
+      return;
+    }
+    if (!connected) {
+      await connect();
+    }
   }
 
   void disconnect() {

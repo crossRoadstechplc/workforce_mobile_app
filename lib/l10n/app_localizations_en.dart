@@ -191,6 +191,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get attendanceCompleted => 'Attendance completed';
 
   @override
+  String get checkedOutCanReturn => 'Checked out · You can check in again';
+
+  @override
+  String get readyToCheckInAgain => 'Ready to check in again';
+
+  @override
   String timeClockWorked(String duration) {
     return 'Worked $duration';
   }
@@ -262,13 +268,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Good evening! Check-in successful. Thanks for starting your shift.';
 
   @override
-  String checkInLate(int minutes, String dayPart) {
-    return 'Checked in $minutes min late. Thanks for sharing your reason — have a good $dayPart.';
+  String checkInLate(String duration, String dayPart) {
+    return 'Checked in $duration late. Thanks for sharing your reason — have a good $dayPart.';
   }
 
   @override
   String checkoutSuccess(String worked) {
-    return 'Checked out successfully — you worked $worked.';
+    return 'Checked out successfully — you worked $worked. You can check in again if you return.';
   }
 
   @override
@@ -355,8 +361,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancel => 'Cancel';
 
   @override
-  String lateCheckInTitle(int minutes) {
-    return 'You are $minutes minute(s) late';
+  String lateCheckInTitle(String duration) {
+    return 'You are $duration late';
   }
 
   @override
@@ -554,7 +560,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get attendanceCorrectionHint =>
-      'Ask your admin to mark selected days as worked (full scheduled shift). Only use this if you were at work—not for days you were on leave.';
+      'Ask your admin to mark selected days as worked. Choose full day, half morning, or half afternoon for each date. Only use this if you were at work—not for leave.';
 
   @override
   String get attendanceCorrectionNoteLabel => 'Note (optional)';
@@ -663,7 +669,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get leavePastDatesHint =>
-      'Past dates are allowed for missing attendance days. Days are counted from your work schedule (half days count as 0.5).';
+      'Past dates are allowed for missing attendance days. Choose full or half day for each date. Non-working days are skipped automatically.';
+
+  @override
+  String get leaveDaySessionsTitle => 'Each day';
+
+  @override
+  String get leaveDaySessionsHint =>
+      'Full day is selected by default. Change any day to half day morning or afternoon.';
+
+  @override
+  String get leaveSessionFull => 'Full day';
+
+  @override
+  String get leaveSessionMorning => 'Half · Morning';
+
+  @override
+  String get leaveSessionAfternoon => 'Half · Afternoon';
+
+  @override
+  String leaveEstimatedDays(String days) {
+    return 'Estimated total: $days day(s)';
+  }
 
   @override
   String get cancelRequest => 'Cancel request';
@@ -721,18 +748,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String lateMinutesValue(int minutes) {
-    return '$minutes min';
+  String lateMinutesValue(String duration) {
+    return duration;
   }
 
   @override
-  String earlyCheckoutMinutes(int minutes) {
-    return '$minutes min';
+  String earlyCheckoutMinutes(String duration) {
+    return duration;
   }
 
   @override
-  String overtimeMinutes(int minutes) {
-    return '$minutes min';
+  String overtimeMinutes(String duration) {
+    return duration;
   }
 
   @override
@@ -805,6 +832,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String evaluationDueCard(String name) {
     return 'Complete your $name review';
+  }
+
+  @override
+  String get birthdayBannerTitle => 'Happy Birthday!';
+
+  @override
+  String birthdayBannerMessage(String org) {
+    return 'Wishing you a wonderful day — from $org';
   }
 
   @override

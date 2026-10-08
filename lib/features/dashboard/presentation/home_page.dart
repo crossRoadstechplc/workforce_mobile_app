@@ -21,6 +21,7 @@ import '../../attendance/presentation/late_reason_sheet.dart';
 import '../../attendance/presentation/time_clock_status_card.dart';
 import '../../evaluation/presentation/evaluation_due_banner.dart';
 import '../application/shell_refresh.dart';
+import 'birthday_banner.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -320,6 +321,7 @@ class _TimeClockBody extends StatelessWidget {
     final colors = context.appColors;
     final open = timesheet?.isOpen == true;
     final completed = timesheet != null && !timesheet!.isOpen;
+    final canReenter = timesheet?.canReCheckIn == true;
     final distance = userLocation == null || office.latitude == null || office.longitude == null
         ? null
         : GeoUtils.distanceMeters(
@@ -334,9 +336,10 @@ class _TimeClockBody extends StatelessWidget {
     final bottomSafe = MediaQuery.paddingOf(context).bottom;
     final locationRequired = office.locationRequired;
 
-    final canCheckIn = !open && !completed && !busy && (!locationRequired || inside);
-    final showCheckIn = !open && !completed;
+    final canCheckIn = !open && (!completed || canReenter) && !busy && (!locationRequired || inside);
+    final showCheckIn = !open && (!completed || canReenter);
     final showCheckOut = open;
+    final showCompleted = completed && !canReenter;
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -364,6 +367,7 @@ class _TimeClockBody extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      const BirthdayBanner(),
                       const EvaluationDueBanner(),
                       const SizedBox(height: 8),
                       TimeClockStatusCard(
@@ -445,7 +449,7 @@ class _TimeClockBody extends StatelessWidget {
                               ),
                             ),
                           ),
-                        if (completed)
+                        if (showCompleted)
                           Container(
                             height: 54,
                             alignment: Alignment.center,
@@ -504,7 +508,7 @@ class _ActionDock extends StatelessWidget {
 String _checkInToast(BuildContext context, DateTime now, Timesheet result) {
   final l10n = context.l10n;
   if (result.lateMinutes > 0) {
-    return l10n.checkInLate(result.lateMinutes, _dayPartLabel(context, now));
+    return l10n.checkInLate(formatDurationMinutes(context, result.lateMinutes), _dayPartLabel(context, now));
   }
   switch (_dayPart(now)) {
     case 'morning':

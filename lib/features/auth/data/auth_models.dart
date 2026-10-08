@@ -83,12 +83,16 @@ class EmployeeProfile {
     required this.lastName,
     required this.displayName,
     this.employeeCode,
+    this.birthDate,
+    this.isBirthdayToday = false,
   });
 
   final String firstName;
   final String lastName;
   final String displayName;
   final String? employeeCode;
+  final String? birthDate;
+  final bool isBirthdayToday;
 
   factory EmployeeProfile.fromJson(Map<String, dynamic>? json) {
     if (json == null) {
@@ -102,6 +106,8 @@ class EmployeeProfile {
       lastName: lastName,
       displayName: displayName.isNotEmpty ? displayName : firstName,
       employeeCode: json['employeeCode']?.toString(),
+      birthDate: json['birthDate']?.toString(),
+      isBirthdayToday: json['isBirthdayToday'] == true,
     );
   }
 }

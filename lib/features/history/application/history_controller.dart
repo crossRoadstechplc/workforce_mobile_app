@@ -13,6 +13,7 @@ class HistoryState {
     this.loadedMonthKeys = const {},
     this.timesheets = const [],
     this.worksheets = const [],
+    this.holidays = const [],
     this.correctnessByDate = const {},
   });
 
@@ -20,6 +21,7 @@ class HistoryState {
   final Set<String> loadedMonthKeys;
   final List<TimesheetHistoryItem> timesheets;
   final List<WorksheetHistoryItem> worksheets;
+  final List<HolidayHistoryItem> holidays;
   final Map<String, String> correctnessByDate;
 
   HistoryState copyWith({
@@ -27,6 +29,7 @@ class HistoryState {
     Set<String>? loadedMonthKeys,
     List<TimesheetHistoryItem>? timesheets,
     List<WorksheetHistoryItem>? worksheets,
+    List<HolidayHistoryItem>? holidays,
     Map<String, String>? correctnessByDate,
   }) {
     return HistoryState(
@@ -34,6 +37,7 @@ class HistoryState {
       loadedMonthKeys: loadedMonthKeys ?? this.loadedMonthKeys,
       timesheets: timesheets ?? this.timesheets,
       worksheets: worksheets ?? this.worksheets,
+      holidays: holidays ?? this.holidays,
       correctnessByDate: correctnessByDate ?? this.correctnessByDate,
     );
   }
@@ -42,6 +46,13 @@ class HistoryState {
     final key = '${day.year.toString().padLeft(4, '0')}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
     final fromItem = timesheets.where((e) => isSameCalendarDay(e.workDate, day)).map((e) => e.correctnessStatus).whereType<String>().firstOrNull;
     return fromItem ?? correctnessByDate[key];
+  }
+
+  HolidayHistoryItem? holidayForDay(DateTime day) {
+    for (final h in holidays) {
+      if (isSameCalendarDay(h.workDate, day)) return h;
+    }
+    return null;
   }
 }
 
@@ -95,9 +106,13 @@ class HistoryController extends AsyncNotifier<HistoryState> {
     }
   }
 
-  Future<void> submitCorrectnessRequests(List<String> dates, {String? note}) async {
+  Future<void> submitCorrectnessRequests({
+    List<String> dates = const [],
+    List<Map<String, dynamic>> days = const [],
+    String? note,
+  }) async {
     final repository = ref.read(historyRepositoryProvider);
-    await repository.submitCorrectnessRequests(dates, note: note);
+    await repository.submitCorrectnessRequests(dates: dates, days: days, note: note);
     await refresh();
   }
 
@@ -122,17 +137,22 @@ class HistoryController extends AsyncNotifier<HistoryState> {
       if (result.loadedMonthKeys.contains(key)) continue;
       if (monthStart(month).isAfter(monthStart(today))) continue;
 
+      final from = DateTime(month.year, month.month, 1);
+      final to = DateTime(month.year, month.month + 1, 0);
       final results = await Future.wait([
         repository.timesheetCalendar(month.year, month.month),
         repository.worksheetCalendar(month.year, month.month),
+        repository.myHolidays(from: from, to: to),
       ]);
 
       final timesheets = [...result.timesheets, ...results[0] as List<TimesheetHistoryItem>];
       final worksheets = [...result.worksheets, ...results[1] as List<WorksheetHistoryItem>];
+      final holidays = [...result.holidays, ...results[2] as List<HolidayHistoryItem>];
       result = result.copyWith(
         loadedMonthKeys: {...result.loadedMonthKeys, key},
         timesheets: timesheets,
         worksheets: worksheets,
+        holidays: holidays,
       );
     }
 

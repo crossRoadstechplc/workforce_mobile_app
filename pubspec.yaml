@@ -1,7 +1,7 @@
 name: workforce_employee_app
 description: Employee mobile client for the workforce attendance platform.
 publish_to: "none"
-version: 1.0.0+1
+version: 1.0.2+1
 
 environment:
   sdk: ">=3.8.0 <4.0.0"

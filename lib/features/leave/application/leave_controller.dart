@@ -65,8 +65,20 @@ class LeaveController extends AsyncNotifier<LeaveState> {
     state = await AsyncValue.guard(_load);
   }
 
-  Future<void> create({required String leaveTypeId, required DateTime startDate, required DateTime endDate, required String reason}) async {
-    await ref.read(leaveRepositoryProvider).create(leaveTypeId: leaveTypeId, startDate: startDate, endDate: endDate, reason: reason);
+  Future<void> create({
+    required String leaveTypeId,
+    required DateTime startDate,
+    required DateTime endDate,
+    required String reason,
+    List<LeaveDayDraft> days = const [],
+  }) async {
+    await ref.read(leaveRepositoryProvider).create(
+          leaveTypeId: leaveTypeId,
+          startDate: startDate,
+          endDate: endDate,
+          reason: reason,
+          days: days,
+        );
     await refresh();
   }
 
@@ -75,8 +87,12 @@ class LeaveController extends AsyncNotifier<LeaveState> {
     await refresh();
   }
 
-  Future<void> submitCorrections(List<String> dates, {String? note}) async {
-    await ref.read(historyRepositoryProvider).submitCorrectnessRequests(dates, note: note);
+  Future<void> submitCorrections({
+    List<String> dates = const [],
+    List<Map<String, dynamic>> days = const [],
+    String? note,
+  }) async {
+    await ref.read(historyRepositoryProvider).submitCorrectnessRequests(dates: dates, days: days, note: note);
     await refresh();
   }
 }

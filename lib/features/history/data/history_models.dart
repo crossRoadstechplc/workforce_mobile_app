@@ -120,3 +120,27 @@ class WorksheetHistoryItem {
 }
 
 DateTime? _date(dynamic value) => value == null ? null : DateTime.parse(value as String).toLocal();
+
+class HolidayHistoryItem {
+  const HolidayHistoryItem({
+    required this.workDate,
+    required this.nameEn,
+    this.nameAm,
+    this.kenatKey,
+  });
+
+  final DateTime workDate;
+  final String nameEn;
+  final String? nameAm;
+  final String? kenatKey;
+
+  factory HolidayHistoryItem.fromJson(Map<String, dynamic> json) {
+    final holiday = json['holiday'] as Map<String, dynamic>? ?? const {};
+    return HolidayHistoryItem(
+      workDate: parseCalendarDate(json['workDate'] as String),
+      nameEn: holiday['nameEn']?.toString() ?? 'Holiday',
+      nameAm: holiday['nameAm']?.toString(),
+      kenatKey: holiday['kenatKey']?.toString(),
+    );
+  }
+}

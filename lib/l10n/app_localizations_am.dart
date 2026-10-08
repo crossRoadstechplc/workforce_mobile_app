@@ -187,6 +187,12 @@ class AppLocalizationsAm extends AppLocalizations {
   String get attendanceCompleted => 'ተጠናቀቀ';
 
   @override
+  String get checkedOutCanReturn => 'ወጥተዋል · እንደገና መግባት ይችላሉ';
+
+  @override
+  String get readyToCheckInAgain => 'እንደገና ለመግባት ዝግጁ';
+
+  @override
   String timeClockWorked(String duration) {
     return 'የሰራ $duration';
   }
@@ -255,13 +261,13 @@ class AppLocalizationsAm extends AppLocalizations {
       'እንደምን አደር! መግባት ተሳካ። ስራዎን ስለ ጀመሩ እናመሰግናለን።';
 
   @override
-  String checkInLate(int minutes, String dayPart) {
-    return '$minutes ደቂቃ ዘግይታ ገብተዋል። ምክንያትዎን ስለጋሩ — መልካም $dayPart።';
+  String checkInLate(String duration, String dayPart) {
+    return '$duration ዘግይታ ገብተዋል። ምክንያትዎን ስለጋሩ — መልካም $dayPart።';
   }
 
   @override
   String checkoutSuccess(String worked) {
-    return 'በተሳካ ሁኔታ ወጡ — $worked ሰሩ።';
+    return 'በተሳካ ሁኔታ ወጡ — $worked ሰሩ። እንደገና መግባት ይችላሉ።';
   }
 
   @override
@@ -345,8 +351,8 @@ class AppLocalizationsAm extends AppLocalizations {
   String get cancel => 'ሰርዝ';
 
   @override
-  String lateCheckInTitle(int minutes) {
-    return '$minutes ደቂቃ ዘግይተዋል';
+  String lateCheckInTitle(String duration) {
+    return '$duration ዘግይተዋል';
   }
 
   @override
@@ -541,7 +547,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get attendanceCorrectionHint =>
-      'በስራ ላይ ከሆኑ ቀኖችን አስተዳዳሪ እንዲያስተካክል ይጠይቁ። በፍቃድ ላይ ከሆኑ ቀኖች ላይ አይጠቀሙ።';
+      'በስራ ላይ ከሆኑ ቀኖችን አስተዳዳሪ እንዲያስተካክል ይጠይቁ። ለእያንዳንዱ ቀን ሙሉ፣ ጠዋት ግማሽ ወይም ከሰዓት ግማሽ ይምረጡ። በፍቃድ ላይ ከሆኑ ቀኖች ላይ አይጠቀሙ።';
 
   @override
   String get attendanceCorrectionNoteLabel => 'ማስታወሻ (አማራጭ)';
@@ -648,7 +654,28 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get leavePastDatesHint =>
-      'ያለፉ ቀናት ለጎደሉ የመገኘት ቀናት ይፈቀዳሉ። ቀናት ከስራ መርሃ ግብር ይቆጠራሉ (ግማሽ ቀን = 0.5)።';
+      'ያለፉ ቀናት ለጎደሉ የመገኘት ቀናት ይፈቀዳሉ። ለእያንዳንዱ ቀን ሙሉ ወይም ግማሽ ቀን ይምረጡ። የማይሰሩ ቀናት በራስ-ሰር ይተላለፋሉ።';
+
+  @override
+  String get leaveDaySessionsTitle => 'እያንዳንዱ ቀን';
+
+  @override
+  String get leaveDaySessionsHint =>
+      'በነባሪ ሙሉ ቀን ተመርጧል። ማንኛውንም ቀን ወደ ጠዋት ወይም ከሰዓት ግማሽ ቀን ይቀይሩ።';
+
+  @override
+  String get leaveSessionFull => 'ሙሉ ቀን';
+
+  @override
+  String get leaveSessionMorning => 'ግማሽ · ጠዋት';
+
+  @override
+  String get leaveSessionAfternoon => 'ግማሽ · ከሰዓት';
+
+  @override
+  String leaveEstimatedDays(String days) {
+    return 'ግምታዊ ድምር: $days ቀን(ዎች)';
+  }
 
   @override
   String get cancelRequest => 'ጥያቄ ሰርዝ';
@@ -705,18 +732,18 @@ class AppLocalizationsAm extends AppLocalizations {
   }
 
   @override
-  String lateMinutesValue(int minutes) {
-    return '$minutes ደቂቃ';
+  String lateMinutesValue(String duration) {
+    return duration;
   }
 
   @override
-  String earlyCheckoutMinutes(int minutes) {
-    return '$minutes ደቂቃ';
+  String earlyCheckoutMinutes(String duration) {
+    return duration;
   }
 
   @override
-  String overtimeMinutes(int minutes) {
-    return '$minutes ደቂቃ';
+  String overtimeMinutes(String duration) {
+    return duration;
   }
 
   @override
@@ -789,6 +816,14 @@ class AppLocalizationsAm extends AppLocalizations {
   @override
   String evaluationDueCard(String name) {
     return 'የ$name ግምገማዎን ይሙሉ';
+  }
+
+  @override
+  String get birthdayBannerTitle => 'እንኳን ለልደትዎ በዓል አደረሳችሁ!';
+
+  @override
+  String birthdayBannerMessage(String org) {
+    return 'መልካም ቀን እንዲሆንላችሁ እንመኛለን — ከ $org';
   }
 
   @override

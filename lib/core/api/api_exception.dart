@@ -17,6 +17,8 @@ class ApiException implements Exception {
           'Server route not found. Rebuild the app with API_BASE_URL ending in /api/v1.',
         'STALE_LOCATION' =>
           'Location timestamp was rejected. Enable automatic date & time on your phone, then try again.',
+        'WORKSHEET_COPIED' =>
+          'This worksheet matches one from the last 2 days. Write a new description.',
         _ => rawMessage,
       };
       return ApiException(

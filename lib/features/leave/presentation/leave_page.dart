@@ -28,6 +28,7 @@ class LeavePage extends ConsumerWidget {
             startDate: draft.startDate,
             endDate: draft.endDate,
             reason: draft.reason,
+            days: draft.days,
           );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.leaveRequestSubmitted)));
@@ -44,7 +45,10 @@ class LeavePage extends ConsumerWidget {
     final draft = await showAttendanceCorrectionSheet(context, blockedDateKeys: state.blockedCorrectionDateKeys);
     if (draft == null) return;
     try {
-      await ref.read(leaveControllerProvider.notifier).submitCorrections(draft.dates, note: draft.note);
+      await ref.read(leaveControllerProvider.notifier).submitCorrections(
+            days: draft.days.map((d) => d.toJson()).toList(),
+            note: draft.note,
+          );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.attendanceCorrectionSubmitted)));
       }
@@ -178,6 +182,11 @@ class _CorrectionCard extends StatelessWidget {
               Expanded(child: Text(dateLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
               StatusChip(label: _correctionStatusLabel(l10n, item.status), kind: _kind(item.status)),
             ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            correctionSessionLabel(l10n, item.session),
+            style: TextStyle(color: context.appColors.textSecondary, fontWeight: FontWeight.w600),
           ),
           if (item.employeeNote?.isNotEmpty == true) ...[
             const SizedBox(height: 8),
@@ -387,6 +396,24 @@ class _LeaveCard extends StatelessWidget {
             ),
             style: TextStyle(color: colors.textSecondary),
           ),
+          if (item.days.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: item.days.map((day) {
+                final label = '${DateFormat('MMM d', locale).format(day.date)} · ${leaveSessionLabel(l10n, day.session)}';
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: colors.muted,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                );
+              }).toList(),
+            ),
+          ],
           const SizedBox(height: 10),
           Text(item.reason),
           if (item.decisionReason?.isNotEmpty == true) ...[

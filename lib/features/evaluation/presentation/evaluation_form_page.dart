@@ -11,11 +11,11 @@ import '../application/evaluation_controller.dart';
 import '../data/evaluation_models.dart';
 
 const _ratings = [
-  (1, '😞', 'Unsatisfactory'),
-  (2, '😕', 'Needs Improvement'),
-  (3, '🙂', 'Meets Expectations'),
-  (4, '😊', 'Exceeds Expectations'),
-  (5, '🤩', 'Outstanding'),
+  (1, 'Unsatisfactory'),
+  (2, 'Needs Improvement'),
+  (3, 'Meets Expectations'),
+  (4, 'Exceeds Expectations'),
+  (5, 'Outstanding'),
 ];
 
 class EvaluationFormPage extends ConsumerStatefulWidget {
@@ -168,7 +168,7 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
             Text(s.prompt!, style: TextStyle(color: colors.textSecondary, height: 1.35)),
           ],
           const SizedBox(height: 12),
-          _emojiRow(
+          _scoreRow(
             selected: selected,
             enabled: !draft.isReadOnly && draft.needsSelfScore && !system,
             onSelect: (n) => setState(() => s.selfScore = n),
@@ -183,33 +183,52 @@ class _EvaluationFormPageState extends ConsumerState<EvaluationFormPage> {
     );
   }
 
-  Widget _emojiRow({required int? selected, required bool enabled, required void Function(int) onSelect}) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+  Widget _scoreRow({required int? selected, required bool enabled, required void Function(int) onSelect}) {
+    final selectedLabel = _ratings.where((r) => r.$1 == selected).map((r) => r.$2).firstOrNull;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final r in _ratings)
-          GestureDetector(
-            onTap: enabled ? () => onSelect(r.$1) : null,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              width: 56,
-              height: 64,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: selected == r.$1 ? const Color(0xFFECFDF5) : const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: selected == r.$1 ? const Color(0xFF10B981) : const Color(0xFFE2E8F0), width: selected == r.$1 ? 2 : 1),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final r in _ratings)
+              GestureDetector(
+                onTap: enabled ? () => onSelect(r.$1) : null,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  width: 56,
+                  height: 56,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: selected == r.$1 ? const Color(0xFFECFDF5) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: selected == r.$1 ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+                      width: selected == r.$1 ? 2 : 1,
+                    ),
+                  ),
+                  child: Text(
+                    '${r.$1}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: selected == r.$1
+                          ? const Color(0xFF065F46)
+                          : (enabled ? const Color(0xFF334155) : Colors.black38),
+                    ),
+                  ),
+                ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(r.$2, style: TextStyle(fontSize: 22, color: enabled || selected == r.$1 ? null : Colors.black38)),
-                  Text('${r.$1}', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: context.appColors.textSecondary)),
-                ],
-              ),
-            ),
+          ],
+        ),
+        if (selected != null && selectedLabel != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            '$selected — $selectedLabel',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.appColors.textSecondary),
           ),
+        ],
       ],
     );
   }

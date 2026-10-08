@@ -31,9 +31,12 @@ final officeContextProvider = FutureProvider<OfficeContext>((ref) async {
 });
 
 class AttendanceController extends AsyncNotifier<AttendanceState> {
-  late final AttendanceRepository _repository;
-  late final LocationService _locationService;
   static const _uuid = Uuid();
+
+  Future<void>? _refreshInFlight;
+
+  AttendanceRepository get _repository => ref.read(attendanceRepositoryProvider);
+  LocationService get _locationService => ref.read(locationServiceProvider);
 
   @override
   Future<AttendanceState> build() async {
@@ -41,8 +44,6 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     if (userId == null) {
       return const AttendanceState();
     }
-    _repository = ref.read(attendanceRepositoryProvider);
-    _locationService = ref.read(locationServiceProvider);
     final current = await _repository.current();
     return AttendanceState(timesheet: current);
   }
@@ -135,7 +136,11 @@ class AttendanceController extends AsyncNotifier<AttendanceState> {
     return _repository.officeContext();
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh() {
+    return _refreshInFlight ??= _doRefresh().whenComplete(() => _refreshInFlight = null);
+  }
+
+  Future<void> _doRefresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async => AttendanceState(timesheet: await _repository.current()));
   }

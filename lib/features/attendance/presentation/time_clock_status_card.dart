@@ -47,6 +47,7 @@ class TimeClockStatusCard extends StatelessWidget {
     final locale = Localizations.localeOf(context);
     final open = timesheet?.isOpen == true;
     final completed = timesheet != null && !timesheet!.isOpen;
+    final canReenter = timesheet?.canReCheckIn == true;
     final carriedOver = open && timesheet!.isCarriedOverOpenShift;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -73,7 +74,13 @@ class TimeClockStatusCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    _headline(l10n, open: open, completed: completed, carriedOver: carriedOver),
+                    _headline(
+                      l10n,
+                      open: open,
+                      completed: completed,
+                      canReenter: canReenter,
+                      carriedOver: carriedOver,
+                    ),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -100,7 +107,13 @@ class TimeClockStatusCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            _StatusLine(open: open, completed: completed, carriedOver: carriedOver, timesheet: timesheet),
+            _StatusLine(
+              open: open,
+              completed: completed,
+              canReenter: canReenter,
+              carriedOver: carriedOver,
+              timesheet: timesheet,
+            ),
             if (timesheet != null || recommendedWorkMinutes > 0) ...[
               const SizedBox(height: 8),
               _WorkedSummary(
@@ -139,10 +152,12 @@ class TimeClockStatusCard extends StatelessWidget {
     AppLocalizations l10n, {
     required bool open,
     required bool completed,
+    required bool canReenter,
     required bool carriedOver,
   }) {
     if (carriedOver) return l10n.openShiftPending;
     if (open) return l10n.readyToCheckOut;
+    if (canReenter) return l10n.readyToCheckInAgain;
     if (completed) return l10n.shiftComplete;
     return l10n.readyToCheckIn;
   }
@@ -163,9 +178,12 @@ class TimeClockStatusCard extends StatelessWidget {
           : l10n.checkedInAt(DateFormat('h:mm a', locale.toString()).format(timesheet!.actualCheckIn));
     }
     if (completed && timesheet?.actualCheckOut != null) {
+      final checkOutAt = timesheet!.checkOutSource == 'SYSTEM' && timesheet!.scheduledCheckOut != null
+          ? timesheet!.scheduledCheckOut!
+          : timesheet!.actualCheckOut!;
       return l10n.timeRange(
         DateFormat('h:mm a', locale.toString()).format(timesheet!.actualCheckIn),
-        DateFormat('h:mm a', locale.toString()).format(timesheet!.actualCheckOut!),
+        DateFormat('h:mm a', locale.toString()).format(checkOutAt),
       );
     }
     return null;
@@ -354,11 +372,16 @@ class _WorkedSummary extends StatelessWidget {
   }
 
   String _fmtMinutes(int minutes) {
-    final h = minutes ~/ 60;
-    final m = minutes % 60;
-    if (h > 0 && m > 0) return '${h}h ${m}m';
-    if (h > 0) return '${h}h';
-    return '${m}m';
+    final total = minutes.abs();
+    if (total <= 0) return '0m';
+    final days = total ~/ 1440;
+    final hours = (total % 1440) ~/ 60;
+    final m = total % 60;
+    final parts = <String>[];
+    if (days > 0) parts.add('${days}d');
+    if (hours > 0) parts.add('${hours}h');
+    if (m > 0 || parts.isEmpty) parts.add('${m}m');
+    return parts.join(' ');
   }
 
   @override
@@ -401,12 +424,14 @@ class _StatusLine extends StatelessWidget {
   const _StatusLine({
     required this.open,
     required this.completed,
+    required this.canReenter,
     required this.carriedOver,
     required this.timesheet,
   });
 
   final bool open;
   final bool completed;
+  final bool canReenter;
   final bool carriedOver;
   final Timesheet? timesheet;
 
@@ -414,11 +439,12 @@ class _StatusLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final l10n = context.l10n;
-    final (Color dot, String label) = switch ((open, completed, carriedOver, timesheet?.lateMinutes ?? 0)) {
-      (true, _, true, _) => (colors.warning, l10n.openShiftPending),
-      (true, _, _, int l) when l > 0 => (colors.warning, l10n.checkedInLate),
-      (true, _, _, _) => (colors.success, l10n.checkedIn),
-      (_, true, _, _) => (colors.success, l10n.attendanceCompleted),
+    final (Color dot, String label) = switch ((open, completed, canReenter, carriedOver, timesheet?.lateMinutes ?? 0)) {
+      (true, _, _, true, _) => (colors.warning, l10n.openShiftPending),
+      (true, _, _, _, int l) when l > 0 => (colors.warning, l10n.checkedInLate),
+      (true, _, _, _, _) => (colors.success, l10n.checkedIn),
+      (_, _, true, _, _) => (colors.warning, l10n.checkedOutCanReturn),
+      (_, true, _, _, _) => (colors.success, l10n.attendanceCompleted),
       _ => (colors.textSecondary, l10n.notCheckedIn),
     };
 
