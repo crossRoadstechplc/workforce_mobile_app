@@ -10,6 +10,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../application/leave_controller.dart';
+import '../data/attendance_correction_grouping.dart';
 import '../data/attendance_correction_models.dart';
 import '../data/leave_models.dart';
 import 'attendance_correction_sheet.dart';
@@ -100,10 +101,10 @@ class LeavePage extends ConsumerWidget {
                   ),
                 )
               else
-                ...state.corrections.take(20).map(
-                      (c) => Padding(
+                ...groupAttendanceCorrections(state.corrections).take(20).map(
+                      (submission) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: _CorrectionCard(item: c),
+                        child: _CorrectionSubmissionCard(submission: submission),
                       ),
                     ),
               const SizedBox(height: 20),
@@ -163,15 +164,27 @@ class _RequestActions extends StatelessWidget {
   }
 }
 
-class _CorrectionCard extends StatelessWidget {
-  const _CorrectionCard({required this.item});
-  final AttendanceCorrectionRequest item;
+class _CorrectionSubmissionCard extends StatelessWidget {
+  const _CorrectionSubmissionCard({required this.submission});
+  final AttendanceCorrectionSubmission submission;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
-    final dateLabel = DateFormat.yMMMd(locale).format(item.workDate);
+    final fmt = DateFormat.yMMMd(locale);
+    final dateLabel = submission.dayCount == 1
+        ? fmt.format(submission.workDateFrom)
+        : '${fmt.format(submission.workDateFrom)} – ${fmt.format(submission.workDateTo)}';
+    final status = submission.status == 'PARTIAL' ? 'PENDING' : submission.status;
+    String? adminNote;
+    for (final day in submission.days) {
+      final note = day.adminNote;
+      if (note != null && note.isNotEmpty) {
+        adminNote = note;
+        break;
+      }
+    }
 
     return AppCard(
       child: Column(
@@ -179,26 +192,47 @@ class _CorrectionCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text(dateLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
-              StatusChip(label: _correctionStatusLabel(l10n, item.status), kind: _kind(item.status)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(dateLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Text(
+                      submission.dayCount == 1
+                          ? correctionSessionLabel(l10n, submission.days.first.session)
+                          : '${submission.dayCount} days',
+                      style: TextStyle(color: context.appColors.textSecondary, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              StatusChip(label: _correctionStatusLabel(l10n, status), kind: _kind(status)),
             ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            correctionSessionLabel(l10n, item.session),
-            style: TextStyle(color: context.appColors.textSecondary, fontWeight: FontWeight.w600),
-          ),
-          if (item.employeeNote?.isNotEmpty == true) ...[
-            const SizedBox(height: 8),
-            Text(item.employeeNote!),
+          if (submission.dayCount > 1) ...[
+            const SizedBox(height: 10),
+            ...submission.days.map(
+              (day) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  '• ${fmt.format(day.workDate)} · ${correctionSessionLabel(l10n, day.session)}',
+                  style: TextStyle(color: context.appColors.textSecondary, fontSize: 13),
+                ),
+              ),
+            ),
           ],
-          if (item.adminNote?.isNotEmpty == true) ...[
+          if (submission.employeeNote?.isNotEmpty == true) ...[
+            const SizedBox(height: 8),
+            Text(submission.employeeNote!),
+          ],
+          if (adminNote != null) ...[
             const SizedBox(height: 10),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: context.appColors.background, borderRadius: BorderRadius.circular(12)),
-              child: Text(l10n.adminNote(item.adminNote!)),
+              child: Text(l10n.adminNote(adminNote)),
             ),
           ],
         ],

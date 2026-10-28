@@ -4,6 +4,7 @@ import 'leave_models.dart';
 class AttendanceCorrectionRequest {
   const AttendanceCorrectionRequest({
     required this.id,
+    this.submissionId,
     required this.workDate,
     required this.status,
     this.session = LeaveDaySession.full,
@@ -14,6 +15,7 @@ class AttendanceCorrectionRequest {
   });
 
   final String id;
+  final String? submissionId;
   final DateTime workDate;
   final String status;
   final LeaveDaySession session;
@@ -25,6 +27,7 @@ class AttendanceCorrectionRequest {
   factory AttendanceCorrectionRequest.fromJson(Map<String, dynamic> json) {
     return AttendanceCorrectionRequest(
       id: json['id'] as String,
+      submissionId: json['submissionId'] as String?,
       workDate: parseCalendarDate(json['workDate'] as String),
       status: json['status'] as String,
       session: LeaveDaySession.fromApi(json['session']),

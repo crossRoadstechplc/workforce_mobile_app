@@ -1,0 +1,128 @@
+# Codemagic CI for Work-Force employee app (Flutter iOS).
+# Docs: docs/CODEMAGIC_IOS.md
+#
+# Connect this repo in Codemagic: https://github.com/crossRoadstechplc/workforce_mobile_app
+
+definitions:
+  environment:
+    &ios_env
+    flutter: stable
+    xcode: latest
+    ios_signing:
+      distribution_type: app_store
+      bundle_identifier: $IOS_BUNDLE_ID
+  scripts:
+    - &install_deps
+      name: Install dependencies
+      script: |
+        set -e
+        flutter --version
+        flutter pub get
+    - &firebase_ios_config
+      name: Firebase iOS config (from secrets)
+      script: |
+        set -e
+        if [ -n "${GOOGLE_SERVICE_INFO_PLIST_BASE64:-}" ]; then
+          echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 --decode > ios/Runner/GoogleService-Info.plist
+          echo "Wrote ios/Runner/GoogleService-Info.plist"
+        elif [ ! -f ios/Runner/GoogleService-Info.plist ]; then
+          echo "Warning: GoogleService-Info.plist missing. Set GOOGLE_SERVICE_INFO_PLIST_BASE64 or add the file locally."
+        fi
+        if [ -n "${FIREBASE_OPTIONS_DART_BASE64:-}" ]; then
+          echo "$FIREBASE_OPTIONS_DART_BASE64" | base64 --decode > lib/firebase_options.dart
+          echo "Wrote lib/firebase_options.dart from secret"
+        fi
+    - &quality_gate
+      name: Analyze and test
+      script: |
+        set -e
+        flutter analyze
+        flutter test
+    - &build_ipa
+      name: Build IPA (production)
+      script: |
+        set -e
+        : "${API_BASE_URL:?Set API_BASE_URL in Codemagic (HTTPS, e.g. https://api.example.com/api/v1)}"
+        : "${SOCKET_BASE_URL:?Set SOCKET_BASE_URL in Codemagic (HTTPS)}"
+        ENABLE_FIREBASE="${ENABLE_FIREBASE:-true}"
+        if [ -z "${APP_VERSION:-}" ]; then
+          APP_VERSION="$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)"
+        fi
+        flutter build ipa --release \
+          --export-options-plist="$HOME/export_options.plist" \
+          --dart-define=APP_ENV=production \
+          --dart-define=API_BASE_URL="$API_BASE_URL" \
+          --dart-define=SOCKET_BASE_URL="$SOCKET_BASE_URL" \
+          --dart-define=ENABLE_FIREBASE="$ENABLE_FIREBASE" \
+          --dart-define=APP_VERSION="$APP_VERSION"
+
+workflows:
+  ios-testflight:
+    name: iOS → TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    integrations:
+      # Match the name you give the integration in Codemagic Team settings.
+      app_store_connect: workforce_app_store
+    environment:
+      <<: *ios_env
+      groups:
+        - workforce_ios
+      vars:
+        IOS_BUNDLE_ID: com.example.workforceEmployeeApp
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+        - pattern: release/*
+          include: true
+    scripts:
+      - *install_deps
+      - *firebase_ios_config
+      - *quality_gate
+      - name: Set up code signing on Xcode project
+        script: xcode-project use-profiles
+      - *build_ipa
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - $BUILD_NOTIFICATION_EMAIL
+        notify:
+          success: true
+          failure: true
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        beta_groups:
+          - Internal Testers
+
+  ios-ipa-artifact:
+    name: iOS → IPA only (no TestFlight upload)
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    environment:
+      <<: *ios_env
+      groups:
+        - workforce_ios
+      vars:
+        IOS_BUNDLE_ID: com.example.workforceEmployeeApp
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "v*"
+          include: true
+    scripts:
+      - *install_deps
+      - *firebase_ios_config
+      - *quality_gate
+      - name: Set up code signing on Xcode project
+        script: xcode-project use-profiles
+      - *build_ipa
+    artifacts:
+      - build/ios/ipa/*.ipa

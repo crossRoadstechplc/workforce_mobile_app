@@ -30,7 +30,9 @@ String? notificationRoute(AppNotification item) {
     return '/home';
   }
 
-  if (entity == 'AttendanceCorrectnessRequest' || type.contains('ATTENDANCE_CORRECTNESS')) {
+  if (entity == 'AttendanceCorrectnessRequest' ||
+      entity == 'AttendanceCorrectnessSubmission' ||
+      type.contains('ATTENDANCE_CORRECTNESS')) {
     return '/leave';
   }
 

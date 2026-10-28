@@ -116,7 +116,7 @@ android/key.properties
 # Firebase local configs (keep templates if you add examples)
 google-services.json
 GoogleService-Info.plist
-**/firebase_options.dart
+# Commit lib/firebase_options.dart from `flutterfire configure` (client config, not Admin secrets).
 
 # Test / coverage
 coverage/
