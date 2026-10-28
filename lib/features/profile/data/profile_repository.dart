@@ -45,4 +45,72 @@ class ProfileRepository {
       throw ApiException.fromDio(e);
     }
   }
+
+  Future<List<EmergencyContact>> listEmergencyContacts() async {
+    try {
+      final r = await _dio.get<Map<String, dynamic>>(ApiEndpoints.emergencyContacts);
+      final items = r.data?['items'] as List<dynamic>? ?? const [];
+      return items
+          .whereType<Map>()
+          .map((item) => EmergencyContact.fromJson(Map<String, dynamic>.from(item)))
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<EmergencyContact> createEmergencyContact({
+    required String name,
+    required String phone,
+    String? relation,
+    String? relationOther,
+  }) async {
+    try {
+      final data = <String, dynamic>{
+        'name': name,
+        'phone': phone,
+        'relation': relation,
+        'relationOther': relationOther,
+      };
+      final r = await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.emergencyContacts,
+        data: data,
+      );
+      return EmergencyContact.fromJson(r.data ?? const {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<EmergencyContact> updateEmergencyContact({
+    required String contactId,
+    required String name,
+    required String phone,
+    String? relation,
+    String? relationOther,
+  }) async {
+    try {
+      final data = <String, dynamic>{
+        'name': name,
+        'phone': phone,
+        'relation': relation,
+        'relationOther': relationOther,
+      };
+      final r = await _dio.patch<Map<String, dynamic>>(
+        '${ApiEndpoints.emergencyContacts}/$contactId',
+        data: data,
+      );
+      return EmergencyContact.fromJson(r.data ?? const {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<void> deleteEmergencyContact(String contactId) async {
+    try {
+      await _dio.delete('${ApiEndpoints.emergencyContacts}/$contactId');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
 }

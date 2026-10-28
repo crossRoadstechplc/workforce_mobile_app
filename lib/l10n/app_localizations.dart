@@ -806,6 +806,18 @@ abstract class AppLocalizations {
   /// **'Account ID'**
   String get accountId;
 
+  /// No description provided for @employeeCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee code'**
+  String get employeeCode;
+
+  /// No description provided for @employeeCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee code copied.'**
+  String get employeeCodeCopied;
+
   /// No description provided for @role.
   ///
   /// In en, this message translates to:
@@ -823,6 +835,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} permissions'**
   String permissionsCount(int count);
+
+  /// No description provided for @emergencyContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency contact'**
+  String get emergencyContact;
+
+  /// No description provided for @emergencyContactName.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact name'**
+  String get emergencyContactName;
+
+  /// No description provided for @emergencyContactPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact phone'**
+  String get emergencyContactPhone;
+
+  /// No description provided for @emergencyContactRelation.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship'**
+  String get emergencyContactRelation;
+
+  /// No description provided for @emergencyContactRelationOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Specify relationship'**
+  String get emergencyContactRelationOther;
+
+  /// No description provided for @emergencyContactRelationOtherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Cousin, Neighbor'**
+  String get emergencyContactRelationOtherHint;
+
+  /// No description provided for @emergencyContactEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No emergency contact added yet.'**
+  String get emergencyContactEmpty;
+
+  /// No description provided for @addEmergencyContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Add emergency contact'**
+  String get addEmergencyContact;
+
+  /// No description provided for @editEmergencyContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit emergency contact'**
+  String get editEmergencyContact;
+
+  /// No description provided for @emergencyContactSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency contact saved.'**
+  String get emergencyContactSaved;
+
+  /// No description provided for @emergencyContactDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency contact removed.'**
+  String get emergencyContactDeleted;
+
+  /// No description provided for @emergencyContactRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a contact name and phone number.'**
+  String get emergencyContactRequired;
+
+  /// No description provided for @emergencyRelationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a relationship.'**
+  String get emergencyRelationRequired;
+
+  /// No description provided for @emergencyRelationOtherRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please specify the relationship.'**
+  String get emergencyRelationOtherRequired;
+
+  /// No description provided for @deleteEmergencyContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove contact'**
+  String get deleteEmergencyContact;
+
+  /// No description provided for @deleteEmergencyContactConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} from emergency contacts?'**
+  String deleteEmergencyContactConfirm(String name);
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @emergencyContactLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can add up to 5 emergency contacts.'**
+  String get emergencyContactLimit;
+
+  /// No description provided for @relationMother.
+  ///
+  /// In en, this message translates to:
+  /// **'Mother'**
+  String get relationMother;
+
+  /// No description provided for @relationFather.
+  ///
+  /// In en, this message translates to:
+  /// **'Father'**
+  String get relationFather;
+
+  /// No description provided for @relationBrother.
+  ///
+  /// In en, this message translates to:
+  /// **'Brother'**
+  String get relationBrother;
+
+  /// No description provided for @relationSister.
+  ///
+  /// In en, this message translates to:
+  /// **'Sister'**
+  String get relationSister;
+
+  /// No description provided for @relationSpouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Spouse'**
+  String get relationSpouse;
+
+  /// No description provided for @relationChild.
+  ///
+  /// In en, this message translates to:
+  /// **'Child'**
+  String get relationChild;
+
+  /// No description provided for @relationFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend'**
+  String get relationFriend;
+
+  /// No description provided for @relationRelative.
+  ///
+  /// In en, this message translates to:
+  /// **'Relative'**
+  String get relationRelative;
+
+  /// No description provided for @relationOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get relationOther;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
 
   /// No description provided for @settingsLanguage.
   ///
@@ -1085,7 +1277,7 @@ abstract class AppLocalizations {
   /// No description provided for @attendanceCorrectionHint.
   ///
   /// In en, this message translates to:
-  /// **'Ask your admin to mark selected days as worked (full scheduled shift). Only use this if you were at work—not for days you were on leave.'**
+  /// **'Ask your admin to mark selected days as worked. Choose full day, half morning, or half afternoon for each date. Only use this if you were at work—not for leave.'**
   String get attendanceCorrectionHint;
 
   /// No description provided for @attendanceCorrectionNoteLabel.
@@ -1547,7 +1739,7 @@ abstract class AppLocalizations {
   /// No description provided for @birthdayBannerMessage.
   ///
   /// In en, this message translates to:
-  /// **'Wishing you a wonderful day — from {org}'**
+  /// **'Wishing you a wonderful day from {org}'**
   String birthdayBannerMessage(String org);
 
   /// No description provided for @evaluationStatusOpen.

@@ -9,6 +9,7 @@ class ApiEndpoints {
   static const changePassword = '/auth/change-password';
   static const logout = '/auth/logout';
   static const me = '/auth/me';
+  static const emergencyContacts = '/employees/me/emergency-contacts';
 
   static const currentAttendance = '/attendance/current';
   static const attendanceContext = '/attendance/context';

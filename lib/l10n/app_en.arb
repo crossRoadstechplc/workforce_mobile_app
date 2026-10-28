@@ -192,6 +192,8 @@
   "passwordChanged": "Password changed successfully.",
   "passwordRules": "Passwords must match and be at least 6 characters.",
   "accountId": "Account ID",
+  "employeeCode": "Employee code",
+  "employeeCodeCopied": "Employee code copied.",
   "role": "Role",
   "access": "Access",
   "permissionsCount": "{count} permissions",
@@ -200,6 +202,41 @@
       "count": { "type": "int" }
     }
   },
+  "emergencyContact": "Emergency contact",
+  "emergencyContactName": "Contact name",
+  "emergencyContactPhone": "Contact phone",
+  "emergencyContactRelation": "Relationship",
+  "emergencyContactRelationOther": "Specify relationship",
+  "emergencyContactRelationOtherHint": "e.g. Cousin, Neighbor",
+  "emergencyContactEmpty": "No emergency contact added yet.",
+  "addEmergencyContact": "Add emergency contact",
+  "editEmergencyContact": "Edit emergency contact",
+  "emergencyContactSaved": "Emergency contact saved.",
+  "emergencyContactDeleted": "Emergency contact removed.",
+  "emergencyContactRequired": "Enter a contact name and phone number.",
+  "emergencyRelationRequired": "Select a relationship.",
+  "emergencyRelationOtherRequired": "Please specify the relationship.",
+  "deleteEmergencyContact": "Remove contact",
+  "deleteEmergencyContactConfirm": "Remove {name} from emergency contacts?",
+  "@deleteEmergencyContactConfirm": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "delete": "Delete",
+  "emergencyContactLimit": "You can add up to 5 emergency contacts.",
+  "relationMother": "Mother",
+  "relationFather": "Father",
+  "relationBrother": "Brother",
+  "relationSister": "Sister",
+  "relationSpouse": "Spouse",
+  "relationChild": "Child",
+  "relationFriend": "Friend",
+  "relationRelative": "Relative",
+  "relationOther": "Other",
+  "add": "Add",
+  "edit": "Edit",
+  "save": "Save",
   "settingsLanguage": "Language",
   "settingsTheme": "Theme",
   "languageEnglish": "English",
@@ -406,7 +443,7 @@
     "placeholders": { "name": { "type": "String" } }
   },
   "birthdayBannerTitle": "Happy Birthday!",
-  "birthdayBannerMessage": "Wishing you a wonderful day — from {org}",
+  "birthdayBannerMessage": "Wishing you a wonderful day from {org}",
   "@birthdayBannerMessage": {
     "placeholders": { "org": { "type": "String" } }
   },

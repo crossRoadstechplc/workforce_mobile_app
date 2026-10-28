@@ -77,6 +77,33 @@ List<LoginContext> employeeAppLoginContexts(List<LoginContext> contexts) {
   return contexts.where((item) => item.type.isEmployee).toList();
 }
 
+class EmergencyContact {
+  const EmergencyContact({
+    required this.id,
+    required this.name,
+    required this.phone,
+    required this.relation,
+    this.relationOther,
+    this.sortOrder = 0,
+  });
+
+  final String id;
+  final String name;
+  final String phone;
+  final String relation;
+  final String? relationOther;
+  final int sortOrder;
+
+  factory EmergencyContact.fromJson(Map<String, dynamic> json) => EmergencyContact(
+        id: json['id']?.toString() ?? '',
+        name: json['name']?.toString() ?? '',
+        phone: json['phone']?.toString() ?? '',
+        relation: json['relation']?.toString() ?? '',
+        relationOther: json['relationOther']?.toString(),
+        sortOrder: json['sortOrder'] is int ? json['sortOrder'] as int : 0,
+      );
+}
+
 class EmployeeProfile {
   const EmployeeProfile({
     required this.firstName,
@@ -85,6 +112,7 @@ class EmployeeProfile {
     this.employeeCode,
     this.birthDate,
     this.isBirthdayToday = false,
+    this.emergencyContacts = const [],
   });
 
   final String firstName;
@@ -93,6 +121,9 @@ class EmployeeProfile {
   final String? employeeCode;
   final String? birthDate;
   final bool isBirthdayToday;
+  final List<EmergencyContact> emergencyContacts;
+
+  bool get hasEmergencyContact => emergencyContacts.isNotEmpty;
 
   factory EmployeeProfile.fromJson(Map<String, dynamic>? json) {
     if (json == null) {
@@ -101,6 +132,7 @@ class EmployeeProfile {
     final firstName = json['firstName']?.toString() ?? '';
     final lastName = json['lastName']?.toString() ?? '';
     final displayName = json['displayName']?.toString() ?? '';
+    final contactsJson = json['emergencyContacts'] as List<dynamic>? ?? const [];
     return EmployeeProfile(
       firstName: firstName,
       lastName: lastName,
@@ -108,6 +140,22 @@ class EmployeeProfile {
       employeeCode: json['employeeCode']?.toString(),
       birthDate: json['birthDate']?.toString(),
       isBirthdayToday: json['isBirthdayToday'] == true,
+      emergencyContacts: contactsJson
+          .whereType<Map>()
+          .map((item) => EmergencyContact.fromJson(Map<String, dynamic>.from(item)))
+          .toList(),
+    );
+  }
+
+  EmployeeProfile withEmergencyContacts(List<EmergencyContact> contacts) {
+    return EmployeeProfile(
+      firstName: firstName,
+      lastName: lastName,
+      displayName: displayName,
+      employeeCode: employeeCode,
+      birthDate: birthDate,
+      isBirthdayToday: isBirthdayToday,
+      emergencyContacts: contacts,
     );
   }
 }

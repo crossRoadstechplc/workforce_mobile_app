@@ -413,6 +413,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountId => 'Account ID';
 
   @override
+  String get employeeCode => 'Employee code';
+
+  @override
+  String get employeeCodeCopied => 'Employee code copied.';
+
+  @override
   String get role => 'Role';
 
   @override
@@ -422,6 +428,100 @@ class AppLocalizationsEn extends AppLocalizations {
   String permissionsCount(int count) {
     return '$count permissions';
   }
+
+  @override
+  String get emergencyContact => 'Emergency contact';
+
+  @override
+  String get emergencyContactName => 'Contact name';
+
+  @override
+  String get emergencyContactPhone => 'Contact phone';
+
+  @override
+  String get emergencyContactRelation => 'Relationship';
+
+  @override
+  String get emergencyContactRelationOther => 'Specify relationship';
+
+  @override
+  String get emergencyContactRelationOtherHint => 'e.g. Cousin, Neighbor';
+
+  @override
+  String get emergencyContactEmpty => 'No emergency contact added yet.';
+
+  @override
+  String get addEmergencyContact => 'Add emergency contact';
+
+  @override
+  String get editEmergencyContact => 'Edit emergency contact';
+
+  @override
+  String get emergencyContactSaved => 'Emergency contact saved.';
+
+  @override
+  String get emergencyContactDeleted => 'Emergency contact removed.';
+
+  @override
+  String get emergencyContactRequired =>
+      'Enter a contact name and phone number.';
+
+  @override
+  String get emergencyRelationRequired => 'Select a relationship.';
+
+  @override
+  String get emergencyRelationOtherRequired =>
+      'Please specify the relationship.';
+
+  @override
+  String get deleteEmergencyContact => 'Remove contact';
+
+  @override
+  String deleteEmergencyContactConfirm(String name) {
+    return 'Remove $name from emergency contacts?';
+  }
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get emergencyContactLimit => 'You can add up to 5 emergency contacts.';
+
+  @override
+  String get relationMother => 'Mother';
+
+  @override
+  String get relationFather => 'Father';
+
+  @override
+  String get relationBrother => 'Brother';
+
+  @override
+  String get relationSister => 'Sister';
+
+  @override
+  String get relationSpouse => 'Spouse';
+
+  @override
+  String get relationChild => 'Child';
+
+  @override
+  String get relationFriend => 'Friend';
+
+  @override
+  String get relationRelative => 'Relative';
+
+  @override
+  String get relationOther => 'Other';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get save => 'Save';
 
   @override
   String get settingsLanguage => 'Language';
@@ -749,17 +849,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String lateMinutesValue(String duration) {
-    return duration;
+    return '$duration';
   }
 
   @override
   String earlyCheckoutMinutes(String duration) {
-    return duration;
+    return '$duration';
   }
 
   @override
   String overtimeMinutes(String duration) {
-    return duration;
+    return '$duration';
   }
 
   @override
@@ -839,7 +939,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String birthdayBannerMessage(String org) {
-    return 'Wishing you a wonderful day — from $org';
+    return 'Wishing you a wonderful day from $org';
   }
 
   @override

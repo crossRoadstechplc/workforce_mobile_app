@@ -401,6 +401,12 @@ class AppLocalizationsAm extends AppLocalizations {
   String get accountId => 'መለያ ID';
 
   @override
+  String get employeeCode => 'የሰራተኛ ኮድ';
+
+  @override
+  String get employeeCodeCopied => 'የሰራተኛ ኮድ ተቀድቷል።';
+
+  @override
   String get role => 'ሚና';
 
   @override
@@ -410,6 +416,98 @@ class AppLocalizationsAm extends AppLocalizations {
   String permissionsCount(int count) {
     return '$count ፈቃዶች';
   }
+
+  @override
+  String get emergencyContact => 'የአደጋ ጊዜ እውቂያ';
+
+  @override
+  String get emergencyContactName => 'የእውቂያ ስም';
+
+  @override
+  String get emergencyContactPhone => 'የእውቂያ ስልክ';
+
+  @override
+  String get emergencyContactRelation => 'ግንኙነት';
+
+  @override
+  String get emergencyContactRelationOther => 'ግንኙነቱን ይግለጹ';
+
+  @override
+  String get emergencyContactRelationOtherHint => 'ለምሳሌ፡ የአጎት ልጅ፣ ጎረቤት';
+
+  @override
+  String get emergencyContactEmpty => 'የአደጋ ጊዜ እውቂያ ገና አልተጨመረም።';
+
+  @override
+  String get addEmergencyContact => 'የአደጋ ጊዜ እውቂያ ጨምር';
+
+  @override
+  String get editEmergencyContact => 'የአደጋ ጊዜ እውቂያ አርትዕ';
+
+  @override
+  String get emergencyContactSaved => 'የአደጋ ጊዜ እውቂያ ተቀምጧል።';
+
+  @override
+  String get emergencyContactDeleted => 'የአደጋ ጊዜ እውቂያ ተወግዷል።';
+
+  @override
+  String get emergencyContactRequired => 'የእውቂያ ስም እና ስልክ ያስገቡ።';
+
+  @override
+  String get emergencyRelationRequired => 'ግንኙነት ይምረጡ።';
+
+  @override
+  String get emergencyRelationOtherRequired => 'እባክዎ ግንኙነቱን ይግለጹ።';
+
+  @override
+  String get deleteEmergencyContact => 'እውቂያ አስወግድ';
+
+  @override
+  String deleteEmergencyContactConfirm(String name) {
+    return '$name ከአደጋ ጊዜ እውቂያዎች ይወገድ?';
+  }
+
+  @override
+  String get delete => 'ሰርዝ';
+
+  @override
+  String get emergencyContactLimit => 'እስከ 5 የአደጋ ጊዜ እውቂያዎች ማከል ይችላሉ።';
+
+  @override
+  String get relationMother => 'እናት';
+
+  @override
+  String get relationFather => 'አባት';
+
+  @override
+  String get relationBrother => 'ወንድም';
+
+  @override
+  String get relationSister => 'እህት';
+
+  @override
+  String get relationSpouse => 'ባል/ሚስት';
+
+  @override
+  String get relationChild => 'ልጅ';
+
+  @override
+  String get relationFriend => 'ጓደኛ';
+
+  @override
+  String get relationRelative => 'ዘመድ';
+
+  @override
+  String get relationOther => 'ሌላ';
+
+  @override
+  String get add => 'ጨምር';
+
+  @override
+  String get edit => 'አርትዕ';
+
+  @override
+  String get save => 'አስቀምጥ';
 
   @override
   String get settingsLanguage => 'ቋንቋ';
@@ -733,17 +831,17 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String lateMinutesValue(String duration) {
-    return duration;
+    return '$duration';
   }
 
   @override
   String earlyCheckoutMinutes(String duration) {
-    return duration;
+    return '$duration';
   }
 
   @override
   String overtimeMinutes(String duration) {
-    return duration;
+    return '$duration';
   }
 
   @override
@@ -823,7 +921,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String birthdayBannerMessage(String org) {
-    return 'መልካም ቀን እንዲሆንላችሁ እንመኛለን — ከ $org';
+    return 'መልካም ቀን እንዲሆንላችሁ እንመኛለን ከ $org';
   }
 
   @override
